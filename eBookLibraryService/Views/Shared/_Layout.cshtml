@@ -1,4 +1,7 @@
-﻿<!DOCTYPE html>
+﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<Users> signInManager;
+@inject UserManager<Users> userManager;
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,7 +28,46 @@
                         <li class="nav-item">
                             <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                        <partial name="_LoginPartial" />
+                    </ul>
+
+                    <!-- Cart Form -->
+                    <form class="d-flex" action="@Url.Action("Cart", "Shop")" method="get">
+                        <button class="btn btn-outline-dark" type="submit">
+                            <i class="bi-cart-fill me-1"></i>
+                            Cart
+                            <span class="badge bg-dark text-white ms-1 rounded-pill">0</span>
+                        </button>
+                    </form>
+
+                    <ul class="navbar-nav ms-auto">
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            var user = await userManager.GetUserAsync(User);
+                            <li class="nav-item dropdown">
+                                <a class="nav-link dropdown-toggle text-dark" id="userDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                    @user.FullName
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li>
+                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">See My Profile</a>
+                                    </li>
+                                    <li>
+                                        <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item p-0">
+                                            <button type="submit" class="btn btn-link w-100 text-start">Logout</button>
+                                        </form>
+                                    </li>
+                                </ul>
+                            </li>
+                        }
+                        else
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                            </li>
+                        }
                     </ul>
                 </div>
             </div>
@@ -42,9 +84,15 @@
             &copy; 2024 - eBookLibraryService - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
         </div>
     </footer>
+
+    <!-- JavaScript files -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+
+    <!-- Include Validation Scripts Partial -->
+    @await Html.PartialAsync("_ValidationScriptsPartial")
+
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>
