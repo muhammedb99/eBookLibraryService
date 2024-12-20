@@ -1,0 +1,53 @@
+﻿@model IEnumerable<eBookLibraryService.Models.Book>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-book"></i> Add Book</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Author)</th>
+            <th>@Html.DisplayNameFor(model => model.Publisher)</th>
+            <th>@Html.DisplayNameFor(model => model.BorrowPrice)</th>
+            <th>@Html.DisplayNameFor(model => model.BuyingPrice)</th>
+            <th>@Html.DisplayNameFor(model => model.YearOfPublishing)</th>
+            <th>@Html.DisplayNameFor(model => model.AgeLimitation)</th>
+            <th>@Html.DisplayNameFor(model => model.ImageUrl)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.Publisher</td>
+                @if(book.BorrowPrice != null){
+                    <td>@book.BorrowPrice$</td>
+                }
+                else{
+                    <td>@book.BorrowPrice </td>
+                }     
+                <td>@book.BuyingPrice$</td>
+                <td>@book.YearOfPublishing</td>
+                <td>@book.AgeLimitation</td>
+                <td><img src="@book.ImageUrl" alt="Book Image" style="width: 50px; height: 50px;" /></td>
+                <td>
+                    <!-- You can add action links like Edit or Delete here -->
+                    <a asp-action="Edit" asp-route-id="@book.Id">Edit</a> |
+                    <a asp-action="Details" asp-route-id="@book.Id">Details</a> |
+                    <a asp-action="Delete" asp-route-id="@book.Id">Delete</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

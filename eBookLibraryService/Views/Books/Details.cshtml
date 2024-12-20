@@ -1,0 +1,56 @@
+﻿@model eBookLibraryService.Models.Book
+
+@{
+    ViewData["Title"] = "Book Details";
+}
+
+<h1>@Model.Title</h1>
+
+<div class="container">
+    <h2>Details of @Model.Title</h2>
+
+    <table class="table">
+        <tr>
+            <th>Title</th>
+            <td>@Model.Title</td>
+        </tr>
+        <tr>
+            <th>Author</th>
+            <td>@Model.Author</td>
+        </tr>
+        <tr>
+            <th>Publisher</th>
+            <td>@Model.Publisher</td>
+        </tr>
+        @if(Model.BorrowPrice != null){
+            <tr>
+                <th>Borrow Price</th>
+                <td>@Model.BorrowPrice$</td>
+            </tr>
+        }
+        else{
+            <tr>
+                <th>Borrow Price</th>
+                <td>@Model.BorrowPrice</td>
+            </tr>
+        }
+        <tr>
+            <th>Buying Price</th>
+            <td>@Model.BuyingPrice$</td>
+        </tr>
+        <tr>
+            <th>Year of Publishing</th>
+            <td>@Model.YearOfPublishing</td>
+        </tr>
+        <tr>
+            <th>Age Limitation</th>
+            <td>@Model.AgeLimitation</td>
+        </tr>
+        <tr>
+            <th>Image</th>
+            <td><img src="@Model.ImageUrl" alt="Book Image" style="width: 100px; height: 150px;" /></td>
+        </tr>
+    </table>
+
+    <a asp-action="Index" class="btn btn-primary">Back to List</a>
+</div>

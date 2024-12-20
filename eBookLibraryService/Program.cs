@@ -6,9 +6,16 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+
+// Register AppDbContext for Identity
 builder.Services.AddDbContext<AppDbContext>(options =>
-options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+// Register eBookLibraryServiceContext for managing Books
+builder.Services.AddDbContext<eBookLibraryServiceContext>(options =>
+    options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
+
+// Configure Identity services
 builder.Services.AddIdentity<Users, IdentityRole>(options =>
 {
     options.Password.RequireNonAlphanumeric = false;
@@ -20,8 +27,11 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
     options.SignIn.RequireConfirmedEmail = false;
     options.SignIn.RequireConfirmedPhoneNumber = false;
 })
-    .AddEntityFrameworkStores<AppDbContext>()
-    .AddDefaultTokenProviders();
+.AddEntityFrameworkStores<AppDbContext>()
+.AddDefaultTokenProviders();
+
+// Add controllers with views
+builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
 
@@ -36,6 +46,7 @@ app.UseRouting();
 
 app.UseAuthorization();
 
+// Define the default route
 app.MapControllerRoute(
     name: "default",
     pattern: "{controller=Home}/{action=Index}/{id?}");
