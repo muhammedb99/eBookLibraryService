@@ -57,9 +57,9 @@
                 <td><i class="@HasImage(book)"></i></td>
                 <td>
                     <!-- You can add action links like Edit or Delete here -->
-                    <a asp-action="Edit" asp-route-id="@book.Id">Edit</a> |
-                    <a asp-action="Details" asp-route-id="@book.Id">Details</a> |
-                    <a asp-action="Delete" asp-route-id="@book.Id">Delete</a>
+                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary"><i class="fa-solid fa-pen-square"></i></a> 
+                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-success"><i class="fa-solid fa-circle-info"></i></a>
+                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></a>
                 </td>
             </tr>
         }
