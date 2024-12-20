@@ -33,6 +33,9 @@
             <th>@Html.DisplayNameFor(model => model.BuyingPrice)</th>
             <th>@Html.DisplayNameFor(model => model.YearOfPublishing)</th>
             <th>@Html.DisplayNameFor(model => model.AgeLimitation)</th>
+            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+            <th>@Html.DisplayNameFor(model => model.PurchaseCount)</th>
+            <th>@Html.DisplayNameFor(model => model.BorrowCount)</th>
             <th>Has image</th>
         </tr>
     </thead>
@@ -54,6 +57,9 @@
                 <td>@book.BuyingPrice$</td>
                 <td>@book.YearOfPublishing</td>
                 <td>@book.AgeLimitation</td>
+                <td>@book.Quantity</td>
+                <td>@book.PurchaseCount</td>
+                <td>@book.BorrowCount</td>
                 <td><i class="@HasImage(book)"></i></td>
                 <td>
                     <!-- You can add action links like Edit or Delete here -->

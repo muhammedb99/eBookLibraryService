@@ -31,7 +31,7 @@ namespace eBookLibraryService.Controllers
         // POST: Books/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,ImageUrl")] Book book)
+        public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,ImageUrl")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -61,7 +61,7 @@ namespace eBookLibraryService.Controllers
         // POST: Books/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,ImageUrl")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,ImageUrl")] Book book)
         {
             if (id != book.Id)
             {
@@ -141,6 +141,51 @@ namespace eBookLibraryService.Controllers
 
             return View(book);
         }
+
+        // POST: Books/Borrow/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Borrow(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+            if (book == null || book.Quantity <= 0)
+            {
+                return BadRequest("This book is not available for borrowing.");
+            }
+
+            // Decrease quantity and increase borrow count
+            book.Quantity -= 1;
+            book.BorrowCount += 1;
+
+            _context.Update(book);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
+
+        // POST: Books/Buy/5
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> Buy(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+            if (book == null)
+            {
+                return NotFound();
+            }
+
+            // Optionally, handle the purchase process here (e.g., billing).
+
+            // Increase purchase count
+            book.PurchaseCount += 1;
+
+            _context.Update(book);
+            await _context.SaveChangesAsync();
+
+            return RedirectToAction(nameof(Index));
+        }
+
 
 
     }
