@@ -2,6 +2,19 @@
 
 @{
     ViewData["Title"] = "Index";
+
+    string HasImage(Book book)
+    {
+        // Check if ImageUrl is not null or empty
+        if (!string.IsNullOrEmpty(book.ImageUrl))
+        {
+            return "fa-solid fa-check"; // Show check icon
+        }
+        else
+        {
+            return "fa-solid fa-x"; // Show x icon
+        }
+    }
 }
 
 <h1>Index</h1>
@@ -20,8 +33,7 @@
             <th>@Html.DisplayNameFor(model => model.BuyingPrice)</th>
             <th>@Html.DisplayNameFor(model => model.YearOfPublishing)</th>
             <th>@Html.DisplayNameFor(model => model.AgeLimitation)</th>
-            <th>@Html.DisplayNameFor(model => model.ImageUrl)</th>
-            <th>Actions</th>
+            <th>Has image</th>
         </tr>
     </thead>
     <tbody>
@@ -31,16 +43,18 @@
                 <td>@book.Title</td>
                 <td>@book.Author</td>
                 <td>@book.Publisher</td>
-                @if(book.BorrowPrice != null){
+                @if (book.BorrowPrice != null)
+                {
                     <td>@book.BorrowPrice$</td>
                 }
-                else{
-                    <td>@book.BorrowPrice </td>
-                }     
+                else
+                {
+                    <td>@book.BorrowPrice</td>
+                }
                 <td>@book.BuyingPrice$</td>
                 <td>@book.YearOfPublishing</td>
                 <td>@book.AgeLimitation</td>
-                <td><img src="@book.ImageUrl" alt="Book Image" style="width: 50px; height: 50px;" /></td>
+                <td><i class="@HasImage(book)"></i></td>
                 <td>
                     <!-- You can add action links like Edit or Delete here -->
                     <a asp-action="Edit" asp-route-id="@book.Id">Edit</a> |
