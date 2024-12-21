@@ -25,7 +25,6 @@ namespace eBookLibraryService.Models
         [Range(0, 100, ErrorMessage = "Age limitation must be between 0 and 100.")]
         public int? AgeLimitation { get; set; }
 
-        [Display(Name = "Image URL")]
         public string ImageUrl { get; set; }
 
         [Required]

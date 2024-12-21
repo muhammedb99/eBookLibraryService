@@ -1,4 +1,5 @@
 using eBookLibraryService.Data;
+using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -30,21 +31,79 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 .AddEntityFrameworkStores<AppDbContext>()
 .AddDefaultTokenProviders();
 
+// Add session services
+builder.Services.AddDistributedMemoryCache(); // This is required to store the session in memory
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout as needed
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true;
+});
+
 // Add controllers with views
 builder.Services.AddControllersWithViews();
 
 var app = builder.Build();
+
+// Create default roles and an admin user during startup
+async Task CreateDefaultRoles(IServiceProvider serviceProvider)
+{
+    var roleManager = serviceProvider.GetRequiredService<RoleManager<IdentityRole>>();
+    var userManager = serviceProvider.GetRequiredService<UserManager<Users>>();
+
+    // Create Admin role if it doesn't exist
+    if (!await roleManager.RoleExistsAsync("Admin"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("Admin"));
+    }
+
+    // Create User role if it doesn't exist
+    if (!await roleManager.RoleExistsAsync("User"))
+    {
+        await roleManager.CreateAsync(new IdentityRole("User"));
+    }
+
+    // Create a default admin user
+    var adminEmail = "admin@example.com";
+    var adminUser = await userManager.FindByEmailAsync(adminEmail);
+    if (adminUser == null)
+    {
+        var admin = new Users
+        {
+            UserName = adminEmail,
+            Email = adminEmail,
+            FullName = "Administrator"
+        };
+
+        var result = await userManager.CreateAsync(admin, "Admin@123"); // Ensure this password meets your requirements
+        if (result.Succeeded)
+        {
+            await userManager.AddToRoleAsync(admin, "Admin");
+        }
+    }
+}
+
+// Run the role creation task during app startup
+using (var scope = app.Services.CreateScope())
+{
+    var services = scope.ServiceProvider;
+    await CreateDefaultRoles(services);
+}
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
 {
     app.UseExceptionHandler("/Home/Error");
 }
-app.UseStaticFiles();
+
+app.UseStaticFiles(); // Serve static files like images, CSS, etc.
 
 app.UseRouting();
 
-app.UseAuthorization();
+// Enable session middleware - MUST be before UseAuthorization
+app.UseSession();
+
+app.UseAuthorization(); // Authorization middleware to protect routes
 
 // Define the default route
 app.MapControllerRoute(

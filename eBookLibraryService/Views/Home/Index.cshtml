@@ -1,8 +1,43 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model IEnumerable<eBookLibraryService.Models.Book>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<h1>Books</h1>
+
+<div class="row">
+    @foreach (var book in Model)
+    {
+        <div class="col-md-4 mb-4">
+            <div class="card">
+                <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                <div class="card-body">
+                    <h5 class="card-title">@book.Title</h5>
+                    <p class="card-text">
+                        <strong>Author:</strong> @book.Author<br />
+                        <strong>Price (Buy):</strong> @book.BuyingPrice:$<br />
+                        @if(book.BorrowPrice != null || book.BorrowPrice > 0){
+                            <strong>Price (Borrow):</strong><l>@book.BorrowPrice:$</l>
+                        }
+                        <br/>
+                    </p>
+                    <div class="d-flex justify-content-between">
+                        <!-- Add to Cart (Buy) -->
+                        <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                            <input type="hidden" name="id" value="@book.Id" />
+                            <input type="hidden" name="isBorrow" value="false" />
+                            <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
+                        </form>
+
+                        <!-- Add to Cart (Borrow) -->
+                        @if (book.BorrowPrice.HasValue)
+                        {
+                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                <input type="hidden" name="id" value="@book.Id" />
+                                <input type="hidden" name="isBorrow" value="true" />
+                                <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
+                            </form>
+                        }
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
 </div>

@@ -1,7 +1,9 @@
-﻿using eBookLibraryService.Models;
+﻿using eBookLibraryService.Helpers;
+using eBookLibraryService.Models;
 using eBookLibraryService.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace eBookLibraryService.Controllers
@@ -15,6 +17,13 @@ namespace eBookLibraryService.Controllers
         {
             this.signInManager = signInManager;
             this.userManager = userManager;
+        }
+
+        public override void OnActionExecuting(ActionExecutingContext context)
+        {
+            var cart = HttpContext.Session.GetObject<Cart>("Cart");
+            ViewBag.CartItemCount = cart?.Items.Count ?? 0;
+            base.OnActionExecuting(context);
         }
 
         public IActionResult Login()

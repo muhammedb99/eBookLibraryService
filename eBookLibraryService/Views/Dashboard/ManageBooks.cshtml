@@ -1,0 +1,43 @@
+﻿@model IEnumerable<eBookLibraryService.Models.Book>
+
+@{
+    ViewData["Title"] = "Manage Books";
+}
+
+<h1>Manage Books</h1>
+
+<p>
+    <a class="btn btn-primary" href="@Url.Action("Create", "Books")"><i class="fa fa-plus"></i> Add New Book</a>
+</p>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Author)</th>
+            <th>@Html.DisplayNameFor(model => model.Publisher)</th>
+            <th>@Html.DisplayNameFor(model => model.BorrowPrice)</th>
+            <th>@Html.DisplayNameFor(model => model.BuyingPrice)</th>
+            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.Publisher</td>
+                <td>@book.BorrowPrice</td>
+                <td>@book.BuyingPrice</td>
+                <td>@book.Quantity</td>
+                <td>
+                    <a href="@Url.Action("Edit", "Books", new { id = book.Id })" class="btn btn-warning"><i class="fa fa-pencil-alt"></i> Edit</a>
+                    <a href="@Url.Action("Delete", "Books", new { id = book.Id })" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</a>
+                    <a href="@Url.Action("Details", "Books", new { id = book.Id })" class="btn btn-info"><i class="fa fa-info-circle"></i> Details</a>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

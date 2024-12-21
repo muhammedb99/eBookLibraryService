@@ -1,6 +1,9 @@
 ﻿using eBookLibraryService.Data;
+using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 
 namespace eBookLibraryService.Controllers
@@ -9,67 +12,87 @@ namespace eBookLibraryService.Controllers
     {
         private readonly eBookLibraryServiceContext _context;
 
-        // Constructor to inject the eBookLibraryServiceContext
         public BooksController(eBookLibraryServiceContext context)
         {
             _context = context;
         }
 
-        // GET: Books
-        public async Task<IActionResult> Index()
+        public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var books = await _context.Books.ToListAsync(); // Fetch books from the database
-            return View(books); // Pass books to the View
+            var cart = HttpContext.Session.GetObject<Cart>("Cart");
+            ViewBag.CartItemCount = cart?.Items.Count ?? 0;
+            base.OnActionExecuting(context);
         }
 
-        // GET: Books/Create
+        // Available to all users: View books
+        public async Task<IActionResult> Index()
+        {
+            var books = await _context.Books.ToListAsync();
+            return View(books);
+        }
+
+        // Available to admins only: Manage books
+        [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> ManageBooks()
+        {
+            var books = await _context.Books.ToListAsync();
+            return View(books);
+        }
+
+        // Available to admins only: Create books
+        [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
             return View();
         }
 
-        // POST: Books/Create
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,ImageUrl")] Book book)
         {
             if (ModelState.IsValid)
             {
+                if (book.BorrowPrice > book.BuyingPrice)
+                {
+                    ModelState.AddModelError("BorrowPrice", "The Borrow Price cannot be greater than the Buying Price.");
+                    return View(book);
+                }
+
                 _context.Add(book);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ManageBooks));
             }
             return View(book);
         }
 
-        // GET: Books/Edit/5
+        // Available to admins only: Edit books
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
             var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            if (book == null) return NotFound();
+
             return View(book);
         }
 
-        // POST: Books/Edit/5
         [HttpPost]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,ImageUrl")] Book book)
         {
-            if (id != book.Id)
-            {
-                return NotFound();
-            }
+            if (id != book.Id) return NotFound();
 
             if (ModelState.IsValid)
             {
+                if (book.BorrowPrice > book.BuyingPrice)
+                {
+                    ModelState.AddModelError("BorrowPrice", "The Borrow Price cannot be greater than the Buying Price.");
+                    return View(book);
+                }
+
                 try
                 {
                     _context.Update(book);
@@ -77,41 +100,29 @@ namespace eBookLibraryService.Controllers
                 }
                 catch (DbUpdateConcurrencyException)
                 {
-                    if (!_context.Books.Any(e => e.Id == book.Id))
-                    {
-                        return NotFound();
-                    }
-                    else
-                    {
-                        throw;
-                    }
+                    if (!_context.Books.Any(e => e.Id == book.Id)) return NotFound();
+                    throw;
                 }
-                return RedirectToAction(nameof(Index));
+                return RedirectToAction(nameof(ManageBooks));
             }
             return View(book);
         }
 
-        // GET: Books/Delete/5
+        // Available to admins only: Delete books
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            var book = await _context.Books.FirstOrDefaultAsync(m => m.Id == id);
+            if (book == null) return NotFound();
 
             return View(book);
         }
 
-        // POST: Books/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
+        [Authorize(Roles = "Admin")]
         public async Task<IActionResult> DeleteConfirmed(int id)
         {
             var book = await _context.Books.FindAsync(id);
@@ -120,29 +131,21 @@ namespace eBookLibraryService.Controllers
                 _context.Books.Remove(book);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(Index));
+            return RedirectToAction(nameof(ManageBooks));
         }
 
-
-        // GET: Books/Details/5
+        // View details of a book (Available to all users)
         public async Task<IActionResult> Details(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            if (id == null) return NotFound();
 
-            var book = await _context.Books
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            var book = await _context.Books.FirstOrDefaultAsync(m => m.Id == id);
+            if (book == null) return NotFound();
 
             return View(book);
         }
 
-        // POST: Books/Borrow/5
+        // Borrow book functionality
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Borrow(int id)
@@ -153,7 +156,6 @@ namespace eBookLibraryService.Controllers
                 return BadRequest("This book is not available for borrowing.");
             }
 
-            // Decrease quantity and increase borrow count
             book.Quantity -= 1;
             book.BorrowCount += 1;
 
@@ -163,21 +165,14 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-
-        // POST: Books/Buy/5
+        // Buy book functionality
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> Buy(int id)
         {
             var book = await _context.Books.FindAsync(id);
-            if (book == null)
-            {
-                return NotFound();
-            }
+            if (book == null) return NotFound();
 
-            // Optionally, handle the purchase process here (e.g., billing).
-
-            // Increase purchase count
             book.PurchaseCount += 1;
 
             _context.Update(book);
@@ -185,8 +180,5 @@ namespace eBookLibraryService.Controllers
 
             return RedirectToAction(nameof(Index));
         }
-
-
-
     }
 }

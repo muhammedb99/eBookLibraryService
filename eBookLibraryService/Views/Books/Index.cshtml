@@ -1,6 +1,7 @@
 ﻿@model IEnumerable<eBookLibraryService.Models.Book>
 
 @{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
     ViewData["Title"] = "Index";
 
     string HasImage(Book book)
@@ -18,10 +19,9 @@
 }
 
 <h1>Index</h1>
-
-<p>
-    <a asp-action="Create" class="btn btn-primary"><i class="fa-solid fa-book"></i> Add Book</a>
-</p>
+ <a href="@Url.Action("Create", "Books")" class="btn btn-custom"
+ <i class="fas fa-plus-circle"></i> Add New Book </a>
+        
 
 <table class="table">
     <thead>
@@ -61,9 +61,10 @@
                 <td>@book.PurchaseCount</td>
                 <td>@book.BorrowCount</td>
                 <td><i class="@HasImage(book)"></i></td>
+
                 <td>
                     <!-- You can add action links like Edit or Delete here -->
-                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary"><i class="fa-solid fa-pen-square"></i></a> 
+                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary"><i class="fa-solid fa-pen-square"></i></a>
                     <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-success"><i class="fa-solid fa-circle-info"></i></a>
                     <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></a>
                 </td>

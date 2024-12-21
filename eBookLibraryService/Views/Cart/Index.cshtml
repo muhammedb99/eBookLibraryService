@@ -1,0 +1,43 @@
+﻿@model eBookLibraryService.Models.Cart
+
+<h1>Your Cart</h1>
+
+@if (Model.Items.Count == 0)
+{
+    <p>Your cart is empty.</p>
+}
+else
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Title</th>
+                <th>Author</th>
+                <th>Price</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>@item.Book.Title</td>
+                    <td>@item.Book.Author</td>
+                    <td>@(item.IsBorrow ? item.Book.BorrowPrice : item.Book.BuyingPrice)$</td>
+                    <td>
+                        <form asp-action="RemoveFromCart" method="post">
+                            <input type="hidden" name="itemId" value="@item.Id" />
+                            <button type="submit" class="btn btn-danger">Remove</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+
+    <div>
+        <strong>Total: </strong>@Model.GetTotalPrice()$
+    </div>
+}
+
+<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Continue Shopping</a>
