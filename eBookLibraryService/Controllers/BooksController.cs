@@ -61,7 +61,7 @@ namespace eBookLibraryService.Controllers
 
                 _context.Add(book);
                 await _context.SaveChangesAsync();
-                return RedirectToAction(nameof(ManageBooks));
+                return RedirectToAction(nameof(Index));
             }
             return View(book);
         }

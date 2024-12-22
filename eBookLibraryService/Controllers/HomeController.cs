@@ -39,6 +39,24 @@ namespace eBookLibraryService.Controllers
             return View();
         }
 
+        public IActionResult Search(string query)
+        {
+            if (string.IsNullOrEmpty(query))
+            {
+                // If no query is provided, return all books
+                var allBooks = _context.Books.ToList(); // Fetch all books from the database
+                return View("Index", allBooks); // Replace "Index" with your view name
+            }
+
+            // Fetch books matching the partial query
+            var searchResults = _context.Books
+                .Where(b => b.Title.Contains(query) || b.Author.Contains(query))
+                .ToList();
+
+            return View("Index", searchResults); // Replace "Index" with your view name
+        }
+
+
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()
         {
