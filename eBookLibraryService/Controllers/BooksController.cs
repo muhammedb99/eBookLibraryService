@@ -1,10 +1,13 @@
 ﻿using eBookLibraryService.Data;
 using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
+using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Security.Policy;
+using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
 
 namespace eBookLibraryService.Controllers
 {
@@ -28,8 +31,32 @@ namespace eBookLibraryService.Controllers
         public async Task<IActionResult> Index()
         {
             var books = await _context.Books.ToListAsync();
+
+            // Handle discount expiration
+            foreach (var book in books)
+            {
+                if (book.DiscountPrice.HasValue && book.DiscountPrice > 0)
+                {
+                    var discountStartDate = book.CreatedDate; // Ensure you have this field in your model
+                    var discountEndDate = discountStartDate.AddDays(7);
+
+                    if (DateTime.Now > discountEndDate)
+                    {
+                        // Remove the discount if it has expired
+                        book.DiscountPrice = null;
+
+                        // Optionally save the change to the database
+                        _context.Update(book);
+                    }
+                }
+            }
+            
+            // Save changes for expired discounts
+            await _context.SaveChangesAsync();
+
             return View(books);
         }
+
 
         // Available to admins only: Manage books
         [Authorize(Roles = "Admin")]
@@ -49,7 +76,7 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,ImageUrl")] Book book)
+        public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,Genre,Popularity,DiscountPrice,DiscountUntil,PublicationYears,Publishers,ImageUrl")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -81,7 +108,7 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,ImageUrl")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title, Author, Publisher, BorrowPrice, BuyingPrice, YearOfPublishing, AgeLimitation, Quantity, Genre, Popularity, DiscountPrice,DiscountUntil, PublicationYears, Publishers, ImageUrl")] Book book)
         {
             if (id != book.Id) return NotFound();
 
@@ -103,7 +130,7 @@ namespace eBookLibraryService.Controllers
                     if (!_context.Books.Any(e => e.Id == book.Id)) return NotFound();
                     throw;
                 }
-                return RedirectToAction(nameof(ManageBooks));
+                return RedirectToAction(nameof(Index));
             }
             return View(book);
         }

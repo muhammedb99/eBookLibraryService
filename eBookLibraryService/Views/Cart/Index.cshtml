@@ -29,6 +29,11 @@ else
                         {
                             @item.Book.BorrowPrice
                     }
+                        else if (item.Book.DiscountPrice.HasValue && item.Book.DiscountUntil.HasValue && item.Book.DiscountUntil.Value >= DateTime.Now)
+                        {
+                            <span style="text-decoration: line-through;">@item.Book.BuyingPrice $</span>
+                            <span class="text-success">@item.Book.DiscountPrice $</span>
+                        }
                         else
                         {
                             @item.Book.BuyingPrice
@@ -47,7 +52,12 @@ else
     </table>
 
     <div class="d-flex justify-content-between align-items-center">
-        <h4><strong>Total:</strong> @Model.GetTotalPrice()$</h4>
+        <h4>
+            <strong>Total:</strong>
+            @Model.Items.Sum(i => i.IsBorrow ? i.Book.BorrowPrice ?? 0 :
+                     (i.Book.DiscountPrice.HasValue && i.Book.DiscountUntil.HasValue && i.Book.DiscountUntil.Value >= DateTime.Now ?
+                     i.Book.DiscountPrice.Value : i.Book.BuyingPrice)) $
+        </h4>
         <form asp-action="ProcessPayment" asp-controller="Payment" method="post">
             <button type="submit" class="btn btn-success">Pay Now</button>
         </form>

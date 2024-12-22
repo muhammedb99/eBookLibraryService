@@ -8,60 +8,91 @@
 <h1>Edit Book</h1>
 
 <form asp-action="Edit">
+
+    <!-- Title -->
     <div class="form-group">
         <label asp-for="Title" class="control-label"></label>
         <input asp-for="Title" class="form-control" />
         <span asp-validation-for="Title" class="text-danger"></span>
     </div>
 
+    <!-- Author -->
     <div class="form-group">
         <label asp-for="Author" class="control-label"></label>
         <input asp-for="Author" class="form-control" />
         <span asp-validation-for="Author" class="text-danger"></span>
     </div>
 
+    <!-- Publisher -->
     <div class="form-group">
         <label asp-for="Publisher" class="control-label"></label>
         <input asp-for="Publisher" class="form-control" />
         <span asp-validation-for="Publisher" class="text-danger"></span>
     </div>
 
+    <!-- Borrow Price -->
     <div class="form-group">
         <label asp-for="BorrowPrice" class="control-label"></label>
-        <!-- Input for BorrowPrice, made optional -->
-        <input asp-for="BorrowPrice" class="form-control" />
+        <input asp-for="BorrowPrice" type="number" step="0.01" class="form-control" />
         <span asp-validation-for="BorrowPrice" class="text-danger"></span>
     </div>
 
+    <!-- Buying Price -->
     <div class="form-group">
         <label asp-for="BuyingPrice" class="control-label"></label>
-        <input asp-for="BuyingPrice" class="form-control" />
+        <input asp-for="BuyingPrice" type="number" step="0.01" class="form-control" />
         <span asp-validation-for="BuyingPrice" class="text-danger"></span>
     </div>
 
+    <!-- Discount Price -->
+    <div class="form-group">
+        <label asp-for="DiscountPrice" class="control-label"></label>
+        <input asp-for="DiscountPrice" type="number" step="0.01" class="form-control" />
+        <span asp-validation-for="DiscountPrice" class="text-danger"></span>
+    </div>
+
+    <!-- Discount Until -->
+    <div class="form-group">
+        <label asp-for="DiscountUntil" class="control-label">Discount Valid Until</label>
+        <input asp-for="DiscountUntil" type="date" class="form-control" />
+        <span asp-validation-for="DiscountUntil" class="text-danger"></span>
+    </div>
+
+    <!-- Year of Publishing -->
     <div class="form-group">
         <label asp-for="YearOfPublishing" class="control-label"></label>
-        <input asp-for="YearOfPublishing" class="form-control" />
+        <input asp-for="YearOfPublishing" type="number" class="form-control" />
         <span asp-validation-for="YearOfPublishing" class="text-danger"></span>
     </div>
 
+    <!-- Age Limitation -->
     <div class="form-group">
         <label asp-for="AgeLimitation" class="control-label"></label>
-        <input asp-for="AgeLimitation" class="form-control" />
+        <input asp-for="AgeLimitation" type="number" class="form-control" />
         <span asp-validation-for="AgeLimitation" class="text-danger"></span>
     </div>
 
+    <!-- Quantity -->
     <div class="form-group">
         <label asp-for="Quantity" class="control-label"></label>
-        <input asp-for="Quantity" class="form-control" />
+        <input asp-for="Quantity" type="number" class="form-control" />
         <span asp-validation-for="Quantity" class="text-danger"></span>
     </div>
 
+    <!-- Image URL -->
     <div class="form-group">
         <label asp-for="ImageUrl" class="control-label"></label>
         <input asp-for="ImageUrl" class="form-control" />
         <span asp-validation-for="ImageUrl" class="text-danger"></span>
     </div>
+
+    <!-- Genre -->
+    <div class="form-group">
+        <label asp-for="Genre" class="control-label"></label>
+        <input asp-for="Genre" class="form-control" />
+        <span asp-validation-for="Genre" class="text-danger"></span>
+    </div>
+
 
     <div>
         <button type="submit" class="btn btn-primary">Save</button>

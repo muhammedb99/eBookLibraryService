@@ -1,4 +1,5 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using Humanizer.Localisation;
+using System.ComponentModel.DataAnnotations;
 
 namespace eBookLibraryService.Models
 {
@@ -49,5 +50,9 @@ namespace eBookLibraryService.Models
         public List<int> PublicationYears { get; set; } = new List<int>(); 
 
         public List<string> Publishers { get; set; } = new List<string>();
+        public DateTime CreatedDate { get; set; } = DateTime.Now; 
+
+        public DateTime? DiscountUntil { get; set; }
+
     }
 }

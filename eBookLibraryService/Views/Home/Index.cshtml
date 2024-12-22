@@ -73,7 +73,7 @@
     </form>
 </div>
 
-<!-- Search -->
+<!-- Search Section -->
 <div class="mb-4">
     <form method="get" asp-action="Index" asp-controller="Home">
         <h4>Search</h4>
@@ -88,7 +88,7 @@
     </form>
 </div>
 
-<!-- Sort -->
+<!-- Sort Section -->
 <div class="mb-4">
     <form method="get" asp-action="Index" asp-controller="Home">
         <h4>Sort</h4>
@@ -109,55 +109,73 @@
         </div>
     </form>
 </div>
-
 <!-- Books List -->
 <div class="row">
     @if (!Model.Any())
     {
-        <p>No books found. Try a different search term or filter.</p>
+            <p>No books found. Try a different search term or filter.</p>
     }
     else
     {
         @foreach (var item in Model)
         {
-            <div class="col-md-4 mb-4">
-                <div class="card">
-                    <img src="@item.ImageUrl" alt="@item.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Title</h5>
-                        <p class="card-text">
-                            <strong>Author:</strong> @item.Author<br />
-                            <strong>Price (Buy):</strong> @item.BuyingPrice$<br />
-                            @if (item.BorrowPrice != null && item.BorrowPrice > 0)
-                            {
-                                <strong>Price (Borrow):</strong> <l>@item.BorrowPrice$</l>
-                            }
-                            <br />
-                            <strong>Genre:</strong> @item.Genre<br />
-                            <strong>Year:</strong> @item.YearOfPublishing<br />
-                            <strong>Popularity:</strong> @item.Popularity<br />
-                        </p>
-                        <div class="d-flex justify-content-between">
-                            <!-- Add to Cart (Buy) -->
-                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                <input type="hidden" name="id" value="@item.Id" />
-                                <input type="hidden" name="isBorrow" value="false" />
-                                <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
-                            </form>
+                    <div class="col-md-4 mb-4">
+                        <div class="card">
+                            <img src="@item.ImageUrl" alt="@item.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">@item.Title</h5>
+                                        <p class="card-text">
+            <strong>Author:</strong> @item.Author<br />
 
-                            <!-- Add to Cart (Borrow) -->
+            <!-- Display price with or without discount -->
+                            @if (item.DiscountPrice.HasValue && item.DiscountUntil.HasValue && item.DiscountUntil.Value >= DateTime.Now)
+                            {
+                    <strong>Price (Buy):</strong>
+                    <span style="text-decoration: line-through;">@item.BuyingPrice $</span>
+                    <span class="text-success">@item.DiscountPrice $</span>
+
+                                <br />
+                            }
+                            else
+                            {
+                    <strong>Price (Buy):</strong> @item.BuyingPrice
+
+                                <span> $</span>
+
+                                <br />
+                            }
+
+                            @if (item.BorrowPrice.HasValue && item.BorrowPrice > 0)
+                            {
+                    <strong>Price (Borrow):</strong> <span>@item.BorrowPrice</span>
+
+                                <span> $</span>
+
+                                <br />
+                            }
+        </p>
+
+                                <div class="d-flex justify-content-between">
+                                    <!-- Add to Cart (Buy) -->
+                                    <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                        <input type="hidden" name="id" value="@item.Id" />
+                                        <input type="hidden" name="isBorrow" value="false" />
+                                        <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
+                                    </form>
+
+                                    <!-- Add to Cart (Borrow) -->
                             @if (item.BorrowPrice.HasValue)
                             {
-                                <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                    <input type="hidden" name="id" value="@item.Id" />
-                                    <input type="hidden" name="isBorrow" value="true" />
-                                    <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
-                                </form>
+                                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                                <input type="hidden" name="id" value="@item.Id" />
+                                                <input type="hidden" name="isBorrow" value="true" />
+                                                <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
+                                            </form>
                             }
+                                </div>
+                            </div>
                         </div>
                     </div>
-                </div>
-            </div>
         }
     }
 </div>

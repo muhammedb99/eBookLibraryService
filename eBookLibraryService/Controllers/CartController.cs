@@ -4,6 +4,7 @@ using eBookLibraryService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System;
 
 namespace eBookLibraryService.Controllers
 {
@@ -31,7 +32,29 @@ namespace eBookLibraryService.Controllers
             if (book != null)
             {
                 var cart = GetCart();
-                var cartItem = new CartItem { Book = book, IsBorrow = isBorrow };
+
+                // Determine applicable price
+                float price;
+                if (!isBorrow && book.DiscountPrice.HasValue && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now)
+                {
+                    price = book.DiscountPrice.Value; // Apply discounted price
+                }
+                else if (!isBorrow)
+                {
+                    price = book.BuyingPrice; // Regular buying price
+                }
+                else
+                {
+                    price = book.BorrowPrice ?? 0; // Borrow price
+                }
+
+                // Add item to the cart with the correct price
+                var cartItem = new CartItem
+                {
+                    Book = book,
+                    IsBorrow = isBorrow,
+                    Price = price // Assign the determined price
+                };
 
                 cart.AddToCart(cartItem);
                 SaveCart(cart);
