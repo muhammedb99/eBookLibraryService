@@ -25,18 +25,9 @@ namespace eBookLibraryService.Models
             float total = 0;
             foreach (var item in Items)
             {
-                if (item.IsBorrow)
-                {
-                    total += item.Book.BorrowPrice ?? 0;
-                }
-                else
-                {
-                    total += item.Book.BuyingPrice;
-                }
+                total += item.Price; // Price is already set for each cart item
             }
             return total;
         }
-
-
     }
 }

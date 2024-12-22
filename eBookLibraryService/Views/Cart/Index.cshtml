@@ -9,59 +9,53 @@
 }
 else
 {
-    <table class="table">
-        <thead>
-            <tr>
-                <th>Title</th>
-                <th>Author</th>
-                <th>Price</th>
-                <th>Action</th>
-            </tr>
-        </thead>
-        <tbody>
-            @foreach (var item in Model.Items)
-            {
+    <!-- Main form for updating cart options -->
+    <form method="post" asp-action="UpdateCart" asp-controller="Cart">
+        <table class="table">
+            <thead>
                 <tr>
-                    <td>@item.Book.Title</td>
-                    <td>@item.Book.Author</td>
-                    <td>
-                        @if (item.IsBorrow)
-                        {
-                            @item.Book.BorrowPrice
-                    }
-                        else if (item.Book.DiscountPrice.HasValue && item.Book.DiscountUntil.HasValue && item.Book.DiscountUntil.Value >= DateTime.Now)
-                        {
-                            <span style="text-decoration: line-through;">@item.Book.BuyingPrice $</span>
-                            <span class="text-success">@item.Book.DiscountPrice $</span>
-                        }
-                        else
-                        {
-                            @item.Book.BuyingPrice
-                    }
-                    </td>
-                    <td>
-                        <!-- Remove from cart form -->
-                        <form asp-action="RemoveFromCart" method="post">
-                            <input type="hidden" name="itemId" value="@item.Id" />
-                            <button type="submit" class="btn btn-danger">Remove</button>
-                        </form>
-                    </td>
+                    <th>Title</th>
+                    <th>Author</th>
+                    <th>Price</th>
+                    <th>Option</th>
+                    <th>Action</th>
                 </tr>
-            }
-        </tbody>
-    </table>
+            </thead>
+            <tbody>
+                @foreach (var item in Model.Items)
+                {
+                    <tr>
+                        <td>@item.Book.Title</td>
+                        <td>@item.Book.Author</td>
+                        <td>@item.Price$</td>
+                        <td>
+                            <select name="cartItems[@item.Id].IsBorrow" class="form-select">
+                                <option value="false" selected="@(item.IsBorrow == false)">Buy</option>
+                                <option value="true" selected="@(item.IsBorrow == true)">Borrow</option>
+                            </select>
+                        </td>
+                        <td>
+                            <form asp-action="RemoveFromCart" method="post" class="d-inline">
+                                <input type="hidden" name="itemId" value="@item.Id" />
+                                <button type="submit" class="btn btn-danger">Remove</button>
+                            </form>
+                        </td>
+                    </tr>
 
-    <div class="d-flex justify-content-between align-items-center">
-        <h4>
-            <strong>Total:</strong>
-            @Model.Items.Sum(i => i.IsBorrow ? i.Book.BorrowPrice ?? 0 :
-                     (i.Book.DiscountPrice.HasValue && i.Book.DiscountUntil.HasValue && i.Book.DiscountUntil.Value >= DateTime.Now ?
-                     i.Book.DiscountPrice.Value : i.Book.BuyingPrice)) $
-        </h4>
-        <form asp-action="ProcessPayment" asp-controller="Payment" method="post">
-            <button type="submit" class="btn btn-success">Pay Now</button>
-        </form>
-    </div>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-between align-items-center">
+            <h4><strong>Total:</strong> @Model.GetTotalPrice()$</h4>
+            <div>
+                <button type="submit" class="btn btn-secondary">Update Options</button>
+                <form asp-action="ProcessPayment" asp-controller="Payment" method="post" class="d-inline">
+                    <button type="submit" class="btn btn-success">Confirm and Pay</button>
+                </form>
+            </div>
+        </div>
+    </form>
 
     <a href="@Url.Action("Index", "Home")" class="btn btn-secondary mt-3">Continue Shopping</a>
 }

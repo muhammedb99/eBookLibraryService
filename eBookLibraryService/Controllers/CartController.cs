@@ -3,8 +3,9 @@ using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using Microsoft.EntityFrameworkCore;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 namespace eBookLibraryService.Controllers
 {
@@ -33,27 +34,19 @@ namespace eBookLibraryService.Controllers
             {
                 var cart = GetCart();
 
-                // Determine applicable price
-                float price;
-                if (!isBorrow && book.DiscountPrice.HasValue && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now)
-                {
-                    price = book.DiscountPrice.Value; // Apply discounted price
-                }
-                else if (!isBorrow)
-                {
-                    price = book.BuyingPrice; // Regular buying price
-                }
-                else
-                {
-                    price = book.BorrowPrice ?? 0; // Borrow price
-                }
+                // Calculate the price based on borrow or buy
+                float price = isBorrow ?
+                    (book.BorrowPrice ?? 0) :
+                    (book.DiscountPrice.HasValue && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now
+                        ? book.DiscountPrice.Value
+                        : book.BuyingPrice);
 
-                // Add item to the cart with the correct price
                 var cartItem = new CartItem
                 {
+                    Id = new Random().Next(1, 100000), // Generate unique ID
                     Book = book,
                     IsBorrow = isBorrow,
-                    Price = price // Assign the determined price
+                    Price = price
                 };
 
                 cart.AddToCart(cartItem);
@@ -71,6 +64,40 @@ namespace eBookLibraryService.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
+        public IActionResult UpdateCart(Dictionary<int, string> cartItems)
+        {
+            var cart = GetCart();
+
+            foreach (var cartItem in cart.Items)
+            {
+                if (cartItems.TryGetValue(cartItem.Id, out var isBorrowValue))
+                {
+                    // Ensure the incoming value is parsed correctly
+                    var isBorrow = bool.TryParse(isBorrowValue, out var result) && result;
+
+                    cartItem.IsBorrow = isBorrow;
+
+                    // Update the price based on the updated option
+                    cartItem.Price = cartItem.IsBorrow
+                        ? (cartItem.Book.BorrowPrice ?? 0)
+                        : (cartItem.Book.DiscountPrice.HasValue &&
+                           cartItem.Book.DiscountUntil.HasValue &&
+                           cartItem.Book.DiscountUntil.Value >= DateTime.Now
+                            ? cartItem.Book.DiscountPrice.Value
+                            : cartItem.Book.BuyingPrice);
+                }
+            }
+
+            SaveCart(cart);
+            return RedirectToAction(nameof(Index));
+        }
+
+
+
+
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
         public IActionResult RemoveFromCart(int itemId)
         {
             var cart = GetCart();
@@ -82,8 +109,7 @@ namespace eBookLibraryService.Controllers
 
         private Cart GetCart()
         {
-            var cart = HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
-            return cart;
+            return HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
         }
 
         private void SaveCart(Cart cart)
