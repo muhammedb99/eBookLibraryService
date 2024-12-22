@@ -2,12 +2,31 @@
 
 <h1>Books</h1>
 
-<!-- Search Bar -->
+<!-- Search and Sorting Bar -->
 <div class="mb-4">
-    <form method="get" asp-action="Search" asp-controller="Home">
-        <div class="input-group">
-            <input type="text" name="query" class="form-control" placeholder="Search for eBooks..." />
-            <button class="btn btn-primary" type="submit">Search</button>
+    <form method="get" asp-action="Index" asp-controller="Home">
+        <div class="row">
+            <!-- Search Bar -->
+            <div class="col-md-6">
+                <div class="input-group">
+                    <input type="text" name="query" class="form-control" placeholder="Search for eBooks..." />
+                </div>
+            </div>
+            <!-- Sorting Dropdown -->
+            <div class="col-md-4">
+                <select name="sortOrder" class="form-select">
+                    <option value="">-- Sort By --</option>
+                    <option value="price_asc">Price (Low to High)</option>
+                    <option value="price_desc">Price (High to Low)</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="genre">Genre</option>
+                    <option value="year">Year of Publishing</option>
+                </select>
+            </div>
+            <!-- Submit Button -->
+            <div class="col-md-2">
+                <button class="btn btn-primary" type="submit">Search & Sort</button>
+            </div>
         </div>
     </form>
 </div>
@@ -16,7 +35,7 @@
 <div class="row">
     @if (!Model.Any())
     {
-        <p>No books found. Try a different search term.</p>
+        <p>No books found. Try a different search term or sort order.</p>
     }
     else
     {
@@ -35,6 +54,9 @@
                                 <strong>Price (Borrow):</strong> <l>@book.BorrowPrice:$</l>
                             }
                             <br />
+                            <strong>Genre:</strong> @book.Genre<br />
+                            <strong>Year:</strong> @book.YearOfPublishing<br />
+                            <strong>Popularity:</strong> @book.Popularity<br />
                         </p>
                         <div class="d-flex justify-content-between">
                             <!-- Add to Cart (Buy) -->

@@ -27,35 +27,54 @@ namespace eBookLibraryService.Controllers
             base.OnActionExecuting(context);
         }
 
-        // Index action - Fetching books from the database
-        public async Task<IActionResult> Index()
+        // Index action - Fetching books with optional sorting
+        public async Task<IActionResult> Index(string sortOrder = null)
         {
-            var books = await _context.Books.ToListAsync(); // Fetch books from the database
-            return View(books); // Pass the list of books to the view
+            var books = _context.Books.AsQueryable(); // Fetch books as a queryable object
+
+            // Apply sorting based on the sortOrder parameter
+            books = sortOrder switch
+            {
+                "price_asc" => books.OrderBy(b => b.BuyingPrice),
+                "price_desc" => books.OrderByDescending(b => b.BuyingPrice),
+                "popular" => books.OrderByDescending(b => b.Popularity), // Assuming 'Popularity' is a property
+                "genre" => books.OrderBy(b => b.Genre),
+                "year" => books.OrderByDescending(b => b.YearOfPublishing),
+                _ => books
+            };
+
+            return View(await books.ToListAsync()); // Return sorted books to the view
+        }
+
+        // Search action - Fetching books based on search query with optional sorting
+        public IActionResult Search(string query, string sortOrder = null)
+        {
+            var books = _context.Books.AsQueryable();
+
+            if (!string.IsNullOrEmpty(query))
+            {
+                // Filter books based on the query
+                books = books.Where(b => b.Title.Contains(query) || b.Author.Contains(query));
+            }
+
+            // Apply sorting based on the sortOrder parameter
+            books = sortOrder switch
+            {
+                "price_asc" => books.OrderBy(b => b.BuyingPrice),
+                "price_desc" => books.OrderByDescending(b => b.BuyingPrice),
+                "popular" => books.OrderByDescending(b => b.Popularity),
+                "genre" => books.OrderBy(b => b.Genre),
+                "year" => books.OrderByDescending(b => b.YearOfPublishing),
+                _ => books
+            };
+
+            return View("Index", books.ToList()); // Return filtered and sorted books to the Index view
         }
 
         public IActionResult Privacy()
         {
             return View();
         }
-
-        public IActionResult Search(string query)
-        {
-            if (string.IsNullOrEmpty(query))
-            {
-                // If no query is provided, return all books
-                var allBooks = _context.Books.ToList(); // Fetch all books from the database
-                return View("Index", allBooks); // Replace "Index" with your view name
-            }
-
-            // Fetch books matching the partial query
-            var searchResults = _context.Books
-                .Where(b => b.Title.Contains(query) || b.Author.Contains(query))
-                .ToList();
-
-            return View("Index", searchResults); // Replace "Index" with your view name
-        }
-
 
         [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
         public IActionResult Error()

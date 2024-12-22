@@ -38,5 +38,10 @@ namespace eBookLibraryService.Models
         [Required]
         [Range(0, int.MaxValue, ErrorMessage = "Purchase count must be 0 or greater.")]
         public int PurchaseCount { get; set; } = 0;
+
+        [Required]
+        public string Genre { get; set; }
+
+        public int Popularity => BorrowCount + PurchaseCount;
     }
 }
