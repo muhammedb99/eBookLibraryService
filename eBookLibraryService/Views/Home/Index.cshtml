@@ -2,18 +2,74 @@
 
 <h1>Books</h1>
 
-<!-- Search and Sorting Bar -->
+<!-- Filters -->
 <div class="mb-4">
     <form method="get" asp-action="Index" asp-controller="Home">
+        <h4>Filter</h4>
         <div class="row">
-            <!-- Search Bar -->
-            <div class="col-md-6">
-                <div class="input-group">
-                    <input type="text" name="query" class="form-control" placeholder="Search for eBooks..." />
+            <!-- Author Filter -->
+            <div class="col-md-3">
+                <label for="author" class="form-label">Author</label>
+                <input type="text" name="author" id="author" class="form-control" placeholder="Author name" />
+            </div>
+
+            <!-- Genre Filter -->
+            <div class="col-md-3">
+                <label for="genre" class="form-label">Genre</label>
+                <select name="genre" id="genre" class="form-select">
+                    <option value="">All</option>
+                    <option value="Fiction">Fiction</option>
+                    <option value="Non-Fiction">Non-Fiction</option>
+                    <option value="Mystery">Mystery</option>
+                </select>
+            </div>
+
+            <!-- Method Filter -->
+            <div class="col-md-3">
+                <label for="method" class="form-label">Method</label>
+                <select name="method" id="method" class="form-select">
+                    <option value="">All</option>
+                    <option value="buy">Buy</option>
+                    <option value="borrow">Borrow</option>
+                </select>
+            </div>
+
+            <!-- Price Range -->
+            <div class="col-md-3">
+                <label for="priceRange" class="form-label">Price Range</label>
+                <div class="d-flex">
+                    <input type="number" step="0.01" name="minPrice" id="minPrice" class="form-control me-2" placeholder="Min" />
+                    <input type="number" step="0.01" name="maxPrice" id="maxPrice" class="form-control" placeholder="Max" />
                 </div>
             </div>
-            <!-- Sorting Dropdown -->
+        </div>
+        <div class="mt-3">
+            <button class="btn btn-primary" type="submit">Apply Filters</button>
+        </div>
+    </form>
+</div>
+
+<!-- Search -->
+<div class="mb-4">
+    <form method="get" asp-action="Index" asp-controller="Home">
+        <h4>Search</h4>
+        <div class="row">
+            <div class="col-md-8">
+                <input type="text" name="query" class="form-control" placeholder="Search for eBooks..." />
+            </div>
             <div class="col-md-4">
+                <button class="btn btn-primary w-100" type="submit">Search</button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- Sort -->
+<div class="mb-4">
+    <form method="get" asp-action="Index" asp-controller="Home">
+        <h4>Sort</h4>
+        <div class="row">
+            <div class="col-md-8">
                 <select name="sortOrder" class="form-select">
                     <option value="">-- Sort By --</option>
                     <option value="price_asc">Price (Low to High)</option>
@@ -23,9 +79,8 @@
                     <option value="year">Year of Publishing</option>
                 </select>
             </div>
-            <!-- Submit Button -->
-            <div class="col-md-2">
-                <button class="btn btn-primary" type="submit">Search & Sort</button>
+            <div class="col-md-4">
+                <button class="btn btn-primary w-100" type="submit">Sort</button>
             </div>
         </div>
     </form>
@@ -39,38 +94,38 @@
     }
     else
     {
-        @foreach (var book in Model)
+        @foreach (var item in Model)
         {
             <div class="col-md-4 mb-4">
                 <div class="card">
-                    <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <img src="@item.ImageUrl" alt="@item.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
                     <div class="card-body">
-                        <h5 class="card-title">@book.Title</h5>
+                        <h5 class="card-title">@item.Title</h5>
                         <p class="card-text">
-                            <strong>Author:</strong> @book.Author<br />
-                            <strong>Price (Buy):</strong> @book.BuyingPrice:$<br />
-                            @if (book.BorrowPrice != null || book.BorrowPrice > 0)
+                            <strong>Author:</strong> @item.Author<br />
+                            <strong>Price (Buy):</strong> @item.BuyingPrice:$<br />
+                            @if (item.BorrowPrice != null || item.BorrowPrice > 0)
                             {
-                                <strong>Price (Borrow):</strong> <l>@book.BorrowPrice:$</l>
+                                <strong>Price (Borrow):</strong> <l>@item.BorrowPrice:$</l>
                             }
                             <br />
-                            <strong>Genre:</strong> @book.Genre<br />
-                            <strong>Year:</strong> @book.YearOfPublishing<br />
-                            <strong>Popularity:</strong> @book.Popularity<br />
+                            <strong>Genre:</strong> @item.Genre<br />
+                            <strong>Year:</strong> @item.YearOfPublishing<br />
+                            <strong>Popularity:</strong> @item.Popularity<br />
                         </p>
                         <div class="d-flex justify-content-between">
                             <!-- Add to Cart (Buy) -->
                             <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                <input type="hidden" name="id" value="@book.Id" />
+                                <input type="hidden" name="id" value="@item.Id" />
                                 <input type="hidden" name="isBorrow" value="false" />
                                 <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
                             </form>
 
                             <!-- Add to Cart (Borrow) -->
-                            @if (book.BorrowPrice.HasValue)
+                            @if (item.BorrowPrice.HasValue)
                             {
                                 <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                    <input type="hidden" name="id" value="@book.Id" />
+                                    <input type="hidden" name="id" value="@item.Id" />
                                     <input type="hidden" name="isBorrow" value="true" />
                                     <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
                                 </form>

@@ -27,12 +27,58 @@ namespace eBookLibraryService.Controllers
             base.OnActionExecuting(context);
         }
 
-        // Index action - Fetching books with optional sorting
-        public async Task<IActionResult> Index(string sortOrder = null)
+        // Index action - Fetching books with optional filtering, sorting, and searching
+        public async Task<IActionResult> Index(
+            string query = null, // Added query parameter for searching
+            string author = null,
+            string genre = null,
+            string method = null,
+            float? minPrice = null,
+            float? maxPrice = null,
+            string sortOrder = null)
         {
             var books = _context.Books.AsQueryable(); // Fetch books as a queryable object
 
-            // Apply sorting based on the sortOrder parameter
+            // Apply search
+            if (!string.IsNullOrEmpty(query))
+            {
+                books = books.Where(b => EF.Functions.Like(b.Title, $"%{query}%") || EF.Functions.Like(b.Author, $"%{query}%"));
+            }
+
+            // Apply filtering
+            if (!string.IsNullOrEmpty(author))
+            {
+                books = books.Where(b => EF.Functions.Like(b.Author, $"%{author}%"));
+            }
+
+            if (!string.IsNullOrEmpty(genre))
+            {
+                books = books.Where(b => b.Genre == genre);
+            }
+
+            if (!string.IsNullOrEmpty(method))
+            {
+                if (method.Equals("buy", StringComparison.OrdinalIgnoreCase))
+                {
+                    books = books.Where(b => b.BuyingPrice > 0);
+                }
+                else if (method.Equals("borrow", StringComparison.OrdinalIgnoreCase))
+                {
+                    books = books.Where(b => b.BorrowPrice > 0);
+                }
+            }
+
+            if (minPrice.HasValue)
+            {
+                books = books.Where(b => b.BuyingPrice >= minPrice.Value);
+            }
+
+            if (maxPrice.HasValue)
+            {
+                books = books.Where(b => b.BuyingPrice <= maxPrice.Value);
+            }
+
+            // Apply sorting
             books = sortOrder switch
             {
                 "price_asc" => books.OrderBy(b => b.BuyingPrice),
@@ -43,32 +89,7 @@ namespace eBookLibraryService.Controllers
                 _ => books
             };
 
-            return View(await books.ToListAsync()); // Return sorted books to the view
-        }
-
-        // Search action - Fetching books based on search query with optional sorting
-        public IActionResult Search(string query, string sortOrder = null)
-        {
-            var books = _context.Books.AsQueryable();
-
-            if (!string.IsNullOrEmpty(query))
-            {
-                // Filter books based on the query
-                books = books.Where(b => b.Title.Contains(query) || b.Author.Contains(query));
-            }
-
-            // Apply sorting based on the sortOrder parameter
-            books = sortOrder switch
-            {
-                "price_asc" => books.OrderBy(b => b.BuyingPrice),
-                "price_desc" => books.OrderByDescending(b => b.BuyingPrice),
-                "popular" => books.OrderByDescending(b => b.Popularity),
-                "genre" => books.OrderBy(b => b.Genre),
-                "year" => books.OrderByDescending(b => b.YearOfPublishing),
-                _ => books
-            };
-
-            return View("Index", books.ToList()); // Return filtered and sorted books to the Index view
+            return View(await books.ToListAsync()); // Return filtered, sorted, and searched books to the view
         }
 
         public IActionResult Privacy()
