@@ -29,15 +29,18 @@ namespace eBookLibraryService.Controllers
 
         // Index action - Fetching books with optional filtering, sorting, and searching
         public async Task<IActionResult> Index(
-            string query = null, // Added query parameter for searching
+            string query = null,
             string author = null,
             string genre = null,
             string method = null,
             float? minPrice = null,
             float? maxPrice = null,
+            bool? isOnSale = null, // New parameter for filtering discounted books
+            int? year = null, // New parameter for filtering by publication year
+            string publisher = null, // New parameter for filtering by publisher
             string sortOrder = null)
         {
-            var books = _context.Books.AsQueryable(); // Fetch books as a queryable object
+            var books = _context.Books.AsQueryable();
 
             // Apply search
             if (!string.IsNullOrEmpty(query))
@@ -78,18 +81,33 @@ namespace eBookLibraryService.Controllers
                 books = books.Where(b => b.BuyingPrice <= maxPrice.Value);
             }
 
+            if (isOnSale.HasValue && isOnSale.Value)
+            {
+                books = books.Where(b => b.DiscountPrice.HasValue && b.DiscountPrice < b.BuyingPrice);
+            }
+
+            if (year.HasValue)
+            {
+                books = books.Where(b => b.PublicationYears.Contains(year.Value));
+            }
+
+            if (!string.IsNullOrEmpty(publisher))
+            {
+                books = books.Where(b => b.Publishers.Contains(publisher));
+            }
+
             // Apply sorting
             books = sortOrder switch
             {
                 "price_asc" => books.OrderBy(b => b.BuyingPrice),
                 "price_desc" => books.OrderByDescending(b => b.BuyingPrice),
-                "popular" => books.OrderByDescending(b => b.Popularity), // Assuming 'Popularity' is a property
+                "popular" => books.OrderByDescending(b => b.Popularity),
                 "genre" => books.OrderBy(b => b.Genre),
                 "year" => books.OrderByDescending(b => b.YearOfPublishing),
                 _ => books
             };
 
-            return View(await books.ToListAsync()); // Return filtered, sorted, and searched books to the view
+            return View(await books.ToListAsync());
         }
 
         public IActionResult Privacy()

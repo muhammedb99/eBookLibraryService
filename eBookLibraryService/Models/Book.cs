@@ -43,5 +43,11 @@ namespace eBookLibraryService.Models
         public string Genre { get; set; }
 
         public int Popularity => BorrowCount + PurchaseCount;
+
+        public float? DiscountPrice { get; set; } 
+
+        public List<int> PublicationYears { get; set; } = new List<int>(); 
+
+        public List<string> Publishers { get; set; } = new List<string>();
     }
 }

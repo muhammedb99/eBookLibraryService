@@ -43,6 +43,30 @@
                 </div>
             </div>
         </div>
+
+        <div class="row mt-3">
+            <!-- On Sale Filter -->
+            <div class="col-md-3">
+                <label for="isOnSale" class="form-label">On Sale</label>
+                <select name="isOnSale" id="isOnSale" class="form-select">
+                    <option value="">All</option>
+                    <option value="true">On Sale</option>
+                </select>
+            </div>
+
+            <!-- Publication Year Filter -->
+            <div class="col-md-3">
+                <label for="year" class="form-label">Publication Year</label>
+                <input type="number" name="year" id="year" class="form-control" placeholder="Year" />
+            </div>
+
+            <!-- Publisher Filter -->
+            <div class="col-md-3">
+                <label for="publisher" class="form-label">Publisher</label>
+                <input type="text" name="publisher" id="publisher" class="form-control" placeholder="Publisher name" />
+            </div>
+        </div>
+
         <div class="mt-3">
             <button class="btn btn-primary" type="submit">Apply Filters</button>
         </div>
@@ -90,7 +114,7 @@
 <div class="row">
     @if (!Model.Any())
     {
-        <p>No books found. Try a different search term or sort order.</p>
+        <p>No books found. Try a different search term or filter.</p>
     }
     else
     {
@@ -104,7 +128,7 @@
                         <p class="card-text">
                             <strong>Author:</strong> @item.Author<br />
                             <strong>Price (Buy):</strong> @item.BuyingPrice:$<br />
-                            @if (item.BorrowPrice != null || item.BorrowPrice > 0)
+                            @if (item.BorrowPrice != null && item.BorrowPrice > 0)
                             {
                                 <strong>Price (Borrow):</strong> <l>@item.BorrowPrice:$</l>
                             }
