@@ -1,43 +1,66 @@
 ﻿@using eBookLibraryService.ViewModels;
 @model RegisterViewModel;
+
 @{
     ViewData["Title"] = "Register";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
-    
 }
 
 <div class="account-container">
     <div class="account-box">
         <h2 class="text-center mb-4">Register</h2>
         <form asp-action="Register" method="post">
+            <!-- Validation Summary -->
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+            <!-- Name Field -->
             <div class="mb-3">
                 <label asp-for="Name" class="form-label"></label>
                 <input asp-for="Name" class="form-control" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
+
+            <!-- Email Field -->
             <div class="mb-3">
                 <label asp-for="Email" class="form-label"></label>
                 <input asp-for="Email" class="form-control" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
+            <!-- Password Field -->
             <div class="mb-3">
                 <label asp-for="Password" class="form-label"></label>
                 <input asp-for="Password" class="form-control" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
+
+            <!-- Confirm Password Field -->
             <div class="mb-3">
                 <label asp-for="ConfirmPassword" class="form-label"></label>
                 <input asp-for="ConfirmPassword" class="form-control" />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
+
+            <!-- Phone Number Field -->
             <div class="mb-3">
                 <label asp-for="PhoneNumber" class="form-label"></label>
                 <input asp-for="PhoneNumber" class="form-control" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
+
+            <!-- Accept Terms Checkbox -->
+            <div class="form-check mb-3">
+                <input asp-for="AcceptTerms" class="form-check-input" />
+                <label asp-for="AcceptTerms" class="form-check-label">
+                    I accept the terms of use and agree to the collection of my data.
+                </label>
+                <span asp-validation-for="AcceptTerms" class="text-danger"></span>
+            </div>
+
+            <!-- Submit Button -->
             <input type="submit" value="Register" class="btn btn-success w-100 p-2" />
+
+            <!-- Additional Links -->
             <p class="text-center mt-2">
                 Already have an account? <a asp-controller="Account" asp-action="Login" class="text-decoration-none">Login</a>
             </p>
@@ -49,7 +72,5 @@
 </div>
 
 @section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
-    }
+    <partial name="_ValidationScriptsPartial" />
 }

@@ -11,7 +11,11 @@ var builder = WebApplication.CreateBuilder(args);
 // Register AppDbContext for Identity
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true;
+    });
 // Register eBookLibraryServiceContext for managing Books
 builder.Services.AddDbContext<eBookLibraryServiceContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));

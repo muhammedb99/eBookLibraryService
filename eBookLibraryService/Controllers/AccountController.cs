@@ -77,6 +77,7 @@ namespace eBookLibraryService.Controllers
 
                 if (result.Succeeded)
                 {
+                    TempData["SuccessMessage"] = "Registration successful!";
                     return RedirectToAction("Login", "Account");
                 }
                 else
