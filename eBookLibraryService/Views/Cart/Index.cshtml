@@ -5,6 +5,7 @@
 @if (Model.Items.Count == 0)
 {
     <p>Your cart is empty.</p>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-primary mt-3">Continue Shopping</a>
 }
 else
 {
@@ -23,8 +24,18 @@ else
                 <tr>
                     <td>@item.Book.Title</td>
                     <td>@item.Book.Author</td>
-                    <td>@(item.IsBorrow ? item.Book.BorrowPrice : item.Book.BuyingPrice)$</td>
                     <td>
+                        @if (item.IsBorrow)
+                        {
+                            @item.Book.BorrowPrice
+                    }
+                        else
+                        {
+                            @item.Book.BuyingPrice
+                    }
+                    </td>
+                    <td>
+                        <!-- Remove from cart form -->
                         <form asp-action="RemoveFromCart" method="post">
                             <input type="hidden" name="itemId" value="@item.Id" />
                             <button type="submit" class="btn btn-danger">Remove</button>
@@ -35,9 +46,12 @@ else
         </tbody>
     </table>
 
-    <div>
-        <strong>Total: </strong>@Model.GetTotalPrice()$
+    <div class="d-flex justify-content-between align-items-center">
+        <h4><strong>Total:</strong> @Model.GetTotalPrice()$</h4>
+        <form asp-action="ProcessPayment" asp-controller="Payment" method="post">
+            <button type="submit" class="btn btn-success">Pay Now</button>
+        </form>
     </div>
-}
 
-<a href="@Url.Action("Index", "Home")" class="btn btn-secondary">Continue Shopping</a>
+    <a href="@Url.Action("Index", "Home")" class="btn btn-secondary mt-3">Continue Shopping</a>
+}

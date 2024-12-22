@@ -1,0 +1,18 @@
+﻿@{
+    ViewData["Title"] = "Process Payment";
+}
+
+<h1>Payment Options</h1>
+<p>Select your preferred payment method:</p>
+
+<form method="post" asp-action="CompletePayment" asp-controller="Payment">
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="paymentMethod" value="CreditCard" id="creditCard" />
+        <label class="form-check-label" for="creditCard">Credit Card</label>
+    </div>
+    <div class="form-check">
+        <input class="form-check-input" type="radio" name="paymentMethod" value="PayPal" id="paypal" />
+        <label class="form-check-label" for="paypal">PayPal</label>
+    </div>
+    <button class="btn btn-primary mt-3">Pay Now</button>
+</form>

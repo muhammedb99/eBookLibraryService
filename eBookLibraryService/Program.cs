@@ -99,6 +99,8 @@ if (!app.Environment.IsDevelopment())
 app.UseStaticFiles(); // Serve static files like images, CSS, etc.
 
 app.UseRouting();
+app.UseHttpsRedirection();
+app.UseHsts();
 
 // Enable session middleware - MUST be before UseAuthorization
 app.UseSession();
