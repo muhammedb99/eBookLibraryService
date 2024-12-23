@@ -93,9 +93,9 @@
                 <a asp-controller="Home" asp-action="Index" class="list-group-item">Home</a>
                 <a asp-controller="Orders" asp-action="Index" class="list-group-item">Orders</a>
                 <a asp-controller="Stock" asp-action="Index" class="list-group-item">Stock</a>
-                <a asp-controller="Genre" asp-action="Index" class="list-group-item">Genre</a>
                 <a asp-controller="Books" asp-action="Index" class="list-group-item">Books</a>
                 <a asp-controller="Reports" asp-action="TopSellingItems" class="list-group-item">Top Selling Items</a>
+                <a asp-controller="Dashboard" asp-action="ManageUsers" class="list-group-item">Manage Users</a> <!-- Added this line -->
             </div>
         </div>
 
@@ -103,7 +103,7 @@
         <div id="page-content-wrapper" class="page-content-wrapper flex-grow-1">
             <div class="container-fluid">
                 <main role="main" class="container pt-3">
-                 @RenderBody()
+                    @RenderBody()
                 </main>
             </div>
         </div>

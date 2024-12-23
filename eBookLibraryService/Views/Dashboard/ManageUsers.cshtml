@@ -1,0 +1,29 @@
+﻿@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+@model IEnumerable<eBookLibraryService.Models.Users>
+
+<h1>Manage Users</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.UserName)</th>
+            <th>@Html.DisplayNameFor(model => model.Email)</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+                <tr>
+                    <td>@user.UserName</td>
+                    <td>@user.Email</td>
+                    <td>
+                        <a href="@Url.Action("Edit", "Users", new { id = user.Id })" class="btn btn-warning"><i class="fa fa-pencil-alt"></i> Edit</a>
+                        <a href="@Url.Action("Delete", "Users", new { id = user.Id })" class="btn btn-danger"><i class="fa fa-trash"></i> Delete</a>
+                    </td>
+                </tr>
+        }
+    </tbody>
+</table>

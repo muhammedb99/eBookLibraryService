@@ -1,0 +1,41 @@
+﻿@model IEnumerable<eBookLibraryService.Models.Book>
+@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+<h1>Stock Management</h1>
+
+<form method="post" asp-action="UpdateStock">
+    <table class="table">
+        <thead>
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.ImageUrl)</th> <!-- Image column -->
+                <th>@Html.DisplayNameFor(model => model.Title)</th>
+                <th>@Html.DisplayNameFor(model => model.Author)</th>
+                <th>@Html.DisplayNameFor(model => model.Quantity)</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var book in Model)
+            {
+                <tr>
+                    <td>
+                        <!-- Display the image using the ImageUrl property -->
+                        <img src="@book.ImageUrl" alt="@book.Title" style="width: 50px; height: 75px; object-fit: cover;" />
+                    </td>
+                    <td>@book.Title</td>
+                    <td>@book.Author</td>
+                    <td>
+                        <!-- Editable quantity field -->
+                        <input type="number" name="quantities[@book.Id]" value="@book.Quantity" class="form-control" min="0" />
+                    </td>
+                    <td>
+                        <!-- Update button for each book -->
+                        <button type="submit" class="btn btn-success">Update</button>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</form>
+

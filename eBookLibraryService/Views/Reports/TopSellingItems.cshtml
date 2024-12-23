@@ -1,0 +1,31 @@
+﻿@model IEnumerable<eBookLibraryService.Models.Book>
+
+@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+
+<h1>Top Selling Items</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Author)</th>
+            <th>Borrow Count</th>
+            <th>Purchase Count</th>
+            <th>Total Sales</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var book in Model)
+        {
+            <tr>
+                <td>@book.Title</td>
+                <td>@book.Author</td>
+                <td>@book.BorrowCount</td>
+                <td>@book.PurchaseCount</td>
+                <td>@(book.BorrowCount + book.PurchaseCount)</td>
+            </tr>
+        }
+    </tbody>
+</table>

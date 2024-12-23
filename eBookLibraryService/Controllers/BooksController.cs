@@ -32,30 +32,34 @@ namespace eBookLibraryService.Controllers
         {
             var books = await _context.Books.ToListAsync();
 
+            var updatedBooks = new List<Book>();  // To track updated books
+
             // Handle discount expiration
             foreach (var book in books)
             {
                 if (book.DiscountPrice.HasValue && book.DiscountPrice > 0)
                 {
-                    var discountStartDate = book.CreatedDate; // Ensure you have this field in your model
+                    var discountStartDate = book.CreatedDate;  // Ensure you have this field in your model
                     var discountEndDate = discountStartDate.AddDays(7);
 
                     if (DateTime.Now > discountEndDate)
                     {
                         // Remove the discount if it has expired
                         book.DiscountPrice = null;
-
-                        // Optionally save the change to the database
-                        _context.Update(book);
+                        updatedBooks.Add(book);  // Track updated book
                     }
                 }
             }
-            
-            // Save changes for expired discounts
-            await _context.SaveChangesAsync();
+
+            if (updatedBooks.Any())
+            {
+                _context.UpdateRange(updatedBooks);  // Update all books in one go
+                await _context.SaveChangesAsync();  // Commit the changes
+            }
 
             return View(books);
         }
+
 
 
         // Available to admins only: Manage books
@@ -108,7 +112,7 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title, Author, Publisher, BorrowPrice, BuyingPrice, YearOfPublishing, AgeLimitation, Quantity, Genre, Popularity, DiscountPrice,DiscountUntil, PublicationYears, Publishers, ImageUrl")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title, Author, Publisher, BorrowPrice, BuyingPrice, YearOfPublishing, AgeLimitation, Genre, Popularity, DiscountPrice,DiscountUntil, PublicationYears, Publishers, ImageUrl")] Book book)
         {
             if (id != book.Id) return NotFound();
 

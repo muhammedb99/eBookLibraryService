@@ -9,8 +9,7 @@
 }
 else
 {
-    <!-- Main form for updating cart options -->
-    <form method="post" asp-action="UpdateCart" asp-controller="Cart">
+   
         <table class="table">
             <thead>
                 <tr>
@@ -18,7 +17,6 @@ else
                     <th>Author</th>
                     <th>Price</th>
                     <th>Option</th>
-                    <th>Action</th>
                 </tr>
             </thead>
             <tbody>
@@ -27,21 +25,15 @@ else
                     <tr>
                         <td>@item.Book.Title</td>
                         <td>@item.Book.Author</td>
-                        <td>@item.Price$</td>
+                        <td>@(item.IsBorrow ? item.Book.BorrowPrice : item.Book.BuyingPrice)$</td>
+                       
                         <td>
-                            <select name="cartItems[@item.Id].IsBorrow" class="form-select">
-                                <option value="false" selected="@(item.IsBorrow == false)">Buy</option>
-                                <option value="true" selected="@(item.IsBorrow == true)">Borrow</option>
-                            </select>
-                        </td>
-                        <td>
-                            <form asp-action="RemoveFromCart" method="post" class="d-inline">
+                            <form asp-action="RemoveFromCart" method="post">
                                 <input type="hidden" name="itemId" value="@item.Id" />
                                 <button type="submit" class="btn btn-danger">Remove</button>
                             </form>
                         </td>
                     </tr>
-
                 }
             </tbody>
         </table>
@@ -49,13 +41,11 @@ else
         <div class="d-flex justify-content-between align-items-center">
             <h4><strong>Total:</strong> @Model.GetTotalPrice()$</h4>
             <div>
-                <button type="submit" class="btn btn-secondary">Update Options</button>
                 <form asp-action="ProcessPayment" asp-controller="Payment" method="post" class="d-inline">
                     <button type="submit" class="btn btn-success">Confirm and Pay</button>
                 </form>
             </div>
         </div>
-    </form>
 
     <a href="@Url.Action("Index", "Home")" class="btn btn-secondary mt-3">Continue Shopping</a>
 }

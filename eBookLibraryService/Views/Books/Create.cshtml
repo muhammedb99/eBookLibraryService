@@ -88,7 +88,14 @@
     <!-- Genre -->
     <div class="form-group">
         <label asp-for="Genre" class="control-label"></label>
-        <input asp-for="Genre" class="form-control" />
+        <select asp-for="Genre" class="form-control">
+            <option value="">Select Genre</option>
+            <option value="Horror">Horror</option>
+            <option value="Romance">Romance</option>
+            <option value="Kids">Kids</option>
+            <option value="Classic">Classic</option>
+            <option value="Thriller">Thriller</option>
+        </select>
         <span asp-validation-for="Genre" class="text-danger"></span>
     </div>
 

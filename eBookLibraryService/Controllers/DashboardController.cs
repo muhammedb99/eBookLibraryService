@@ -10,12 +10,14 @@ namespace eBookLibraryService.Controllers
     [Authorize(Roles = "Admin")]  // Only allow access to users with the "Admin" role
     public class DashboardController : Controller
     {
+        private readonly AppDbContext _appDbContext;
         private readonly eBookLibraryServiceContext _context;
 
         // Constructor to inject the eBookLibraryServiceContext
-        public DashboardController(eBookLibraryServiceContext context)
+        public DashboardController(eBookLibraryServiceContext context, AppDbContext appDbContext)
         {
             _context = context;
+            _appDbContext = appDbContext;
         }
 
         // GET: Dashboard/ManageBooks
@@ -34,8 +36,9 @@ namespace eBookLibraryService.Controllers
         // GET: Dashboard/ManageUsers
         public IActionResult ManageUsers()
         {
-            // You can add logic to manage users, e.g., view all users, their status, etc.
-            return View();
+            // Retrieve list of users (implement this based on your application logic)
+            var users = _appDbContext.Users.ToList(); // Assuming you have a `Users` table in your DB
+            return View(users); // Pass users data to the view
         }
 
         // You can add more methods here to handle other admin tasks
