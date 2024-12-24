@@ -1,22 +1,27 @@
 ﻿using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
+using eBookLibraryService.Services;
 using eBookLibraryService.ViewModels;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
-using static System.Runtime.InteropServices.JavaScript.JSType;
 
 namespace eBookLibraryService.Controllers
 {
     public class AccountController : Controller
     {
-        private readonly SignInManager<Users> signInManager;
-        private readonly UserManager<Users> userManager;
+        private readonly SignInManager<Users> _signInManager;
+        private readonly UserManager<Users> _userManager;
+        private readonly NotificationService _notificationService;
 
-        public AccountController(SignInManager<Users> signInManager, UserManager<Users> userManager)
+        public AccountController(
+            SignInManager<Users> signInManager,
+            UserManager<Users> userManager,
+            NotificationService notificationService)
         {
-            this.signInManager = signInManager;
-            this.userManager = userManager;
+            _signInManager = signInManager;
+            _userManager = userManager;
+            _notificationService = notificationService;
         }
 
         public override void OnActionExecuting(ActionExecutingContext context)
@@ -36,23 +41,15 @@ namespace eBookLibraryService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var result = await signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
+                var result = await _signInManager.PasswordSignInAsync(model.Email, model.Password, model.RememberMe, false);
                 if (result.Succeeded)
                 {
                     return RedirectToAction("Index", "Home");
                 }
-                else
-                {
-                    ModelState.AddModelError("", "Email or password is incorrect.");
-                    return View(model);
-                }
+
+                ModelState.AddModelError("", "Email or password is incorrect.");
             }
             return View(model);
-        }
-
-        public IActionResult Index()
-        {
-            return View();
         }
 
         public IActionResult Register()
@@ -65,7 +62,7 @@ namespace eBookLibraryService.Controllers
         {
             if (ModelState.IsValid)
             {
-                Users user = new Users
+                var user = new Users
                 {
                     FullName = model.Name,
                     Email = model.Email,
@@ -73,20 +70,30 @@ namespace eBookLibraryService.Controllers
                     PhoneNumber = model.PhoneNumber
                 };
 
-                var result = await userManager.CreateAsync(user, model.Password);
+                var result = await _userManager.CreateAsync(user, model.Password);
 
                 if (result.Succeeded)
                 {
-                    TempData["SuccessMessage"] = "Registration successful!";
+                    // Send Welcome Email
+                    var emailMessage = $@"<h1>Welcome to eBookLibraryService!</h1>
+                                        <p>Dear {model.Name},</p>
+                                        <p>Thank you for signing up for eBookLibraryService. We’re excited to have you on board!</p>
+                                        <p>Happy reading,</p>
+                                        <p>The eBookLibraryService Team</p>";
+
+                    await _notificationService.SendEmailAsync(
+                        recipientEmail: model.Email,
+                        subject: "Welcome to eBookLibraryService!",
+                        message: emailMessage
+                    );
+
+                    TempData["SuccessMessage"] = "Registration successful! A welcome email has been sent.";
                     return RedirectToAction("Login", "Account");
                 }
-                else
+
+                foreach (var error in result.Errors)
                 {
-                    foreach (var error in result.Errors)
-                    {
-                        ModelState.AddModelError("", error.Description);
-                    }
-                    return View(model);
+                    ModelState.AddModelError("", error.Description);
                 }
             }
             return View(model);
@@ -102,11 +109,10 @@ namespace eBookLibraryService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await userManager.FindByNameAsync(model.Email);
+                var user = await _userManager.FindByNameAsync(model.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError("", "Somethimg is wrong!");
-                    return View(model);
+                    ModelState.AddModelError("", "Something went wrong!");
                 }
                 else
                 {
@@ -130,53 +136,46 @@ namespace eBookLibraryService.Controllers
         {
             if (ModelState.IsValid)
             {
-                var user = await userManager.FindByNameAsync(model.Email);
+                var user = await _userManager.FindByNameAsync(model.Email);
                 if (user != null)
                 {
-                    var result = await userManager.RemovePasswordAsync(user);
+                    var result = await _userManager.RemovePasswordAsync(user);
                     if (result.Succeeded)
                     {
-                        result = await userManager.AddPasswordAsync(user, model.NewPassword);
-                        return RedirectToAction("Login", "Account");
-                    }
-                    else
-                    {
-                        foreach (var error in result.Errors)
+                        result = await _userManager.AddPasswordAsync(user, model.NewPassword);
+                        if (result.Succeeded)
                         {
-                            ModelState.AddModelError("", error.Description);
+                            TempData["Message"] = "Password updated successfully!";
+                            return RedirectToAction("Login", "Account");
                         }
-                        return View(model);
+                    }
+
+                    foreach (var error in result.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
                     }
                 }
                 else
                 {
                     ModelState.AddModelError("", "Email not found!");
-                    return View(model);
                 }
-
             }
-            else
-            {
-                ModelState.AddModelError("", "Something went wrong. try again.");
-                return View(model);
-            }
+            return View(model);
         }
-
 
         public async Task<IActionResult> Logout()
         {
-            await signInManager.SignOutAsync();
+            await _signInManager.SignOutAsync();
             return RedirectToAction("Index", "Home");
         }
-
 
         [HttpGet]
         public async Task<IActionResult> Profile()
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound();
+                return RedirectToAction("Login");
             }
 
             var model = new ProfileViewModel
@@ -193,88 +192,66 @@ namespace eBookLibraryService.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> UpdateProfile(ProfileViewModel model)
         {
-            // Clear validation errors for password fields if they are empty
-            if (ModelState.ContainsKey(nameof(model.Password)) && string.IsNullOrEmpty(model.Password))
-            {
-                ModelState.Remove(nameof(model.Password));
-            }
-
-            if (ModelState.ContainsKey(nameof(model.ConfirmPassword)) && string.IsNullOrEmpty(model.ConfirmPassword))
-            {
-                ModelState.Remove(nameof(model.ConfirmPassword));
-            }
-
             if (!ModelState.IsValid)
             {
                 return View("Profile", model);
             }
 
-            var user = await userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound();
+                return RedirectToAction("Login");
             }
 
-            // Update Full Name
-            if (!string.IsNullOrEmpty(model.FullName) && user.FullName != model.FullName)
+            if (!string.IsNullOrEmpty(model.FullName))
             {
                 user.FullName = model.FullName;
             }
 
-            // Update Email
-            if (!string.IsNullOrEmpty(model.Email) && user.Email != model.Email)
+            if (!string.IsNullOrEmpty(model.Email))
             {
-                var emailResult = await userManager.SetEmailAsync(user, model.Email);
+                var emailResult = await _userManager.SetEmailAsync(user, model.Email);
                 if (!emailResult.Succeeded)
                 {
                     foreach (var error in emailResult.Errors)
                     {
-                        ModelState.AddModelError(string.Empty, error.Description);
+                        ModelState.AddModelError("", error.Description);
                     }
                     return View("Profile", model);
                 }
             }
 
-            // Update Phone Number
-            if (!string.IsNullOrEmpty(model.PhoneNumber) && user.PhoneNumber != model.PhoneNumber)
+            if (!string.IsNullOrEmpty(model.PhoneNumber))
             {
-                var phoneResult = await userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
+                var phoneResult = await _userManager.SetPhoneNumberAsync(user, model.PhoneNumber);
                 if (!phoneResult.Succeeded)
                 {
                     foreach (var error in phoneResult.Errors)
                     {
-                        ModelState.AddModelError(string.Empty, error.Description);
+                        ModelState.AddModelError("", error.Description);
                     }
                     return View("Profile", model);
                 }
             }
 
-            // Update Password (if provided)
             if (!string.IsNullOrEmpty(model.Password))
             {
-                var removePasswordResult = await userManager.RemovePasswordAsync(user);
-                if (removePasswordResult.Succeeded)
+                var removePasswordResult = await _userManager.RemovePasswordAsync(user);
+                if (!removePasswordResult.Succeeded)
                 {
-                    var addPasswordResult = await userManager.AddPasswordAsync(user, model.Password);
-                    if (!addPasswordResult.Succeeded)
-                    {
-                        foreach (var error in addPasswordResult.Errors)
-                        {
-                            ModelState.AddModelError(string.Empty, error.Description);
-                        }
-                        return View("Profile", model);
-                    }
+                    ModelState.AddModelError("", "Could not remove old password.");
+                    return View("Profile", model);
                 }
-            }
 
-            var updateResult = await userManager.UpdateAsync(user);
-            if (!updateResult.Succeeded)
-            {
-                foreach (var error in updateResult.Errors)
+                var addPasswordResult = await _userManager.AddPasswordAsync(user, model.Password);
+                if (!addPasswordResult.Succeeded)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    foreach (var error in addPasswordResult.Errors)
+                    {
+                        ModelState.AddModelError("", error.Description);
+                    }
+                    return View("Profile", model);
                 }
-                return View("Profile", model);
             }
 
             TempData["Message"] = "Profile updated successfully!";
@@ -283,81 +260,68 @@ namespace eBookLibraryService.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdateField(string FieldName, string Value)
+        public async Task<IActionResult> UpdateField(string fieldName, string value)
         {
-            var user = await userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound();
+                return RedirectToAction("Login");
             }
 
             IdentityResult result = null;
-
-            switch (FieldName)
+            switch (fieldName)
             {
                 case "FullName":
-                    user.FullName = Value;
-                    result = await userManager.UpdateAsync(user);
+                    user.FullName = value;
+                    result = await _userManager.UpdateAsync(user);
                     break;
-
                 case "Email":
-                    result = await userManager.SetEmailAsync(user, Value);
+                    result = await _userManager.SetEmailAsync(user, value);
                     break;
-
                 case "PhoneNumber":
-                    result = await userManager.SetPhoneNumberAsync(user, Value);
+                    result = await _userManager.SetPhoneNumberAsync(user, value);
                     break;
-
                 default:
-                    return BadRequest("Invalid field name.");
+                    TempData["Message"] = "Invalid field name.";
+                    return RedirectToAction("Profile");
             }
 
             if (result != null && !result.Succeeded)
             {
                 foreach (var error in result.Errors)
                 {
-                    ModelState.AddModelError(string.Empty, error.Description);
+                    ModelState.AddModelError("", error.Description);
                 }
-                TempData["Message"] = "An error occurred while updating the field.";
-            }
-            else
-            {
-                TempData["Message"] = $"{FieldName} updated successfully!";
             }
 
+            TempData["Message"] = "Field updated successfully!";
             return RedirectToAction("Profile");
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> UpdatePassword(string NewPassword, string ConfirmPassword)
+        public async Task<IActionResult> UpdatePassword(string newPassword, string confirmPassword)
         {
-            if (string.IsNullOrEmpty(NewPassword) || string.IsNullOrEmpty(ConfirmPassword))
+            if (string.IsNullOrEmpty(newPassword) || newPassword != confirmPassword)
             {
-                TempData["Message"] = "Password fields cannot be empty.";
+                TempData["Message"] = "Passwords do not match or are empty.";
                 return RedirectToAction("Profile");
             }
 
-            if (NewPassword != ConfirmPassword)
-            {
-                TempData["Message"] = "Passwords do not match.";
-                return RedirectToAction("Profile");
-            }
-
-            var user = await userManager.GetUserAsync(User);
+            var user = await _userManager.GetUserAsync(User);
             if (user == null)
             {
-                return NotFound();
+                return RedirectToAction("Login");
             }
 
-            var removePasswordResult = await userManager.RemovePasswordAsync(user);
+            var removePasswordResult = await _userManager.RemovePasswordAsync(user);
             if (!removePasswordResult.Succeeded)
             {
-                TempData["Message"] = "An error occurred while removing the password.";
+                TempData["Message"] = "Could not remove old password.";
                 return RedirectToAction("Profile");
             }
 
-            var addPasswordResult = await userManager.AddPasswordAsync(user, NewPassword);
+            var addPasswordResult = await _userManager.AddPasswordAsync(user, newPassword);
             if (!addPasswordResult.Succeeded)
             {
                 foreach (var error in addPasswordResult.Errors)
@@ -370,8 +334,5 @@ namespace eBookLibraryService.Controllers
             TempData["Message"] = "Password updated successfully!";
             return RedirectToAction("Profile");
         }
-
-
-
     }
 }

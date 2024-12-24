@@ -1,6 +1,6 @@
 ﻿using System.ComponentModel.DataAnnotations;
 
-namespace eBookLibraryService.ViewModels // Or replace with the namespace you're using
+namespace eBookLibraryService.ViewModels 
 {
     public class MustBeTrueAttribute : ValidationAttribute
     {

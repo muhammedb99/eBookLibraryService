@@ -2,41 +2,24 @@
 
 @{
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
-    ViewData["Title"] = "Index";
-
-    string HasImage(Book book)
-    {
-        // Check if ImageUrl is not null or empty
-        if (!string.IsNullOrEmpty(book.ImageUrl))
-        {
-            return "fa-solid fa-check"; // Show check icon
-        }
-        else
-        {
-            return "fa-solid fa-x"; // Show x icon
-        }
-    }
+    ViewData["Title"] = "Books Index";
 }
 
-<h1>Index</h1>
- <a href="@Url.Action("Create", "Books")" class="btn btn-custom"
- <i class="fas fa-plus-circle"></i> Add New Book </a>
-        
+<h1>Books List</h1>
+<a href="@Url.Action("Create", "Books")" class="btn btn-custom"><i class="fas fa-plus-circle"></i> Add New Book</a>
 
 <table class="table">
     <thead>
         <tr>
-            <th>@Html.DisplayNameFor(model => model.Title)</th>
-            <th>@Html.DisplayNameFor(model => model.Author)</th>
-            <th>@Html.DisplayNameFor(model => model.Publisher)</th>
-            <th>@Html.DisplayNameFor(model => model.BorrowPrice)</th>
-            <th>@Html.DisplayNameFor(model => model.BuyingPrice)</th>
-            <th>@Html.DisplayNameFor(model => model.YearOfPublishing)</th>
-            <th>@Html.DisplayNameFor(model => model.AgeLimitation)</th>
-            <th>@Html.DisplayNameFor(model => model.Quantity)</th>
-            <th>@Html.DisplayNameFor(model => model.PurchaseCount)</th>
-            <th>@Html.DisplayNameFor(model => model.BorrowCount)</th>
-            <th>Has image</th>
+            <th>Title</th>
+            <th>Author</th>
+            <th>Publisher</th>
+            <th>Borrow Price</th>
+            <th>Buying Price</th>
+            <th>Quantity</th>
+            <th>Borrowed Count</th>
+            <th>Waiting List</th>
+            <th>Actions</th>
         </tr>
     </thead>
     <tbody>
@@ -46,27 +29,15 @@
                 <td>@book.Title</td>
                 <td>@book.Author</td>
                 <td>@book.Publisher</td>
-                @if (book.BorrowPrice != null)
-                {
-                    <td>@book.BorrowPrice$</td>
-                }
-                else
-                {
-                    <td>@book.BorrowPrice</td>
-                }
+                <td>@(book.BorrowPrice.HasValue ? $"{book.BorrowPrice}$" : "Not Available")</td>
                 <td>@book.BuyingPrice$</td>
-                <td>@book.YearOfPublishing</td>
-                <td>@book.AgeLimitation</td>
                 <td>@book.Quantity</td>
-                <td>@book.PurchaseCount</td>
                 <td>@book.BorrowCount</td>
-                <td><i class="@HasImage(book)"></i></td>
-
+                <td>@(book.WaitingList?.Count ?? 0)</td>
                 <td>
-                    <!-- You can add action links like Edit or Delete here -->
-                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary"><i class="fa-solid fa-pen-square"></i></a>
-                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-success"><i class="fa-solid fa-circle-info"></i></a>
-                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></a>
+                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary">Edit</a>
+                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-success">Details</a>
+                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger">Delete</a>
                 </td>
             </tr>
         }

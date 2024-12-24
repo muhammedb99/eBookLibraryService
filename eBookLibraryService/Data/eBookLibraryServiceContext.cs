@@ -1,15 +1,17 @@
 ﻿using Microsoft.EntityFrameworkCore;
 using eBookLibraryService.Models;
-namespace eBookLibraryService.Data
 
+namespace eBookLibraryService.Data
 {
     public class eBookLibraryServiceContext : DbContext
     {
         public eBookLibraryServiceContext(DbContextOptions<eBookLibraryServiceContext> options)
             : base(options)
-        { 
+        {
         }
-        public DbSet<Book> Books { get; set; }
-    }
 
+        public DbSet<Book> Books { get; set; }
+        public DbSet<WaitingListEntry> WaitingListEntries { get; set; }
+        public DbSet<BorrowedBook> BorrowedBooks { get; set; }
+    }
 }

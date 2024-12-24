@@ -6,6 +6,7 @@ using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
+using System.Threading.Tasks;
 
 namespace eBookLibraryService.Controllers
 {
@@ -18,7 +19,6 @@ namespace eBookLibraryService.Controllers
             _context = context;
         }
 
-        // Updates the cart item count on every action
         public override void OnActionExecuting(ActionExecutingContext context)
         {
             var cart = HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
@@ -26,65 +26,85 @@ namespace eBookLibraryService.Controllers
             base.OnActionExecuting(context);
         }
 
-        // Add item to cart and calculate price based on borrow or buy
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult AddToCart(int id, bool isBorrow)
+        public async Task<IActionResult> AddToCart(int id, bool isBorrow)
         {
-            var book = _context.Books.FirstOrDefault(b => b.Id == id);
-            if (book != null)
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (book == null)
             {
-                var cart = GetCart();
-
-                // Check if the book is already in the cart
-                var existingItem = cart.Items.FirstOrDefault(i => i.Book.Id == id);
-                if (existingItem != null)
-                {
-                    // Prevent duplicate adds for the same option
-                    if (existingItem.IsBorrow == isBorrow)
-                    {
-                        TempData["CartMessage"] = "This book is already in your cart with the selected option.";
-                        return RedirectToAction("Index", "Home");
-                    }
-                    else
-                    {
-                        // Allow updating the option (e.g., switch from Buy to Borrow)
-                        existingItem.IsBorrow = isBorrow;
-                        existingItem.Price = isBorrow
-                            ? (book.BorrowPrice ?? 0)
-                            : book.BuyingPrice;
-
-                        SaveCart(cart);
-                        TempData["CartMessage"] = "Your cart has been updated.";
-                        return RedirectToAction("Index", "Home");
-                    }
-                }
-
-                // Calculate price based on borrow or buy
-                var price = isBorrow ? (book.BorrowPrice ?? 0) : book.BuyingPrice;
-
-                var cartItem = new CartItem
-                {
-                    Book = book,
-                    IsBorrow = isBorrow,
-                    Price = price
-                };
-
-                cart.AddToCart(cartItem);
-                SaveCart(cart);
+                TempData["CartMessage"] = "The selected book does not exist.";
+                return RedirectToAction("Index", "Home");
             }
 
+            var cart = GetCart();
+
+            // Check for duplicate items in the cart (borrow/buy distinction)
+            var existingItem = cart.Items.FirstOrDefault(i => i.Book.Id == id && i.IsBorrow == isBorrow);
+            if (existingItem != null)
+            {
+                TempData["CartMessage"] = "This book is already in your cart with the selected option.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            if (isBorrow)
+            {
+                // Borrow-specific logic
+                var currentUserEmail = User.Identity.Name;
+                if (string.IsNullOrEmpty(currentUserEmail))
+                {
+                    TempData["CartMessage"] = "You must be logged in to borrow a book.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Check if the user has already borrowed 3 books
+                var currentBorrowedCount = await _context.BorrowedBooks
+                    .CountAsync(bb => bb.Email == currentUserEmail && !bb.IsReturned);
+                if (currentBorrowedCount >= 3)
+                {
+                    TempData["CartMessage"] = "You have reached the borrowing limit of 3 books.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Check if the book is available for borrowing
+                if (book.BorrowCount >= book.Quantity)
+                {
+                    TempData["CartMessage"] = "This book is currently unavailable for borrowing.";
+                    return RedirectToAction("Index", "Home");
+                }
+
+                // Increment the borrow count
+                book.BorrowCount++;
+                _context.Books.Update(book);
+                await _context.SaveChangesAsync();
+            }
+
+            // Calculate price based on borrow or buy
+            var price = isBorrow ? (book.BorrowPrice ?? 0) : book.BuyingPrice;
+
+            // Add the book to the cart
+            var cartItem = new CartItem
+            {
+                Book = book,
+                IsBorrow = isBorrow,
+                Price = price
+            };
+
+            cart.AddToCart(cartItem);
+            SaveCart(cart);
+
+            TempData["CartMessage"] = isBorrow ? "Book added to your cart for borrowing." : "Book added to your cart for buying.";
             return RedirectToAction("Index", "Home");
         }
 
-        // Display the cart
+
+
         public IActionResult Index()
         {
             var cart = GetCart();
             return View(cart);
         }
 
-        // Remove item from cart
         [HttpPost]
         [ValidateAntiForgeryToken]
         public IActionResult RemoveFromCart(int itemId)
@@ -93,44 +113,35 @@ namespace eBookLibraryService.Controllers
             cart.RemoveFromCart(itemId);
             SaveCart(cart);
 
+            TempData["CartMessage"] = "Book removed from your cart.";
             return RedirectToAction(nameof(Index));
         }
 
-        // Update cart when options are changed (Buy to Borrow or Borrow to Buy)
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateCart(Dictionary<int, string> cartItems)
+        public IActionResult UpdateCart(Dictionary<int, bool> cartItems)
         {
             var cart = GetCart();
 
-            // Loop through each cart item and update its IsBorrow value
-            foreach (var cartItem in cart.Items)
+            foreach (var item in cart.Items)
             {
-                if (cartItems.TryGetValue(cartItem.Id, out var isBorrowValue))
+                if (cartItems.TryGetValue(item.Id, out var isBorrow))
                 {
-                    var isBorrow = bool.TryParse(isBorrowValue, out var result) && result;
-
-                    // Update IsBorrow flag
-                    cartItem.IsBorrow = isBorrow;
-
-                    // Update price based on the IsBorrow value
-                    cartItem.Price = cartItem.IsBorrow
-                        ? (cartItem.Book.BorrowPrice ?? 0)
-                        : cartItem.Book.BuyingPrice;
+                    item.IsBorrow = isBorrow;
+                    item.Price = isBorrow ? (item.Book.BorrowPrice ?? 0) : item.Book.BuyingPrice;
                 }
             }
 
-            SaveCart(cart);  // Save updated cart
-            return RedirectToAction(nameof(Index));  // Redirect to cart view
+            SaveCart(cart);
+            TempData["CartMessage"] = "Cart updated successfully.";
+            return RedirectToAction(nameof(Index));
         }
 
-        // Helper method to get the cart from session
         private Cart GetCart()
         {
             return HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
         }
 
-        // Helper method to save the cart back into session
         private void SaveCart(Cart cart)
         {
             HttpContext.Session.SetObject("Cart", cart);

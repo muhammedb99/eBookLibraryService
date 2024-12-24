@@ -1,4 +1,5 @@
-﻿using Humanizer.Localisation;
+﻿using System;
+using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 
 namespace eBookLibraryService.Models
@@ -15,9 +16,10 @@ namespace eBookLibraryService.Models
 
         public string Publisher { get; set; }
 
-        public float? BorrowPrice { get; set; } // Make BorrowPrice nullable
+        // Prices set as float for borrowing and buying
+        public float? BorrowPrice { get; set; } // Nullable for books that can't be borrowed
 
-        [Required, DataType(DataType.Currency)]
+        [Required, Range(0.01, float.MaxValue, ErrorMessage = "Buying price must be greater than 0.")]
         public float BuyingPrice { get; set; }
 
         [Required]
@@ -43,16 +45,27 @@ namespace eBookLibraryService.Models
         [Required]
         public string Genre { get; set; }
 
+        // Computed property for popularity based on borrowing and purchase counts
         public int Popularity => BorrowCount + PurchaseCount;
 
-        public float? DiscountPrice { get; set; } 
+        // Optional discount price for promotional offers
+        public float? DiscountPrice { get; set; }
 
-        public List<int> PublicationYears { get; set; } = new List<int>(); 
-
+        // Allow tracking of past publication years and publishers for a book
+        public List<int> PublicationYears { get; set; } = new List<int>();
         public List<string> Publishers { get; set; } = new List<string>();
-        public DateTime CreatedDate { get; set; } = DateTime.Now; 
 
+        // Metadata for book creation and discount periods
+        public DateTime CreatedDate { get; set; } = DateTime.Now;
         public DateTime? DiscountUntil { get; set; }
 
+        // Borrowing and waiting list tracking
+        public int TotalCopies { get; set; } = 0;
+        public int BorrowedCopies { get; set; } = 0; // Current borrowed count
+        public List<WaitingListEntry> WaitingList { get; set; } = new List<WaitingListEntry>();
+
+        // Borrowing return logic
+        public DateTime? ReturnDate { get; set; }
+        public bool IsReturned => ReturnDate.HasValue;
     }
 }

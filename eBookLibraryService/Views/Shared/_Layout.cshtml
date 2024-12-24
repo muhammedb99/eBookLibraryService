@@ -12,89 +12,79 @@
 
     <!-- Bootstrap and Custom Styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/style1.css" /> <!-- Link to your custom CSS file -->
+    <link rel="stylesheet" href="~/css/style1.css" />
 </head>
 <body>
     <header>
-        <nav class="navbar navbar-expand-sm navbar-toggleable-sm navbar-light bg-white border-bottom box-shadow mb-3">
+        <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
             <div class="container-fluid">
-                <a class="navbar-brand" asp-area="" asp-controller="Home" asp-action="Index">eBookLibraryService</a>
-                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target=".navbar-collapse" aria-controls="navbarSupportedContent"
-                        aria-expanded="false" aria-label="Toggle navigation">
+                <a class="navbar-brand" asp-controller="Home" asp-action="Index">eBookLibraryService</a>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
                     <span class="navbar-toggler-icon"></span>
                 </button>
-                <div class="navbar-collapse collapse d-sm-inline-flex justify-content-between">
-                    <ul class="navbar-nav flex-grow-1">
+                <div class="collapse navbar-collapse" id="navbarNav">
+                    <ul class="navbar-nav me-auto">
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
+                            <a class="nav-link" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
                         <li class="nav-item">
-                            <a class="nav-link text-dark" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
-                        </li>    
-                        @if (signInManager.IsSignedIn(User))
-                        {
-                            var user = await userManager.GetUserAsync(User);
-                            if (await userManager.IsInRoleAsync(user, "Admin"))
-                                if (user != null && await userManager.IsInRoleAsync(user, "Admin"))
-                                {
-                                    <li class="nav-item">
-                                        <a class="nav-link text-dark" asp-controller="Dashboard" asp-action="Index">Admin Dashboard</a>
-                                    </li>
-                                }
-                        }
-                        <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" id="navbarDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">Books</a>
-                            <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                                <li><a class="dropdown-item" href="#!">All Books</a></li>
-                                <li><hr class="dropdown-divider" /></li>
-                                <li><a class="dropdown-item" href="#!">Popular Books</a></li>
-                                <li><a class="dropdown-item" href="#!">New Arrivals</a></li>
-                            </ul>
+                            <a class="nav-link" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
-                    </ul>
-                    
-                    
-                    <!-- Cart Form -->
-                    <form class="d-flex" action="@Url.Action("Index", "Cart")" method="get">
-                        <button class="btn btn-outline-dark" type="submit">
-                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-cart" viewBox="0 0 16 16">
-                                <path d="M0 1.5A.5.5 0 0 1 .5 1H2a.5.5 0 0 1 .485.379L2.89 3H14.5a.5.5 0 0 1 .491.592l-1.5 8A.5.5 0 0 1 13 12H4a.5.5 0 0 1-.491-.408L2.01 3.607 1.61 2H.5a.5.5 0 0 1-.5-.5M3.102 4l1.313 7h8.17l1.313-7zM5 12a2 2 0 1 0 0 4 2 2 0 0 0 0-4m7 0a2 2 0 1 0 0 4 2 2 0 0 0 0-4m-7 1a1 1 0 1 1 0 2 1 1 0 0 1 0-2m7 0a1 1 0 1 1 0 2 1 1 0 0 1 0-2" />
-                            </svg>
-                            <span class="badge badge-pill badge-warning" style="background-color: #FF6347;">
-                                @ViewBag.CartItemCount
-                            </span>
-
-                        </button>
-                    </form>
-
-
-                    <ul class="navbar-nav ms-auto">
                         @if (signInManager.IsSignedIn(User))
                         {
-                            var user = await userManager.GetUserAsync(User);
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle text-dark" id="userDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    @user.FullName
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">See My Profile</a>
-                                    </li>
-                                    <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item p-0">
-                                            <button type="submit" class="btn btn-link w-100 text-start">Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
+                            var user = await userManager.GetUserAsync(User); // Define the `user` variable here
+                            if (user != null && await userManager.IsInRoleAsync(user, "Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Admin Dashboard</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Account" asp-action="Profile">My Account</a>
                             </li>
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Books" asp-action="BorrowedBooks">My Borrowed Books</a>
+                            </li>
+                        }
+                    </ul>
+                    <ul class="navbar-nav ms-auto">
+                        <!-- Cart -->
+                        <li class="nav-item">
+                            <form class="d-flex" action="@Url.Action("Index", "Cart")" method="get">
+                                <button class="btn btn-outline-light" type="submit">
+                                    <i class="fas fa-shopping-cart"></i>
+                                    <span class="badge bg-warning">@ViewBag.CartItemCount</span>
+                                </button>
+                            </form>
+                        </li>
+                        <!-- User Authentication -->
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            var user = await userManager.GetUserAsync(User); // Fetch the user object
+                            if (user != null)
+                            {
+                                <li class="nav-item dropdown">
+                                    <a class="nav-link dropdown-toggle" href="#" id="userDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                                        @user.FullName
+                                    </a>
+                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                        <li><a class="dropdown-item" asp-controller="Account" asp-action="Profile">My Profile</a></li>
+                                        <li>
+                                            <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item">
+                                                <button type="submit" class="btn btn-link text-start w-100">Logout</button>
+                                            </form>
+                                        </li>
+                                    </ul>
+                                </li>
+                            }
                         }
                         else
                         {
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Login">Login</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Login">Login</a>
                             </li>
                             <li class="nav-item">
-                                <a class="nav-link text-dark" asp-controller="Account" asp-action="Register">Register</a>
+                                <a class="nav-link" asp-controller="Account" asp-action="Register">Register</a>
                             </li>
                         }
                     </ul>
@@ -102,26 +92,25 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
 
-    <footer class="border-top footer text-muted">
-        <div class="container">
-            &copy; 2024 - eBookLibraryService - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main role="main" class="container my-4">
+        @RenderBody()
+    </main>
+
+    <footer class="bg-dark text-light py-3">
+        <div class="container text-center">
+            &copy; @DateTime.Now.Year eBookLibraryService. All Rights Reserved.
+            <div class="mt-2">
+                <a href="@Url.Action("ContactUs", "Home")" class="text-light">Contact Us</a> |
+                <a href="@Url.Action("AboutUs", "Home")" class="text-light">About Us</a> |
+                <a href="@Url.Action("Terms", "Home")" class="text-light">Terms of Service</a>
+            </div>
         </div>
     </footer>
 
-    <!-- JavaScript files -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
-
-    <!-- Include Validation Scripts Partial -->
-    @await Html.PartialAsync("_ValidationScriptsPartial")
-
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

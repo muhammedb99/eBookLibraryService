@@ -1,6 +1,7 @@
 using eBookLibraryService.Data;
 using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
+using eBookLibraryService.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -11,11 +12,7 @@ var builder = WebApplication.CreateBuilder(args);
 // Register AppDbContext for Identity
 builder.Services.AddDbContext<AppDbContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
-builder.Services.AddControllersWithViews()
-    .AddViewOptions(options =>
-    {
-        options.HtmlHelperOptions.ClientValidationEnabled = true;
-    });
+
 // Register eBookLibraryServiceContext for managing Books
 builder.Services.AddDbContext<eBookLibraryServiceContext>(options =>
     options.UseSqlServer(builder.Configuration.GetConnectionString("Default")));
@@ -36,7 +33,7 @@ builder.Services.AddIdentity<Users, IdentityRole>(options =>
 .AddDefaultTokenProviders();
 
 // Add session services
-builder.Services.AddDistributedMemoryCache(); // This is required to store the session in memory
+builder.Services.AddDistributedMemoryCache();
 builder.Services.AddSession(options =>
 {
     options.IdleTimeout = TimeSpan.FromMinutes(30); // Set session timeout as needed
@@ -44,8 +41,24 @@ builder.Services.AddSession(options =>
     options.Cookie.IsEssential = true;
 });
 
+// Register NotificationService with configuration from appsettings.json
+builder.Services.AddScoped<NotificationService>(provider =>
+{
+    var configuration = provider.GetRequiredService<IConfiguration>();
+    return new NotificationService(
+        smtpServer: configuration["NotificationService:SmtpServer"],
+        smtpPort: int.Parse(configuration["NotificationService:SmtpPort"]),
+        senderEmail: configuration["NotificationService:SenderEmail"],
+        senderPassword: configuration["NotificationService:SenderPassword"]
+    );
+});
+
 // Add controllers with views
-builder.Services.AddControllersWithViews();
+builder.Services.AddControllersWithViews()
+    .AddViewOptions(options =>
+    {
+        options.HtmlHelperOptions.ClientValidationEnabled = true;
+    });
 
 var app = builder.Build();
 
@@ -109,6 +122,7 @@ app.UseHsts();
 // Enable session middleware - MUST be before UseAuthorization
 app.UseSession();
 
+app.UseAuthentication(); // Add authentication middleware
 app.UseAuthorization(); // Authorization middleware to protect routes
 
 // Define the default route

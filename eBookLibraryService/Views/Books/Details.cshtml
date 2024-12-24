@@ -23,18 +23,10 @@
             <th>Publisher</th>
             <td>@Model.Publisher</td>
         </tr>
-        @if(Model.BorrowPrice != null){
-            <tr>
-                <th>Borrow Price</th>
-                <td>@Model.BorrowPrice$</td>
-            </tr>
-        }
-        else{
-            <tr>
-                <th>Borrow Price</th>
-                <td>@Model.BorrowPrice</td>
-            </tr>
-        }
+        <tr>
+            <th>Borrow Price</th>
+            <td>@(Model.BorrowPrice.HasValue ? $"{Model.BorrowPrice}$" : "Not Available")</td>
+        </tr>
         <tr>
             <th>Buying Price</th>
             <td>@Model.BuyingPrice$</td>
@@ -51,17 +43,45 @@
             <th>Quantity</th>
             <td>@Model.Quantity</td>
         </tr>
-
         <tr>
             <th>Genre</th>
             <td>@Model.Genre</td>
         </tr>
-
         <tr>
             <th>Image</th>
             <td><img src="@Model.ImageUrl" alt="Book Image" style="width: 100px; height: 150px;" /></td>
         </tr>
+        <tr>
+            <th>Waiting List</th>
+            <td>
+                @if (Model.WaitingList?.Count > 0)
+                {
+                    <span>@Model.WaitingList.Count people are in the waiting list.</span>
+                }
+                else
+                {
+                    <span>No one is currently waiting for this book.</span>
+                }
+            </td>
+        </tr>
     </table>
 
-    <div><a asp-action="Index" class="btn btn-warning"><i class="fa-solid fa-arrow-left"></i>Back</a></div>
+    @if (Model.Quantity > 0)
+    {
+        <form asp-action="Borrow" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-primary">Borrow</button>
+        </form>
+
+        <form asp-action="Buy" method="post">
+            <input type="hidden" name="id" value="@Model.Id" />
+            <button type="submit" class="btn btn-success">Buy</button>
+        </form>
+    }
+    else
+    {
+        <p class="text-danger"><strong>This book is currently unavailable for borrowing.</strong></p>
+    }
+
+    <div><a asp-action="Index" class="btn btn-warning"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
 </div>

@@ -28,16 +28,16 @@ namespace eBookLibraryService.Controllers
         }
 
         public async Task<IActionResult> Index(
-        string query = null,
-        string author = null,
-        string genre = null,
-        string method = null,
-        float? minPrice = null,
-        float? maxPrice = null,
-        bool? isOnSale = null,
-        int? year = null,
-        string publisher = null,
-        string sortOrder = null)
+            string query = null,
+            string author = null,
+            string genre = null,
+            string method = null,
+            float? minPrice = null,
+            float? maxPrice = null,
+            bool? isOnSale = null,
+            int? year = null,
+            string publisher = null,
+            string sortOrder = null)
         {
             var books = _context.Books.AsQueryable();
 
@@ -72,12 +72,12 @@ namespace eBookLibraryService.Controllers
 
             if (minPrice.HasValue)
             {
-                books = books.Where(b => b.BuyingPrice >= minPrice.Value);
+                books = books.Where(b => (b.DiscountPrice ?? b.BuyingPrice) >= minPrice.Value);
             }
 
             if (maxPrice.HasValue)
             {
-                books = books.Where(b => b.BuyingPrice <= maxPrice.Value);
+                books = books.Where(b => (b.DiscountPrice ?? b.BuyingPrice) <= maxPrice.Value);
             }
 
             if (isOnSale.HasValue && isOnSale.Value)
@@ -97,12 +97,11 @@ namespace eBookLibraryService.Controllers
                 books = books.Where(b => EF.Functions.Like(b.Publisher, $"%{publisher}%"));
             }
 
-
             // Apply sorting
             books = sortOrder switch
             {
-                "price_asc" => books.OrderBy(b => b.BuyingPrice),
-                "price_desc" => books.OrderByDescending(b => b.BuyingPrice),
+                "price_asc" => books.OrderBy(b => b.DiscountPrice ?? b.BuyingPrice),
+                "price_desc" => books.OrderByDescending(b => b.DiscountPrice ?? b.BuyingPrice),
                 "popular" => books.OrderByDescending(b => b.Popularity),
                 "genre" => books.OrderBy(b => b.Genre),
                 "year" => books.OrderByDescending(b => b.YearOfPublishing),

@@ -4,7 +4,6 @@
     <h1 class="text-center">My Profile</h1>
     <hr />
 
-    <!-- Success Message -->
     @if (TempData["Message"] != null)
     {
         <div class="alert alert-success text-center">
@@ -12,86 +11,32 @@
         </div>
     }
 
-    <!-- Profile Fields -->
     <dl class="row">
         <dt class="col-sm-4">Full Name</dt>
         <dd class="col-sm-6">@Model.FullName</dd>
-        <dd class="col-sm-2">
-            <button class="btn btn-primary btn-sm" onclick="toggleEdit('editFullName')">Edit</button>
-        </dd>
-        <div id="editFullName" style="display: none;">
-            <form asp-action="UpdateField" method="post">
-                <input type="hidden" name="FieldName" value="FullName" />
-                <div class="mb-3">
-                    <label for="FullName" class="form-label">Full Name</label>
-                    <input id="FullName" name="Value" class="form-control" value="@Model.FullName" />
-                </div>
-                <button type="submit" class="btn btn-success btn-sm">Save</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEdit('editFullName')">Cancel</button>
-            </form>
-        </div>
 
         <dt class="col-sm-4">Email</dt>
         <dd class="col-sm-6">@Model.Email</dd>
-        <dd class="col-sm-2">
-            <button class="btn btn-primary btn-sm" onclick="toggleEdit('editEmail')">Edit</button>
-        </dd>
-        <div id="editEmail" style="display: none;">
-            <form asp-action="UpdateField" method="post">
-                <input type="hidden" name="FieldName" value="Email" />
-                <div class="mb-3">
-                    <label for="Email" class="form-label">Email</label>
-                    <input id="Email" name="Value" class="form-control" value="@Model.Email" />
-                </div>
-                <button type="submit" class="btn btn-success btn-sm">Save</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEdit('editEmail')">Cancel</button>
-            </form>
-        </div>
 
-        <dt class="col-sm-4">Phone Number</dt>
-        <dd class="col-sm-6">@(!string.IsNullOrEmpty(Model.PhoneNumber) ? Model.PhoneNumber : "Not Set")</dd>
-        <dd class="col-sm-2">
-            <button class="btn btn-primary btn-sm" onclick="toggleEdit('editPhoneNumber')">Edit</button>
-        </dd>
-        <div id="editPhoneNumber" style="display: none;">
-            <form asp-action="UpdateField" method="post">
-                <input type="hidden" name="FieldName" value="PhoneNumber" />
-                <div class="mb-3">
-                    <label for="PhoneNumber" class="form-label">Phone Number</label>
-                    <input id="PhoneNumber" name="Value" class="form-control" value="@Model.PhoneNumber" />
-                </div>
-                <button type="submit" class="btn btn-success btn-sm">Save</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEdit('editPhoneNumber')">Cancel</button>
-            </form>
-        </div>
+        <dt class="col-sm-4">Borrowed Books</dt>
+        <dd class="col-sm-6">@Model.BorrowedBooks.Count</dd>
 
-        <dt class="col-sm-4">Password</dt>
-        <dd class="col-sm-6">******</dd>
-        <dd class="col-sm-2">
-            <button class="btn btn-primary btn-sm" onclick="toggleEdit('editPassword')">Edit</button>
-        </dd>
-        <div id="editPassword" style="display: none;">
-            <form asp-action="UpdatePassword" method="post">
-                <div class="mb-3">
-                    <label for="NewPassword" class="form-label">New Password</label>
-                    <input id="NewPassword" name="NewPassword" class="form-control" type="password" />
-                </div>
-                <div class="mb-3">
-                    <label for="ConfirmPassword" class="form-label">Confirm Password</label>
-                    <input id="ConfirmPassword" name="ConfirmPassword" class="form-control" type="password" />
-                </div>
-                <button type="submit" class="btn btn-success btn-sm">Save</button>
-                <button type="button" class="btn btn-secondary btn-sm" onclick="toggleEdit('editPassword')">Cancel</button>
-            </form>
-        </div>
+        <dt class="col-sm-4">Remaining Slots</dt>
+        <dd class="col-sm-6">@Math.Max(0, 3 - Model.BorrowedBooks.Count)</dd>
     </dl>
-</div>
 
-@section Scripts {
-    <script>
-        function toggleEdit(id) {
-            const element = document.getElementById(id);
-            element.style.display = element.style.display === 'none' ? 'block' : 'none';
-        }
-    </script>
-}
+    @if (Model.BorrowedBooks.Any())
+    {
+        <h4>Your Borrowed Books</h4>
+        <ul>
+            @foreach (var book in Model.BorrowedBooks)
+            {
+                <li>@book.Title - Return by @book.ReturnDate.ToShortDateString()</li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You haven't borrowed any books yet.</p>
+    }
+</div>

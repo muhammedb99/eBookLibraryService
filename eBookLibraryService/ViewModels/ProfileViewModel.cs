@@ -1,4 +1,6 @@
-﻿using System.ComponentModel.DataAnnotations;
+﻿using System;
+using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 
 namespace eBookLibraryService.ViewModels
 {
@@ -21,5 +23,13 @@ namespace eBookLibraryService.ViewModels
         [DataType(DataType.Password)]
         [Compare("Password", ErrorMessage = "Passwords do not match.")]
         public string ConfirmPassword { get; set; }
+
+        public List<BorrowedBookViewModel> BorrowedBooks { get; set; } = new List<BorrowedBookViewModel>();
+    }
+
+    public class BorrowedBookViewModel
+    {
+        public string Title { get; set; }
+        public DateTime ReturnDate { get; set; }
     }
 }
