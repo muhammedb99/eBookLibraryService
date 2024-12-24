@@ -27,18 +27,17 @@ namespace eBookLibraryService.Controllers
             base.OnActionExecuting(context);
         }
 
-        // Index action - Fetching books with optional filtering, sorting, and searching
         public async Task<IActionResult> Index(
-            string query = null,
-            string author = null,
-            string genre = null,
-            string method = null,
-            float? minPrice = null,
-            float? maxPrice = null,
-            bool? isOnSale = null, // New parameter for filtering discounted books
-            int? year = null, // New parameter for filtering by publication year
-            string publisher = null, // New parameter for filtering by publisher
-            string sortOrder = null)
+        string query = null,
+        string author = null,
+        string genre = null,
+        string method = null,
+        float? minPrice = null,
+        float? maxPrice = null,
+        bool? isOnSale = null,
+        int? year = null,
+        string publisher = null,
+        string sortOrder = null)
         {
             var books = _context.Books.AsQueryable();
 
@@ -86,15 +85,18 @@ namespace eBookLibraryService.Controllers
                 books = books.Where(b => b.DiscountPrice.HasValue && b.DiscountPrice < b.BuyingPrice);
             }
 
+            // Correctly query the `PublicationYears` collection
             if (year.HasValue)
             {
-                books = books.Where(b => b.PublicationYears.Contains(year.Value));
+                books = books.Where(b => b.PublicationYears.Any(y => y == year.Value));
             }
 
+            // Correctly query the `Publishers` collection
             if (!string.IsNullOrEmpty(publisher))
             {
-                books = books.Where(b => b.Publishers.Contains(publisher));
+                books = books.Where(b => EF.Functions.Like(b.Publisher, $"%{publisher}%"));
             }
+
 
             // Apply sorting
             books = sortOrder switch

@@ -162,7 +162,7 @@ namespace eBookLibraryService.Controllers
                 _context.Books.Remove(book);
                 await _context.SaveChangesAsync();
             }
-            return RedirectToAction(nameof(ManageBooks));
+            return RedirectToAction(nameof(Index));
         }
 
         // View details of a book (Available to all users)
