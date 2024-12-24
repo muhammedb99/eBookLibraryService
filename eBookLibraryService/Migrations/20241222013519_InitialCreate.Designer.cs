@@ -9,11 +9,11 @@ using eBookLibraryService.Data;
 
 #nullable disable
 
-namespace eBookLibraryService.Migrations.eBookLibraryService
+namespace eBookLibraryService.Migrations
 {
     [DbContext(typeof(eBookLibraryServiceContext))]
-    [Migration("20241220050331_AddAgeLimitationToBooks")]
-    partial class AddAgeLimitationToBooks
+    [Migration("20241222013519_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -40,6 +40,9 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("BorrowCount")
+                        .HasColumnType("int");
+
                     b.Property<float?>("BorrowPrice")
                         .HasColumnType("real");
 
@@ -53,6 +56,12 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
                     b.Property<string>("Publisher")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PurchaseCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()

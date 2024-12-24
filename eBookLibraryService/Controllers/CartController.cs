@@ -4,6 +4,7 @@ using eBookLibraryService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace eBookLibraryService.Controllers
@@ -34,6 +35,30 @@ namespace eBookLibraryService.Controllers
             if (book != null)
             {
                 var cart = GetCart();
+
+                // Check if the book is already in the cart
+                var existingItem = cart.Items.FirstOrDefault(i => i.Book.Id == id);
+                if (existingItem != null)
+                {
+                    // Prevent duplicate adds for the same option
+                    if (existingItem.IsBorrow == isBorrow)
+                    {
+                        TempData["CartMessage"] = "This book is already in your cart with the selected option.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                    else
+                    {
+                        // Allow updating the option (e.g., switch from Buy to Borrow)
+                        existingItem.IsBorrow = isBorrow;
+                        existingItem.Price = isBorrow
+                            ? (book.BorrowPrice ?? 0)
+                            : book.BuyingPrice;
+
+                        SaveCart(cart);
+                        TempData["CartMessage"] = "Your cart has been updated.";
+                        return RedirectToAction("Index", "Home");
+                    }
+                }
 
                 // Calculate price based on borrow or buy
                 var price = isBorrow ? (book.BorrowPrice ?? 0) : book.BuyingPrice;
@@ -83,7 +108,6 @@ namespace eBookLibraryService.Controllers
             {
                 if (cartItems.TryGetValue(cartItem.Id, out var isBorrowValue))
                 {
-                    // Ensure the value is parsed correctly
                     var isBorrow = bool.TryParse(isBorrowValue, out var result) && result;
 
                     // Update IsBorrow flag
@@ -100,12 +124,10 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction(nameof(Index));  // Redirect to cart view
         }
 
-
         // Helper method to get the cart from session
         private Cart GetCart()
         {
-            var cart = HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
-            return cart;
+            return HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
         }
 
         // Helper method to save the cart back into session

@@ -2,10 +2,10 @@
 
 #nullable disable
 
-namespace eBookLibraryService.Migrations.eBookLibraryService
+namespace eBookLibraryService.Migrations
 {
     /// <inheritdoc />
-    public partial class AddBooksTable : Migration
+    public partial class InitialCreate : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
@@ -19,10 +19,14 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
                     Title = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Author = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     Publisher = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    BorrowPrice = table.Column<float>(type: "real", nullable: false),
+                    BorrowPrice = table.Column<float>(type: "real", nullable: true),
                     BuyingPrice = table.Column<float>(type: "real", nullable: false),
                     YearOfPublishing = table.Column<int>(type: "int", nullable: false),
-                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    AgeLimitation = table.Column<int>(type: "int", nullable: true),
+                    ImageUrl = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Quantity = table.Column<int>(type: "int", nullable: false),
+                    BorrowCount = table.Column<int>(type: "int", nullable: false),
+                    PurchaseCount = table.Column<int>(type: "int", nullable: false)
                 },
                 constraints: table =>
                 {

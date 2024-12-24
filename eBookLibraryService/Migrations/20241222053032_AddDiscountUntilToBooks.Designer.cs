@@ -9,11 +9,11 @@ using eBookLibraryService.Data;
 
 #nullable disable
 
-namespace eBookLibraryService.Migrations.eBookLibraryService
+namespace eBookLibraryService.Migrations
 {
     [DbContext(typeof(eBookLibraryServiceContext))]
-    [Migration("20241220041037_UpdateBorrowPriceToNullable")]
-    partial class UpdateBorrowPriceToNullable
+    [Migration("20241222053032_AddDiscountUntilToBooks")]
+    partial class AddDiscountUntilToBooks
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -33,9 +33,15 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
 
                     SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
 
+                    b.Property<int?>("AgeLimitation")
+                        .HasColumnType("int");
+
                     b.Property<string>("Author")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("BorrowCount")
+                        .HasColumnType("int");
 
                     b.Property<float?>("BorrowPrice")
                         .HasColumnType("real");
@@ -43,13 +49,40 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
                     b.Property<float>("BuyingPrice")
                         .HasColumnType("real");
 
+                    b.Property<DateTime>("CreatedDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<float?>("DiscountPrice")
+                        .HasColumnType("real");
+
+                    b.Property<DateTime?>("DiscountUntil")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("Genre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicationYears")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Publisher")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Publishers")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PurchaseCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()

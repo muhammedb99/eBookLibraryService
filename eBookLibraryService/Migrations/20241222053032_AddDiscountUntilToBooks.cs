@@ -1,19 +1,20 @@
-﻿using Microsoft.EntityFrameworkCore.Migrations;
+﻿using System;
+using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-namespace eBookLibraryService.Migrations.eBookLibraryService
+namespace eBookLibraryService.Migrations
 {
     /// <inheritdoc />
-    public partial class AddAgeLimitationToBooks : Migration
+    public partial class AddDiscountUntilToBooks : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.AddColumn<int>(
-                name: "AgeLimitation",
+            migrationBuilder.AddColumn<DateTime>(
+                name: "DiscountUntil",
                 table: "Books",
-                type: "int",
+                type: "datetime2",
                 nullable: true);
         }
 
@@ -21,7 +22,7 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropColumn(
-                name: "AgeLimitation",
+                name: "DiscountUntil",
                 table: "Books");
         }
     }

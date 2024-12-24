@@ -3,17 +3,20 @@ using System;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using eBookLibraryService.Data;
 
 #nullable disable
 
-namespace eBookLibraryService.Migrations.eBookLibraryService
+namespace eBookLibraryService.Migrations
 {
     [DbContext(typeof(eBookLibraryServiceContext))]
-    partial class eBookLibraryServiceContextModelSnapshot : ModelSnapshot
+    [Migration("20241222030421_AddDiscountAndMultiPublishers")]
+    partial class AddDiscountAndMultiPublishers
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -37,19 +40,43 @@ namespace eBookLibraryService.Migrations.eBookLibraryService
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
+                    b.Property<int>("BorrowCount")
+                        .HasColumnType("int");
+
                     b.Property<float?>("BorrowPrice")
                         .HasColumnType("real");
 
                     b.Property<float>("BuyingPrice")
                         .HasColumnType("real");
 
+                    b.Property<float?>("DiscountPrice")
+                        .HasColumnType("real");
+
+                    b.Property<string>("Genre")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
                     b.Property<string>("ImageUrl")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("PublicationYears")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<string>("Publisher")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
+
+                    b.Property<string>("Publishers")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<int>("PurchaseCount")
+                        .HasColumnType("int");
+
+                    b.Property<int>("Quantity")
+                        .HasColumnType("int");
 
                     b.Property<string>("Title")
                         .IsRequired()
