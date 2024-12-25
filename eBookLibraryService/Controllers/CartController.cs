@@ -30,6 +30,12 @@ namespace eBookLibraryService.Controllers
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int id, bool isBorrow)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["CartMessage"] = "You must be logged in to add items to your cart.";
+                return RedirectToAction("Login", "Account");
+            }
+
             var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
             {
@@ -51,11 +57,6 @@ namespace eBookLibraryService.Controllers
             {
                 // Borrow-specific logic
                 var currentUserEmail = User.Identity.Name;
-                if (string.IsNullOrEmpty(currentUserEmail))
-                {
-                    TempData["CartMessage"] = "You must be logged in to borrow a book.";
-                    return RedirectToAction("Index", "Home");
-                }
 
                 // Check if the user has already borrowed 3 books
                 var currentBorrowedCount = await _context.BorrowedBooks
@@ -97,10 +98,14 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction("Index", "Home");
         }
 
-
-
         public IActionResult Index()
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["CartMessage"] = "You must be logged in to view your cart.";
+                return RedirectToAction("Login", "Account");
+            }
+
             var cart = GetCart();
             return View(cart);
         }
@@ -109,6 +114,12 @@ namespace eBookLibraryService.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult RemoveFromCart(int itemId)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["CartMessage"] = "You must be logged in to modify your cart.";
+                return RedirectToAction("Login", "Account");
+            }
+
             var cart = GetCart();
             cart.RemoveFromCart(itemId);
             SaveCart(cart);
@@ -121,6 +132,12 @@ namespace eBookLibraryService.Controllers
         [ValidateAntiForgeryToken]
         public IActionResult UpdateCart(Dictionary<int, bool> cartItems)
         {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["CartMessage"] = "You must be logged in to update your cart.";
+                return RedirectToAction("Login", "Account");
+            }
+
             var cart = GetCart();
 
             foreach (var item in cart.Items)
