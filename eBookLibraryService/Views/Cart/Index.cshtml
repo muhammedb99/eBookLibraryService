@@ -48,9 +48,11 @@ else
     <div class="d-flex justify-content-between align-items-center">
         <h4><strong>Total:</strong> @Model.GetTotalPrice()$</h4>
         <div>
-            <form asp-action="ProcessPayment" asp-controller="Payment" method="post" class="d-inline">
-                <button type="submit" class="btn btn-success">Confirm and Pay</button>
+            <form asp-action="ProcessPayment" asp-controller="Payment" method="get">
+                <input type="hidden" name="amount" value="@Model.GetTotalPrice()" />
+                <button type="submit" class="btn btn-success">Buy Now</button>
             </form>
+
         </div>
     </div>
 

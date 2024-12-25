@@ -1,59 +1,116 @@
-﻿using eBookLibraryService.Models;
+﻿using eBookLibraryService.Helpers;
+using eBookLibraryService.Models;
+using eBookLibraryService.Services;
+using eBookLibraryService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
-using System.Diagnostics;
+using System.Threading.Tasks;
 
 namespace eBookLibraryService.Controllers
 {
     public class PaymentController : Controller
     {
-        public IActionResult ProcessPayment()
+        private readonly NotificationService _emailService; // Assuming you have an email service
+
+        public PaymentController(NotificationService emailService)
         {
-            // Display payment options
-            return View();
+            _emailService = emailService;
+        }
+
+        [RequireHttps]
+        public IActionResult ProcessPayment(float amount)
+        {
+            if (amount <= 0)
+            {
+                TempData["PaymentMessage"] = "Invalid payment amount.";
+                return RedirectToAction("Index", "Cart");
+            }
+
+            var paymentViewModel = new PaymentViewModel
+            {
+                TotalAmount = amount
+            };
+
+            return View(paymentViewModel);
         }
 
         [HttpPost]
-        public IActionResult CompletePayment(string paymentMethod)
+        public IActionResult CompletePayment(string paymentMethod, float amount)
         {
             if (string.IsNullOrEmpty(paymentMethod))
             {
-                TempData["Message"] = "Payment method is required.";
+                TempData["PaymentMessage"] = "Please select a payment method.";
+                return RedirectToAction("ProcessPayment", new { amount });
+            }
+
+            if (paymentMethod == "CreditCard")
+            {
+                return RedirectToAction("CreditCardPayment", new { amount });
+            }
+            else if (paymentMethod == "PayPal")
+            {
+                return RedirectToAction("PayPalPayment", new { amount });
+            }
+
+            TempData["PaymentMessage"] = "Invalid payment method selected.";
+            return RedirectToAction("ProcessPayment", new { amount });
+        }
+
+        [HttpGet]
+        public IActionResult CreditCardPayment(float amount)
+        {
+            if (amount <= 0)
+            {
+                TempData["PaymentMessage"] = "Invalid payment amount.";
                 return RedirectToAction("ProcessPayment");
             }
 
-            try
+            var creditCardPaymentViewModel = new CreditCardPaymentViewModel
             {
-                if (paymentMethod == "PayPal")
-                {
-                    // Redirect to PayPal API (example implementation)
-                    string payPalUrl = "https://www.paypal.com/checkout";
-                    return Redirect(payPalUrl);
-                }
+                TotalAmount = amount
+            };
 
-                // Simulate payment success for other methods
-                TempData["Message"] = "Payment was successful!";
-                return RedirectToAction("PaymentSuccess");
-            }
-            catch (Exception ex)
-            {
-                Debug.WriteLine($"Payment failed: {ex.Message}");
-                TempData["Message"] = "Payment failed. Please try again.";
-                return RedirectToAction("PaymentFailed");
-            }
+            return View(creditCardPaymentViewModel);
         }
 
-        public IActionResult PaymentSuccess()
+
+
+        [HttpPost]
+        public async Task<IActionResult> SubmitCreditCardPayment(CreditCardPaymentViewModel model, float amount)
         {
-            // Display success message and redirect to home
-            TempData["Message"] = "Your payment was successful!";
-            return RedirectToAction("Index", "Home");
+            if (!ModelState.IsValid)
+            {
+                TempData["PaymentMessage"] = "Invalid credit card details. Please try again.";
+                return RedirectToAction("CreditCardPayment", new { amount });
+            }
+
+            bool paymentSuccess = true; 
+
+            if (paymentSuccess)
+            {
+                var userEmail = User.Identity.Name;
+                var emailContent = $"Your payment of ${amount} has been successfully processed. Thank you for shopping with us!";
+                await _emailService.SendEmailAsync(userEmail, "Payment Confirmation", emailContent);
+
+                var cart = HttpContext.Session.GetObject<Cart>("Cart");
+                cart?.Items.Clear();
+                HttpContext.Session.SetObject("Cart", cart);
+
+                TempData["PaymentMessage"] = "Payment successful! A confirmation email has been sent.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            TempData["PaymentMessage"] = "Payment failed. Please try again.";
+            return RedirectToAction("CreditCardPayment", new { amount });
         }
 
-        public IActionResult PaymentFailed()
+        [HttpGet]
+        public IActionResult PayPalPayment(float amount)
         {
-            // Display failure message and redirect to home
-            TempData["Message"] = "Your payment failed. Please try again.";
-            return RedirectToAction("Index", "Home");
+            string formattedAmount = amount.ToString("F2", System.Globalization.CultureInfo.InvariantCulture);
+
+            string paypalLink = $"https://paypal.me/ebookstore22/{formattedAmount}";
+
+            return Redirect(paypalLink);
         }
     }
 }
