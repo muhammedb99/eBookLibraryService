@@ -1,0 +1,32 @@
+﻿@model List<eBookLibraryService.ViewModels.ManageUserViewModel>
+@{
+	Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+<h1>Manage Users</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Full Name</th>
+            <th>Email</th>
+            <th>Phone Number</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var user in Model)
+        {
+            <tr>
+                <td>@user.FullName</td>
+                <td>@user.Email</td>
+                <td>@user.PhoneNumber</td>  
+                <td>
+                    <form asp-action="DeleteUser" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@user.Id" />
+                        <button type="submit" class="btn btn-danger btn-sm">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

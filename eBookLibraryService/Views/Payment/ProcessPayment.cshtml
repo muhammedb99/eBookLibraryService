@@ -2,10 +2,15 @@
 
 @{
     ViewData["Title"] = "Process Payment";
+    Layout = null;
 }
+<head>
+	<h1>Payment Options</h1>
+	<p>Select your preferred payment method:</p>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="~/css/PaymentSheet.css" />
+</head>
 
-<h1>Payment Options</h1>
-<p>Select your preferred payment method:</p>
 
 <!-- Payment Options -->
 <div>
@@ -37,7 +42,7 @@
             Pay with PayPal
         </a>
     </div>
-
+    <a href="@Url.Action("Index", "Cart")" class="btn btn-primary mt-3">Back</a>
 </div>
 
 <script>

@@ -65,23 +65,5 @@
             </td>
         </tr>
     </table>
-
-    @if (Model.Quantity > 0)
-    {
-        <form asp-action="Borrow" method="post">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-primary">Borrow</button>
-        </form>
-
-        <form asp-action="Buy" method="post">
-            <input type="hidden" name="id" value="@Model.Id" />
-            <button type="submit" class="btn btn-success">Buy</button>
-        </form>
-    }
-    else
-    {
-        <p class="text-danger"><strong>This book is currently unavailable for borrowing.</strong></p>
-    }
-
     <div><a asp-action="Index" class="btn btn-warning"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
 </div>

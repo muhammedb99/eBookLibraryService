@@ -1,0 +1,163 @@
+﻿/* Global Styling */
+body {
+    background-color: #ffffff; /* Light background matching the site */
+    color: #343a40; /* Dark grey text */
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Cart Header */
+.cart-header {
+    text-align: center;
+    color: #212529; /* Neutral dark grey for the header */
+    font-size: 36px;
+    font-weight: bold;
+    margin-bottom: 30px;
+    padding-top: 20px;
+}
+
+/* Table Styling (Cart) */
+table {
+    width: 100%;
+    background-color: #ffffff; /* White table background */
+    color: #343a40; /* Dark text */
+    border-collapse: collapse;
+    margin-bottom: 30px;
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow for depth */
+}
+
+th, td {
+    padding: 12px 15px;
+    text-align: left;
+    border-bottom: 1px solid #dee2e6; /* Light grey border */
+    font-size: 16px;
+    vertical-align: middle;
+}
+
+th {
+    font-weight: bold;
+    background-color: #f8f9fa; /* Light grey for header */
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+td {
+    background-color: #ffffff;
+}
+
+tr:nth-child(even) {
+    background-color: #f9f9f9; /* Lighter background for even rows */
+}
+
+tr:hover {
+    background-color: #e9ecef; /* Slight highlight on hover */
+    transition: background-color 0.3s ease;
+}
+
+/* Buttons Styling */
+button {
+    background-color: #007bff; /* Blue for buttons */
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    font-size: 14px;
+    border-radius: 5px;
+    transition: all 0.3s ease-in-out;
+    cursor: pointer;
+}
+
+/* Remove Button */
+.btn-danger {
+    background-color: #dc3545; /* Bootstrap red for danger */
+    color: white;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 4px;
+    transition: background-color 0.3s ease;
+}
+
+    .btn-danger:hover {
+        background-color: #b02a37; /* Darker red */
+    }
+
+/* Confirm and Pay Button */
+.btn-success {
+    background-color: #28a745; /* Bootstrap green */
+    color: white;
+    padding: 8px 15px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+
+    .btn-success:hover {
+        background-color: #218838; /* Darker green */
+    }
+
+/* Continue Shopping Button */
+.btn-primary {
+    background-color: #0069d9; /* Bootstrap primary blue */
+    color: white;
+    padding: 8px 15px;
+    font-size: 14px;
+    border-radius: 4px;
+}
+
+    .btn-primary:hover {
+        background-color: #0056b3; /* Darker blue */
+    }
+
+/* Total Price Section */
+.cart-total {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background-color: #f8f9fa; /* Light grey */
+    padding: 20px;
+    margin-top: 20px;
+    border-radius: 10px;
+    border: 1px solid #dee2e6; /* Light border */
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+    .cart-total h4 {
+        font-size: 18px;
+        font-weight: bold;
+        color: #212529; /* Dark grey */
+    }
+
+    .cart-total button {
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #ffc107; /* Bootstrap yellow */
+        color: #212529; /* Dark grey text */
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+
+        .cart-total button:hover {
+            background-color: #e0a800; /* Darker yellow */
+        }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .cart-header {
+        font-size: 28px;
+    }
+
+    table {
+        font-size: 14px; /* Adjust table font size */
+    }
+
+    .cart-total {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+        .cart-total button {
+            width: 100%; /* Full width for smaller screens */
+            margin-top: 10px;
+        }
+}

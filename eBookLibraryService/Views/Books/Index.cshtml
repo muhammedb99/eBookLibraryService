@@ -2,42 +2,51 @@
 
 @{
     Layout = "~/Views/Shared/_DashboardLayout.cshtml";
-    ViewData["Title"] = "Books Index";
+    ViewData["Title"] = "Index"; 
 }
 
-<h1>Books List</h1>
-<a href="@Url.Action("Create", "Books")" class="btn btn-custom"><i class="fas fa-plus-circle"></i> Add New Book</a>
+<h1>Library Books</h1>
+<a href="@Url.Action("Create", "Books")" class="btn btn-custom"
+ <i class="fas fa-plus-circle"></i> Add New Book </a>
+
 
 <table class="table">
     <thead>
         <tr>
-            <th>Title</th>
-            <th>Author</th>
-            <th>Publisher</th>
-            <th>Borrow Price</th>
-            <th>Buying Price</th>
-            <th>Quantity</th>
-            <th>Borrowed Count</th>
-            <th>Waiting List</th>
-            <th>Actions</th>
+            <th>@Html.DisplayNameFor(model => model.ImageUrl)</th>
+            <th>@Html.DisplayNameFor(model => model.Title)</th>
+            <th>@Html.DisplayNameFor(model => model.Author)</th>
+            <th>@Html.DisplayNameFor(model => model.Publisher)</th>
+            <th>@Html.DisplayNameFor(model => model.BorrowPrice)</th>
+            <th>@Html.DisplayNameFor(model => model.BuyingPrice)</th>
+            <th>@Html.DisplayNameFor(model => model.YearOfPublishing)</th>
+            <th>@Html.DisplayNameFor(model => model.AgeLimitation)</th>
         </tr>
     </thead>
     <tbody>
         @foreach (var book in Model)
         {
             <tr>
+                <th><img src="@book.ImageUrl" alt="@book.Title" style="width: 50px; height: 75px; object-fit: cover;" /></th>
                 <td>@book.Title</td>
                 <td>@book.Author</td>
                 <td>@book.Publisher</td>
-                <td>@(book.BorrowPrice.HasValue ? $"{book.BorrowPrice}$" : "Not Available")</td>
+                @if (book.BorrowPrice != null)
+                {
+                    <td>@book.BorrowPrice$</td>
+                }
+                else
+                {
+                    <td>@book.BorrowPrice</td>
+                }
                 <td>@book.BuyingPrice$</td>
-                <td>@book.Quantity</td>
-                <td>@book.BorrowCount</td>
-                <td>@(book.WaitingList?.Count ?? 0)</td>
+                <td>@book.YearOfPublishing</td>
+                <td>@book.AgeLimitation</td>
                 <td>
-                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary">Edit</a>
-                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-success">Details</a>
-                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger">Delete</a>
+                    <!-- You can add action links like Edit or Delete here -->
+                    <a asp-action="Edit" asp-route-id="@book.Id" class="btn btn-primary"><i class="fa-solid fa-pen-square"></i></a>
+                    <a asp-action="Details" asp-route-id="@book.Id" class="btn btn-success"><i class="fa-solid fa-circle-info"></i></a>
+                    <a asp-action="Delete" asp-route-id="@book.Id" class="btn btn-danger"><i class="fa-solid fa-trash-can"></i></a>
                 </td>
             </tr>
         }

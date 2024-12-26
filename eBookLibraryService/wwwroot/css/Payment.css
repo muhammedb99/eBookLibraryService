@@ -1,0 +1,93 @@
+﻿/* Global Styling */
+body {
+    background-color: #f8f9fa; /* Light grey background */
+    color: #343a40; /* Dark grey text */
+    font-family: 'Poppins', sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
+/* Page Heading */
+h1 {
+    text-align: center;
+    color: #212529; /* Neutral dark grey */
+    font-size: 36px;
+    font-weight: bold;
+    margin-top: 30px;
+    margin-bottom: 30px;
+}
+
+/* Form Container */
+form {
+    max-width: 500px;
+    margin: 0 auto;
+    padding: 30px;
+    background-color: #ffffff; /* White form background */
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1); /* Subtle shadow */
+}
+
+/* Form Labels */
+.form-label {
+    font-weight: 500;
+    font-size: 16px;
+    color: #495057; /* Grey for labels */
+}
+
+/* Form Inputs */
+.form-control {
+    border: 1px solid #ced4da; /* Light border */
+    border-radius: 5px;
+    padding: 10px;
+    font-size: 16px;
+    transition: border-color 0.3s ease;
+}
+
+    .form-control:focus {
+        border-color: #007bff; /* Blue on focus */
+        box-shadow: 0 0 5px rgba(0, 123, 255, 0.5); /* Glow effect */
+        outline: none;
+    }
+
+/* Validation Messages */
+.text-danger {
+    font-size: 14px;
+    margin-top: 5px;
+}
+
+/* Submit Button */
+button[type="submit"] {
+    width: 100%;
+    padding: 12px 20px;
+    font-size: 16px;
+    font-weight: bold;
+    color: #ffffff; /* White text */
+    background-color: #007bff; /* Blue button */
+    border: none;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+    button[type="submit"]:hover {
+        background-color: #0056b3; /* Darker blue */
+    }
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    h1 {
+        font-size: 28px; /* Adjust heading size */
+    }
+
+    form {
+        padding: 20px;
+    }
+
+    .form-control {
+        font-size: 14px;
+    }
+
+    button[type="submit"] {
+        font-size: 14px;
+    }
+}

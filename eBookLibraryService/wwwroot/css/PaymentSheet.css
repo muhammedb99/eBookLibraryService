@@ -1,0 +1,120 @@
+﻿/* General styling for the page */
+body {
+    font-family: 'Poppins', sans-serif;
+    background-color: #f4f7fc;
+    color: #333;
+    margin: 0;
+    padding: 0;
+}
+
+/* Center the content */
+h1 {
+    text-align: center;
+    font-size: 2.5rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 10px;
+}
+
+p {
+    text-align: center;
+    font-size: 1.1rem;
+    color: #7f8c8d;
+    margin-bottom: 30px;
+}
+
+/* Card container */
+div {
+    max-width: 500px;
+    margin: 0 auto;
+    background: #ffffff;
+    border-radius: 15px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    padding: 30px;
+    text-align: center;
+}
+
+/* Radio buttons */
+.form-check {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #e1e8ed;
+    border-radius: 10px;
+    background-color: #f9f9f9;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+    .form-check:hover {
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        transform: scale(1.02);
+    }
+
+.form-check-input {
+    margin-right: 10px;
+    accent-color: #2ecc71;
+    width: 20px;
+    height: 20px;
+}
+
+.form-check-label {
+    font-size: 1rem;
+    color: #34495e;
+    font-weight: 500;
+}
+
+/* PayPal button container */
+.mt-4 {
+    margin-top: 30px;
+}
+
+    .mt-4 p {
+        margin-bottom: 15px;
+        font-size: 1rem;
+        font-weight: 500;
+        color: #34495e;
+    }
+
+/* PayPal button */
+a {
+    display: inline-block;
+    background: linear-gradient(90deg, #0070ba, #003087);
+    color: white;
+    font-size: 1.2rem;
+    font-weight: bold;
+    padding: 12px 30px;
+    border-radius: 10px;
+    text-decoration: none;
+    transition: background-color 0.3s, transform 0.2s, box-shadow 0.2s;
+}
+
+    a:hover {
+        background: linear-gradient(90deg, #003087, #0056a5);
+        transform: scale(1.05);
+        box-shadow: 0 5px 15px rgba(0, 0, 0, 0.2);
+    }
+
+/* Responsive styling */
+@media (max-width: 768px) {
+    div {
+        padding: 20px;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    p {
+        font-size: 1rem;
+    }
+
+    a {
+        font-size: 1rem;
+        padding: 10px 20px;
+    }
+
+    .form-check-label {
+        font-size: 0.9rem;
+    }
+}

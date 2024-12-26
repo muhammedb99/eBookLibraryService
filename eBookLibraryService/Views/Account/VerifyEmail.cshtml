@@ -1,31 +1,38 @@
 ﻿@using eBookLibraryService.ViewModels;
 @model VerifyEmailViewModel;
+
 @{
     ViewData["Title"] = "Verify Email";
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
-
 }
 
-<div class="account-container">
-    <div class="account-box">
-        <h2 class="text-center mb-4">Verify Email</h2>
+<div class="verify-email-container">
+    <div class="verify-email-box">
+        <div class="icon-container">
+            <i class="fas fa-envelope"></i>
+        </div>
+        <h2 class="text-center mb-4">Verify Your Email</h2>
+        <p class="text-center text-muted mb-4">Enter your registered email to verify your account.</p>
         <form asp-action="VerifyEmail" method="post">
+            <!-- Validation Summary -->
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" />
+
+            <!-- Email Field -->
+            <div class="input-group mb-3">
+                <input asp-for="Email" class="input-field" placeholder="Enter your email" />
                 <span asp-validation-for="Email" class="text-danger"></span>
-            </div>                 
-            <input type="submit" value="Verify" class="btn btn-success w-100 p-2" />
-            <div class="text-center mt-2">
-                <a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
             </div>
+
+            <!-- Submit Button -->
+            <button type="submit" class="btn-custom w-100">Verify Email</button>
+
+            <!-- Back Link -->
+            <p class="text-center mt-4">
+                <a asp-controller="Home" asp-action="Index" class="link-highlight">Back to Home</a>
+            </p>
         </form>
+        <div class="footer mt-4">
+            &copy; 2024 eBookLibrary
+        </div>
     </div>
 </div>
-
-@section Scripts {
-    @{
-        await Html.RenderPartialAsync("_ValidationScriptsPartial.cshtml");
-    }
-}

@@ -334,5 +334,52 @@ namespace eBookLibraryService.Controllers
             TempData["Message"] = "Password updated successfully!";
             return RedirectToAction("Profile");
         }
+
+        [HttpGet]
+        public async Task<IActionResult> ManageUsers()
+        {
+            var users = _userManager.Users.ToList();
+            var userViewModels = users.Select(user => new ManageUserViewModel
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                Email = user.Email,
+                PhoneNumber = user.PhoneNumber,
+                Role = _userManager.GetRolesAsync(user).Result.FirstOrDefault() ?? "User"
+            }).ToList();
+
+            return View(userViewModels);
+        }
+
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> DeleteUser(string id)
+        {
+            if (string.IsNullOrEmpty(id))
+            {
+                TempData["Message"] = "Invalid user ID.";
+                return RedirectToAction("ManageUsers");
+            }
+
+            var user = await _userManager.FindByIdAsync(id);
+            if (user == null)
+            {
+                TempData["Message"] = "User not found.";
+                return RedirectToAction("ManageUsers");
+            }
+
+            var result = await _userManager.DeleteAsync(user);
+            if (result.Succeeded)
+            {
+                TempData["Message"] = "User deleted successfully.";
+            }
+            else
+            {
+                TempData["Message"] = "Failed to delete user.";
+            }
+
+            return RedirectToAction("ManageUsers");
+        }  
+
     }
 }

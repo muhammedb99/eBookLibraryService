@@ -1,21 +1,281 @@
-﻿.account-container {
-    background-image: url('../images/img3.jpg');
-    background-size: cover;
-    background-position: center;
-    background-repeat: repeat-y;
+﻿/* General styling */
+body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    background: #f2f2f2;
+    color: #ffffff;
+}
+
+/* Login container */
+.login-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+}
+
+/* Login box styling */
+.login-box {
+    background: #2c2c2c;
+    padding: 3rem; /* Increased padding */
+    border-radius: 20px; /* Increased border radius */
+    width: 500px; /* Increased width */
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    transform: scale(1.1); /* Slightly enlarge for emphasis */
+}
+
+/* User icon */
+.icon-container {
+    font-size: 6rem; /* Increased icon size */
+    color: #f0a500;
+    margin-bottom: 1.5rem;
+}
+
+/* Input fields */
+.input-group {
+    margin-bottom: 2rem; /* Increased spacing between inputs */
+}
+
+.input-field {
+    width: 100%;
+    padding: 1rem; /* Increased padding */
+    border: none;
+    border-radius: 8px; /* Slightly more rounded edges */
+    background: #444444;
+    color: #ffffff;
+    font-size: 1.2rem; /* Increased font size */
+    box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+    .input-field::placeholder {
+        color: #b5b5b5;
+        font-size: 1rem;
+    }
+
+/* Submit button */
+.btn-custom {
+    background: #f0a500;
+    color: #ffffff;
+    padding: 1rem; /* Increased button size */
+    border: none;
+    border-radius: 8px; /* Slightly more rounded */
+    font-size: 1.2rem; /* Larger font size */
+    cursor: pointer;
+    text-transform: uppercase;
+    font-weight: bold;
+    transition: background-color 0.3s;
+}
+
+    .btn-custom:hover {
+        background: #d48800;
+    }
+
+/* Links */
+.links {
+    margin-top: 2rem; /* Increased spacing from button */
+    font-size: 1rem; /* Slightly larger font size */
+    color: #f0a500;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+    .links a {
+        text-decoration: none;
+        color: #f0a500;
+        font-weight: 500;
+    }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    font-size: 1rem; /* Increased font size */
+    color: #b5b5b5;
+}
+/* General styling */
+.register-container {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
     display: flex;
     justify-content: center;
     align-items: center;
     min-height: 100vh;
-    padding: 2rem 0;
+    background: #f2f2f2;
 }
 
-.account-box {
-    background-color: #ffffff;
-    padding: 30px;
-    border-radius: 10px;
-    box-shadow: 0 0 10px rgba(0, 0, 0, 0.3);
-    max-width: 500px;
+/* Register box styling */
+.register-box {
+    background: #2c2c2c;
+    padding: 3rem;
+    border-radius: 20px;
+    width: 500px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+}
+
+/* User icon */
+.icon-container {
+    font-size: 6rem;
+    color: #f0a500;
+    margin-bottom: 1.5rem;
+}
+
+/* Input fields */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-field {
     width: 100%;
-    opacity: .9;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #444444;
+    color: #ffffff;
+    font-size: 1rem;
+    box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+    .input-field::placeholder {
+        color: #b5b5b5;
+    }
+
+/* Submit button */
+.btn-custom {
+    background: #f0a500;
+    color: #ffffff;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .btn-custom:hover {
+        background: #d48800;
+    }
+
+/* Links */
+.links {
+    margin-top: 2rem;
+    font-size: 1rem;
+    color: #f0a500;
+    display: flex;
+    justify-content: center;
+    gap: 1rem;
+}
+
+    .links a {
+        text-decoration: none;
+        color: #f0a500;
+        font-weight: 500;
+    }
+
+        .links a:hover {
+            text-decoration: underline;
+        }
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #b5b5b5;
+}
+/* General container styling */
+.verify-email-container {
+    margin: 0;
+    padding: 0;
+    font-family: 'Poppins', sans-serif;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f2f2f2;
+}
+
+/* Verify email box styling */
+.verify-email-box {
+    background: #2c2c2c;
+    padding: 3rem;
+    border-radius: 20px;
+    width: 500px;
+    text-align: center;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.4);
+    color: #ffffff;
+}
+
+/* Icon styling */
+.icon-container {
+    font-size: 6rem;
+    color: #f0a500;
+    margin-bottom: 1.5rem;
+}
+
+/* Input field styling */
+.input-group {
+    margin-bottom: 1.5rem;
+}
+
+.input-field {
+    width: 100%;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    background: #444444;
+    color: #ffffff;
+    font-size: 1rem;
+    box-shadow: inset 0 3px 7px rgba(0, 0, 0, 0.3);
+}
+
+    .input-field::placeholder {
+        color: #b5b5b5;
+    }
+
+/* Submit button */
+.btn-custom {
+    background: #f0a500;
+    color: #ffffff;
+    padding: 1rem;
+    border: none;
+    border-radius: 8px;
+    font-size: 1.2rem;
+    font-weight: bold;
+    cursor: pointer;
+    transition: background-color 0.3s;
+}
+
+    .btn-custom:hover {
+        background: #d48800;
+    }
+
+/* Highlighted links */
+.link-highlight {
+    color: #f0a500;
+    font-weight: 500;
+    text-decoration: none;
+}
+
+    .link-highlight:hover {
+        text-decoration: underline;
+    }
+
+/* Footer */
+.footer {
+    margin-top: 2rem;
+    font-size: 0.9rem;
+    color: #b5b5b5;
 }

@@ -1,240 +1,142 @@
-﻿/* Global Background */
-body {
-    background-color: #2c2f38 !important; /* Dark grey background */
-    color: white !important; /* White text for contrast */
-}
-
-/* Header */
-h1 {
-    font-size: 36px;
-    margin-bottom: 20px;
-    text-align: center;
-    color: white;
-}
-
-/* Filters */
-.mb-4 {
-    margin-bottom: 1.5rem;
-}
-
-/* Filter Form */
-form {
-    background-color: #3a3f47;
-    padding: 20px;
-    border-radius: 8px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
-}
-
-h4 {
-    font-size: 22px;
-    color: white;
-    margin-bottom: 15px;
-}
-
-/* Input Fields */
-.form-control, .form-select {
-    background-color: #2c2f38;
-    color: white;
-    border: 1px solid #444;
-    border-radius: 4px;
-}
-
-    .form-control:focus, .form-select:focus {
-        background-color: #3a3f47;
-        border-color: #1abc9c;
-        color: white;
-    }
-
-/* Buttons */
-button {
-    background-color: #1abc9c;
-    color: white;
-    border: none;
-    padding: 10px 20px;
-    font-size: 16px;
-    border-radius: 5px;
-    transition: background-color 0.3s;
-}
-
-    button:hover {
-        background-color: #16a085;
-    }
-
-/* Books List */
-.row {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: space-around;
-    margin-top: 20px;
-}
-
-.col-md-4 {
-    width: 30%;
-    margin-bottom: 20px;
-}
-
-.card {
-    background-color: #3a3f47;
-    border-radius: 8px;
-    overflow: hidden;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s ease;
-    margin-bottom: 20px;
-}
-
-    .card:hover {
-        transform: scale(1.05); /* Zoom effect on hover */
-    }
-
-.card-img-top {
-    height: 200px;
-    object-fit: cover;
-}
-
-.card-body {
-    background-color: #333;
-    color: white;
-    padding: 15px;
-}
-
-.card-title {
-    font-size: 18px;
-    margin-bottom: 10px;
-}
-
-.card-text {
-    font-size: 14px;
-}
-
-/* Add to Cart Buttons */
-.btn-primary, .btn-secondary {
-    border-radius: 4px; /* Rounded corners for a smoother look */
-    padding: 8px 15px; /* Smaller padding for a more compact button */
-    font-size: 14px; /* Smaller font size */
-    text-transform: uppercase; /* Uppercase text */
-    font-weight: bold;
-    transition: all 0.3s ease;
-    width: 100%; /* Full width of the container */
-    border: none; /* No border */
-    display: flex; /* Flex for centering */
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.2); /* Slight shadow */
-}
-
-/* Buy Button */
-.btn-primary {
-    background-color: #ff6a13; /* Orange color */
-    color: white;
-}
-
-    .btn-primary:hover {
-        background-color: #ff5300; /* Darker orange on hover */
-        transform: scale(1.05); /* Slight zoom effect */
-    }
-
-/* Borrow Button */
-.btn-secondary {
-    background-color: #6c757d; /* Subtle grey for Borrow */
-    color: white;
-}
-
-    .btn-secondary:hover {
-        background-color: #5a6268; /* Darker grey on hover */
-        transform: scale(1.05); /* Slight zoom effect */
-    }
-
-    /* Focus Effect */
-    .btn-primary:focus, .btn-secondary:focus {
-        outline: none;
-        box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.5); /* Blue focus ring */
-    }
-
-/* Footer */
-footer {
-    background-color: #1a1d23; /* Dark footer background */
-    padding: 20px;
-    text-align: center;
-    color: white;
-}
-
-/* Navbar Styling */
+﻿/* Navbar */
 .navbar {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-    background-color: #1a1d23; /* Dark background for navbar */
-    color: white;
-    box-shadow: 0px 4px 6px rgba(0, 0, 0, 0.3);
-    padding: 10px 0;
+    background-color: #2c2f38;
+    border-bottom: 2px solid #343a40;
 }
 
-    .navbar .navbar-brand {
-        font-size: 1.5rem;
-        color: #ff6a13; /* Orange color for the brand */
+.navbar-brand {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #ffffff !important;
+}
+
+    .navbar-brand:hover {
+        color: #ffd700 !important;
     }
 
-    .navbar .nav-link {
-        color: white; /* Navbar link color */
-        padding: 12px 15px;
+.navbar-nav .nav-link {
+    color: #ffffff !important;
+    font-weight: 500;
+    margin-right: 1rem;
+    transition: color 0.3s ease-in-out;
+}
+
+    .navbar-nav .nav-link:hover {
+        color: #ffd700 !important;
     }
 
-        .navbar .nav-link:hover {
-            color: #ff6a13; /* Highlight color on hover */
-        }
-
-    .navbar .dropdown-menu {
-        background-color: #2c3e50;
-        border-radius: 5px;
-    }
-
-    .navbar .dropdown-item {
-        color: white;
-    }
-
-        .navbar .dropdown-item:hover {
-            background-color: #34495e; /* Darker background on hover */
-            color: #ff6a13; /* Change text color on hover */
-        }
-
-/* Cart Button Styling */
-.btn-outline-dark {
-    background-color: #ff6a13;
-    color: white;
+.navbar-nav .dropdown-menu {
+    background-color: #2c2f38;
     border: none;
-    padding: 8px 20px;
-    font-size: 14px;
-    font-weight: bold;
-    transition: background-color 0.3s ease;
+}
+
+.navbar-nav .dropdown-item {
+    color: #ffffff !important;
+    transition: background-color 0.3s ease-in-out;
+}
+
+    .navbar-nav .dropdown-item:hover {
+        background-color: #343a40;
+    }
+
+/* Cart button styles */
+.btn-outline-dark {
+    border: 2px solid #ffffff;
+    color: #ffffff;
+    transition: all 0.3s ease-in-out;
 }
 
     .btn-outline-dark:hover {
-        background-color: #e65c00; /* Darker orange when hovered */
-        transform: scale(1.05); /* Slight zoom effect */
+        background-color: #ffffff;
+        color: #2c2f38;
+        border-color: #ffd700;
     }
 
-/* Buttons inside the dropdown */
-.navbar .btn-link {
-    color: white !important;
-    text-transform: uppercase;
+.badge {
+    font-size: 0.75rem;
     font-weight: bold;
 }
 
-    .navbar .btn-link:hover {
-        color: #ff6a13 !important;
+/* Profile dropdown styles */
+#userDropdown {
+    color: #ffffff !important;
+}
+
+    #userDropdown:hover {
+        color: #ffd700 !important;
     }
 
-/* Apply padding for mobile responsiveness */
+.dropdown-menu-end {
+    background-color: #343a40;
+    border: none;
+}
+
+.dropdown-item {
+    color: #ffffff !important;
+    padding: 10px 15px;
+    transition: background-color 0.3s ease-in-out;
+}
+
+    .dropdown-item:hover {
+        background-color: #495057;
+        color: #ffd700 !important;
+    }
+
+/* Main content styles */
+.container {
+    margin-top: 20px;
+    padding-left: 0 !important; /* Remove Bootstrap padding */
+    padding-right: 0 !important; /* Remove Bootstrap padding */
+    max-width: 100%; /* Ensure it spans the full width */
+    width: 100%; /* Remove default container width limitation */
+}
+
+/* Padding fixes */
+.pb-3 {
+    padding-bottom: 1rem;
+}
+
+/* Footer styles */
+footer {
+    background-color: #2c2f38;
+    color: #ffffff;
+    padding: 10px 0;
+    text-align: center;
+}
+
+    footer a {
+        color: #ffd700;
+    }
+
+        footer a:hover {
+            text-decoration: underline;
+        }
+
+/* Buttons */
+button {
+    transition: background-color 0.3s ease-in-out, color 0.3s ease-in-out;
+}
+
+    button:hover {
+        background-color: #ffd700;
+        color: #2c2f38;
+    }
+
+/* Responsive styles */
 @media (max-width: 768px) {
-    .navbar .nav-link {
-        padding: 10px 5px; /* Reduce padding for mobile */
-    }
-
-    .navbar .navbar-brand {
-        font-size: 1.25rem;
+    .navbar-nav {
+        text-align: center;
     }
 
     .navbar-collapse {
-        padding: 10px 0;
+        background-color: #2c2f38;
+    }
+
+    .navbar-toggler {
+        border-color: #ffffff;
+    }
+
+    .navbar-toggler-icon {
+        background-image: url("data:image/svg+xml;charset=utf8,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23ffffff' viewBox='0 0 30 30'%3E%3Cpath stroke='rgba(255, 255, 255, 0.7)' stroke-width='2' stroke-linecap='round' stroke-miterlimit='10' d='M4 7h22M4 15h22M4 23h22'/%3E%3C/svg%3E");
     }
 }

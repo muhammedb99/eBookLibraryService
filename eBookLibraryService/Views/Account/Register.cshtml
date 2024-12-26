@@ -6,45 +6,43 @@
     Layout = "~/Views/Shared/_AccountLayout.cshtml";
 }
 
-<div class="account-container">
-    <div class="account-box">
-        <h2 class="text-center mb-4">Register</h2>
+<div class="register-container">
+    <div class="register-box">
+        <div class="icon-container">
+            <i class="fas fa-user-plus"></i>
+        </div>
+        <h2 class="text-center mb-4">Create Your Account</h2>
         <form asp-action="Register" method="post">
             <!-- Validation Summary -->
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
 
             <!-- Name Field -->
-            <div class="mb-3">
-                <label asp-for="Name" class="form-label"></label>
-                <input asp-for="Name" class="form-control" />
+            <div class="input-group mb-3">
+                <input asp-for="Name" class="input-field" placeholder="Full Name" />
                 <span asp-validation-for="Name" class="text-danger"></span>
             </div>
 
             <!-- Email Field -->
-            <div class="mb-3">
-                <label asp-for="Email" class="form-label"></label>
-                <input asp-for="Email" class="form-control" />
+            <div class="input-group mb-3">
+                <input asp-for="Email" class="input-field" placeholder="Email Address" />
                 <span asp-validation-for="Email" class="text-danger"></span>
             </div>
 
             <!-- Password Field -->
-            <div class="mb-3">
-                <label asp-for="Password" class="form-label"></label>
-                <input asp-for="Password" class="form-control" />
+            <div class="input-group mb-3">
+                <input asp-for="Password" type="password" class="input-field" placeholder="Password" />
                 <span asp-validation-for="Password" class="text-danger"></span>
             </div>
 
             <!-- Confirm Password Field -->
-            <div class="mb-3">
-                <label asp-for="ConfirmPassword" class="form-label"></label>
-                <input asp-for="ConfirmPassword" class="form-control" />
+            <div class="input-group mb-3">
+                <input asp-for="ConfirmPassword" type="password" class="input-field" placeholder="Confirm Password" />
                 <span asp-validation-for="ConfirmPassword" class="text-danger"></span>
             </div>
 
             <!-- Phone Number Field -->
-            <div class="mb-3">
-                <label asp-for="PhoneNumber" class="form-label"></label>
-                <input asp-for="PhoneNumber" class="form-control" />
+            <div class="input-group mb-3">
+                <input asp-for="PhoneNumber" class="input-field" placeholder="Phone Number" />
                 <span asp-validation-for="PhoneNumber" class="text-danger"></span>
             </div>
 
@@ -52,25 +50,24 @@
             <div class="form-check mb-3">
                 <input asp-for="AcceptTerms" class="form-check-input" />
                 <label asp-for="AcceptTerms" class="form-check-label">
-                    I accept the terms of use and agree to the collection of my data.
+                    I accept the <a href="#" class="link-highlight">terms and conditions</a>.
                 </label>
                 <span asp-validation-for="AcceptTerms" class="text-danger"></span>
             </div>
 
             <!-- Submit Button -->
-            <input type="submit" value="Register" class="btn btn-success w-100 p-2" />
+            <button type="submit" class="btn-custom w-100">Register</button>
 
             <!-- Additional Links -->
-            <p class="text-center mt-2">
-                Already have an account? <a asp-controller="Account" asp-action="Login" class="text-decoration-none">Login</a>
+            <p class="links mt-4">
+                Already have an account? <a asp-controller="Account" asp-action="Login">Login</a>
             </p>
-            <div class="text-center">
-                <a asp-controller="Home" asp-action="Index" class="text-decoration-none mt-3">Back</a>
-            </div>
+            <p class="links">
+                <a asp-controller="Home" asp-action="Index">Back to Home</a>
+            </p>
         </form>
+        <div class="footer mt-4">
+            &copy; 2024 EbookLibrary
+        </div>
     </div>
 </div>
-
-@section Scripts {
-    <partial name="_ValidationScriptsPartial" />
-}
