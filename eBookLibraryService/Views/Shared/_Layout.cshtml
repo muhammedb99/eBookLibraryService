@@ -47,12 +47,13 @@
                     </ul>
 
                     <!-- Search Section -->
-                    <form class="d-flex me-3" action="@Url.Action("Index", "Home")" method="get">
+                    <form class="d-flex me-3" action="@Url.Action("Index", "Home")#Allbooks" method="get">
                         <input type="text" name="query" class="form-control me-2" placeholder="Search for eBooks..." />
                         <button class="btn btn-outline-light" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
+
 
                     <!-- Cart Section -->
                     <form class="d-flex" action="@Url.Action("Index", "Cart")" method="get">
