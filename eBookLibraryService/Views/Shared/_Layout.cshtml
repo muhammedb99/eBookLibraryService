@@ -1,7 +1,6 @@
-﻿@using Microsoft.AspNetCore.Identity
-@inject SignInManager<Users> signInManager
-@inject UserManager<Users> userManager
-
+﻿﻿@using Microsoft.AspNetCore.Identity;
+@inject SignInManager<Users> signInManager;
+@inject UserManager<Users> userManager;
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -34,40 +33,34 @@
                         </li>
                         @if (signInManager.IsSignedIn(User))
                         {
-                            var user = await userManager.GetUserAsync(User);
-                            <li class="nav-item dropdown">
-                                <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> @(string.IsNullOrWhiteSpace(user?.FullName) ? "" : user.FullName)
-                                </a>
-                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                                    <li>
-                                        <a class="dropdown-item" asp-controller="Account" asp-action="Profile">See My Profile</a>
-                                    </li>
-                                    <li>
-                                        <form asp-controller="Account" asp-action="Logout" method="post" class="dropdown-item p-0">
-                                            <button type="submit" class="btn btn-link w-100 text-start">Logout</button>
-                                        </form>
-                                    </li>
-                                </ul>
+                            var user = await userManager.GetUserAsync(User); // Define the `user` variable here
+                            if (user != null && await userManager.IsInRoleAsync(user, "Admin"))
+                            {
+                                <li class="nav-item">
+                                    <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Admin Dashboard</a>
+                                </li>
+                            }
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Books" asp-action="BorrowedBooks">My Borrowed Books</a>
                             </li>
                         }
-
                     </ul>
 
                     <!-- Search Section -->
                     <form class="d-flex me-3" action="@Url.Action("Index", "Home")#Allbooks" method="get">
-                        <input type="text" name="query" class="form-control me-2" placeholder="Search for eBooks..." aria-label="Search" />
+                        <input type="text" name="query" class="form-control me-2" placeholder="Search for eBooks..." />
                         <button class="btn btn-outline-light" type="submit">
                             <i class="fas fa-search"></i>
                         </button>
                     </form>
 
+
                     <!-- Cart Section -->
                     <form class="d-flex" action="@Url.Action("Index", "Cart")" method="get">
-                        <button class="btn btn-outline-light position-relative" type="submit" aria-label="Cart">
+                        <button class="btn btn-outline-light position-relative" type="submit">
                             <i class="fas fa-shopping-cart"></i>
                             <span class="badge bg-danger position-absolute top-0 start-100 translate-middle">
-                                @(ViewBag.CartItemCount ?? 0) <!-- Show cart count or default to 0 -->
+                                @ViewBag.CartItemCount
                             </span>
                         </button>
                     </form>
@@ -78,7 +71,7 @@
                             var user = await userManager.GetUserAsync(User);
                             <li class="nav-item dropdown">
                                 <a class="nav-link dropdown-toggle" id="userDropdown" href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                                    <i class="fas fa-user-circle"></i> @(string.IsNullOrWhiteSpace(user?.FullName) ? "" : user.FullName)
+                                    <i class="fas fa-user-circle"></i> @user.FullName
                                 </a>
                                 <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                                     <li>
