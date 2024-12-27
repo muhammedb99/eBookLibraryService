@@ -39,16 +39,16 @@ namespace eBookLibraryService.Controllers
 
         // Main Index action
         public async Task<IActionResult> Index(
-    string query = null,
-    string author = null,
-    string genre = null,
-    string method = null,
-    float? minPrice = null,
-    float? maxPrice = null,
-    bool? isOnSale = null,
-    int? year = null,
-    string publisher = null,
-    string sortOrder = null)
+            string query = null,
+            string author = null,
+            string genre = null,
+            string method = null,
+            float? minPrice = null,
+            float? maxPrice = null,
+            bool? isOnSale = null,
+            int? year = null,
+            string publisher = null,
+            string sortOrder = null)
         {
             try
             {
@@ -66,85 +66,41 @@ namespace eBookLibraryService.Controllers
                     .GroupBy(b => b.Genre)
                     .ToDictionary(g => g.Key ?? "Unknown", g => g.ToList());
 
+                // Ensure `ViewBag.GenreBooks` is always initialized
+                ViewBag.GenreBooks = genres.Any() ? genres : new Dictionary<string, List<Book>>();
+
                 // Fetch distinct genres for dropdown
                 var genreList = await _context.Books
                     .Where(b => !string.IsNullOrEmpty(b.Genre))
-                    .Select(b => b.Genre)
+                    .Select(b => b.Genre.Trim()) // Ensure no leading/trailing spaces
                     .Distinct()
                     .OrderBy(g => g)
                     .ToListAsync();
 
-                // Assign data to ViewBag
                 ViewBag.Genres = genreList;
-                ViewBag.GenreBooks = genres;
-
-                // Log warning if no books are found
-                if (!allBooks.Any())
-                {
-                    _logger.LogWarning("No books found for the given filters.");
-                }
 
                 return View(allBooks);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving books for the Index page.");
+                ViewBag.GenreBooks = new Dictionary<string, List<Book>>(); // Initialize empty dictionary in case of error
                 return View(new List<Book>()); // Return an empty list if an error occurs
             }
         }
 
-        public async Task<IActionResult> Filter(
-            string author = null,
-            string genre = null,
-            string method = null,
-            float? minPrice = null,
-            float? maxPrice = null,
-            bool? isOnSale = null,
-            int? year = null,
-            string publisher = null)
-        {
-
-            var books = _context.Books.AsQueryable();
-
-            // Apply filters
-            if (!string.IsNullOrWhiteSpace(author))
-                books = books.Where(b => EF.Functions.Like(b.Author, $"%{author}%"));
-            if (!string.IsNullOrWhiteSpace(genre))
-                books = books.Where(b => b.Genre == genre);
-            if (!string.IsNullOrWhiteSpace(method))
-            {
-                if (method.Equals("buy", StringComparison.OrdinalIgnoreCase))
-                    books = books.Where(b => b.BuyingPrice > 0);
-                else if (method.Equals("borrow", StringComparison.OrdinalIgnoreCase))
-                    books = books.Where(b => b.BorrowPrice > 0);
-            }
-            if (minPrice.HasValue)
-                books = books.Where(b => b.BuyingPrice >= minPrice.Value);
-            if (maxPrice.HasValue)
-                books = books.Where(b => b.BuyingPrice <= maxPrice.Value);
-            if (isOnSale.HasValue && isOnSale.Value)
-                books = books.Where(b => b.DiscountPrice.HasValue && b.DiscountPrice < b.BuyingPrice);
-            if (year.HasValue)
-                books = books.Where(b => b.YearOfPublishing == year.Value);
-            if (!string.IsNullOrWhiteSpace(publisher))
-                books = books.Where(b => b.Publisher.Contains(publisher));
-            var filteredBooks = await books.ToListAsync();
-
-            return PartialView("_BooksPartial", filteredBooks); // Render partial view
-        }
-
         // Apply filtering logic
         private IQueryable<Book> ApplyFilters(
-            IQueryable<Book> books,
-            string query,
-            string author,
-            string genre,
-            string method,
-            float? minPrice,
-            float? maxPrice,
-            bool? isOnSale,
-            int? year,
-            string publisher)
+    IQueryable<Book> books,
+    string query,
+    string author,
+    string genre,
+    string method,
+    float? minPrice,
+    float? maxPrice,
+    bool? isOnSale,
+    int? year,
+    string publisher)
         {
             if (!string.IsNullOrWhiteSpace(query))
             {
@@ -173,17 +129,23 @@ namespace eBookLibraryService.Controllers
 
             if (minPrice.HasValue)
             {
-                books = books.Where(b => b.BuyingPrice >= minPrice.Value);
+                books = books.Where(b => (b.DiscountPrice ?? b.BuyingPrice) >= minPrice.Value);
             }
 
             if (maxPrice.HasValue)
             {
-                books = books.Where(b => b.BuyingPrice <= maxPrice.Value);
+                books = books.Where(b => (b.DiscountPrice ?? b.BuyingPrice) <= maxPrice.Value);
             }
 
             if (isOnSale.HasValue && isOnSale.Value)
             {
-                books = books.Where(b => b.DiscountPrice.HasValue && b.DiscountPrice < b.BuyingPrice);
+                // Include only books with an active discount
+                books = books.Where(b =>
+                    b.DiscountPrice.HasValue &&
+                    b.DiscountPrice < b.BuyingPrice &&
+                    b.DiscountUntil.HasValue &&
+                    b.DiscountUntil.Value >= DateTime.Now
+                );
             }
 
             if (year.HasValue)
@@ -193,25 +155,28 @@ namespace eBookLibraryService.Controllers
 
             if (!string.IsNullOrWhiteSpace(publisher))
             {
-                books = books.Where(b => b.Publisher.Contains(publisher));
+                books = books.Where(b => EF.Functions.Like(b.Publisher, $"%{publisher}%"));
             }
 
             return books;
         }
+
+
 
         // Apply sorting logic
         private IQueryable<Book> ApplySorting(IQueryable<Book> books, string sortOrder)
         {
             return sortOrder switch
             {
-                "price_asc" => books.OrderBy(b => b.BuyingPrice),
-                "price_desc" => books.OrderByDescending(b => b.BuyingPrice),
+                "price_asc" => books.OrderBy(b => b.DiscountPrice ?? b.BuyingPrice),
+                "price_desc" => books.OrderByDescending(b => b.DiscountPrice ?? b.BuyingPrice),
                 "popular" => books.OrderByDescending(b => b.Popularity),
                 "genre" => books.OrderBy(b => b.Genre),
                 "year" => books.OrderByDescending(b => b.YearOfPublishing),
                 _ => books
             };
         }
+
 
         // Privacy action
         public IActionResult Privacy()

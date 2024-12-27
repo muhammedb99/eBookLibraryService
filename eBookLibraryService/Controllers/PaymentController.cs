@@ -110,12 +110,12 @@ namespace eBookLibraryService.Controllers
         [HttpGet]
         public IActionResult PayPalPayment(float amount)
         {
+            amount = (float)(amount * 3.66);
             if (amount <= 0)
             {
                 TempData["PaymentMessage"] = "Invalid payment amount.";
                 return RedirectToAction("ProcessPayment");
             }
-
             string formattedAmount = amount.ToString("F2", CultureInfo.InvariantCulture);
             string paypalLink = $"https://paypal.me/ebookstore22/{formattedAmount}";
 
