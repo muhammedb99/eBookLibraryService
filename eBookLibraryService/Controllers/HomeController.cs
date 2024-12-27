@@ -24,13 +24,25 @@ namespace eBookLibraryService.Controllers
         {
             try
             {
-                // Retrieve or initialize the cart from session
-                var cart = HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
-                ViewBag.CartItemCount = cart.Items.Count;
+                // Retrieve cart count based on whether the user is authenticated
+                if (User.Identity.IsAuthenticated)
+                {
+                    var userEmail = User.Identity.Name;
+                    var cart = _context.Carts
+                        .Include(c => c.Items)
+                        .FirstOrDefault(c => c.UserEmail == userEmail);
+
+                    ViewBag.CartItemCount = cart?.Items.Count ?? 0;
+                }
+                else
+                {
+                    var cart = HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
+                    ViewBag.CartItemCount = cart.Items.Count;
+                }
             }
             catch (Exception ex)
             {
-                _logger.LogError(ex, "Error initializing the cart in session.");
+                _logger.LogError(ex, "Error initializing the cart in session or database.");
                 ViewBag.CartItemCount = 0;
             }
 
@@ -72,7 +84,7 @@ namespace eBookLibraryService.Controllers
                 // Fetch distinct genres for dropdown
                 var genreList = await _context.Books
                     .Where(b => !string.IsNullOrEmpty(b.Genre))
-                    .Select(b => b.Genre.Trim()) // Ensure no leading/trailing spaces
+                    .Select(b => b.Genre.Trim())
                     .Distinct()
                     .OrderBy(g => g)
                     .ToListAsync();
@@ -84,23 +96,23 @@ namespace eBookLibraryService.Controllers
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error retrieving books for the Index page.");
-                ViewBag.GenreBooks = new Dictionary<string, List<Book>>(); // Initialize empty dictionary in case of error
-                return View(new List<Book>()); // Return an empty list if an error occurs
+                ViewBag.GenreBooks = new Dictionary<string, List<Book>>();
+                return View(new List<Book>());
             }
         }
 
         // Apply filtering logic
         private IQueryable<Book> ApplyFilters(
-    IQueryable<Book> books,
-    string query,
-    string author,
-    string genre,
-    string method,
-    float? minPrice,
-    float? maxPrice,
-    bool? isOnSale,
-    int? year,
-    string publisher)
+            IQueryable<Book> books,
+            string query,
+            string author,
+            string genre,
+            string method,
+            float? minPrice,
+            float? maxPrice,
+            bool? isOnSale,
+            int? year,
+            string publisher)
         {
             if (!string.IsNullOrWhiteSpace(query))
             {
@@ -139,7 +151,6 @@ namespace eBookLibraryService.Controllers
 
             if (isOnSale.HasValue && isOnSale.Value)
             {
-                // Include only books with an active discount
                 books = books.Where(b =>
                     b.DiscountPrice.HasValue &&
                     b.DiscountPrice < b.BuyingPrice &&
@@ -161,8 +172,6 @@ namespace eBookLibraryService.Controllers
             return books;
         }
 
-
-
         // Apply sorting logic
         private IQueryable<Book> ApplySorting(IQueryable<Book> books, string sortOrder)
         {
@@ -176,7 +185,6 @@ namespace eBookLibraryService.Controllers
                 _ => books
             };
         }
-
 
         // Privacy action
         public IActionResult Privacy()

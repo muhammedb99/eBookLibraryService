@@ -21,7 +21,7 @@
         @if (User.Identity.IsAuthenticated)
         {
             var user = await UserManager.GetUserAsync(User);
-            var userName = user?.FullName ?? User.Identity.Name;
+            var userName = user?.FullName ?? User.Identity.Name ?? "User";
             <h1 class="welcome-heading">Welcome Back, @userName!</h1>
         }
         else
@@ -56,7 +56,7 @@
                                             <h5 class="card-title">@book.Title</h5>
                                             <p class="card-text">
                                                 <strong>Author:</strong> @book.Author<br />
-                                                <strong>Genre:</strong> @book.Genre<br />
+                                                <strong>Genre:</strong> @book.Genre ?? "Unknown"<br />
                                                 <strong>Publisher:</strong> @book.Publisher<br />
                                                 <strong>Year of Publishing:</strong> @book.YearOfPublishing<br />
 
@@ -128,7 +128,7 @@
                             <label for="genre" class="form-label">Genre</label>
                             <select name="genre" id="genre" class="form-select">
                                 <option value="">Select Genre</option>
-                                @if (ViewBag.GenreBooks != null)
+                                @if (ViewBag.GenreBooks?.Keys != null)
                                 {
                                     foreach (var genre in ViewBag.GenreBooks.Keys)
                                     {

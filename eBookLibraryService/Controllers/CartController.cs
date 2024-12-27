@@ -4,7 +4,6 @@ using eBookLibraryService.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
-using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -21,10 +20,25 @@ namespace eBookLibraryService.Controllers
 
         public override void OnActionExecuting(ActionExecutingContext context)
         {
-            var cart = HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
-            ViewBag.CartItemCount = cart.Items.Count;
+            if (User.Identity.IsAuthenticated)
+            {
+                var userEmail = User.Identity.Name;
+                var cartItemCount = _context.Carts
+                    .Include(c => c.Items)
+                    .Where(c => c.UserEmail == userEmail)
+                    .SelectMany(c => c.Items)
+                    .Count();
+
+                ViewBag.CartItemCount = cartItemCount;
+            }
+            else
+            {
+                ViewBag.CartItemCount = 0;
+            }
+
             base.OnActionExecuting(context);
         }
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]
@@ -43,47 +57,17 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var cart = GetCart();
+            var userEmail = User.Identity.Name;
+            var cart = await GetOrCreateCartAsync(userEmail);
 
-            // Check for duplicate items in the cart (borrow/buy distinction)
-            var existingItem = cart.Items.FirstOrDefault(i => i.Book.Id == id && i.IsBorrow == isBorrow);
-            if (existingItem != null)
+            if (cart.Items.Any(i => i.Book.Id == id))
             {
-                TempData["CartMessage"] = "This book is already in your cart with the selected option.";
+                TempData["CartMessage"] = "This book is already in your cart.";
                 return RedirectToAction("Index", "Home");
             }
 
-            if (isBorrow)
-            {
-                // Borrow-specific logic
-                var currentUserEmail = User.Identity.Name;
-
-                // Check if the user has already borrowed 3 books
-                var currentBorrowedCount = await _context.BorrowedBooks
-                    .CountAsync(bb => bb.Email == currentUserEmail && !bb.IsReturned);
-                if (currentBorrowedCount >= 3)
-                {
-                    TempData["CartMessage"] = "You have reached the borrowing limit of 3 books.";
-                    return RedirectToAction("Index", "Home");
-                }
-
-                // Check if the book is available for borrowing
-                if (book.BorrowCount >= book.Quantity)
-                {
-                    TempData["CartMessage"] = "This book is currently unavailable for borrowing.";
-                    return RedirectToAction("Index", "Home");
-                }
-
-                // Increment the borrow count
-                book.BorrowCount++;
-                _context.Books.Update(book);
-                await _context.SaveChangesAsync();
-            }
-
-            // Calculate price based on borrow or buy
             var price = isBorrow ? (book.BorrowPrice ?? 0) : book.BuyingPrice;
 
-            // Add the book to the cart
             var cartItem = new CartItem
             {
                 Book = book,
@@ -91,14 +75,15 @@ namespace eBookLibraryService.Controllers
                 Price = price
             };
 
-            cart.AddToCart(cartItem);
-            SaveCart(cart);
+            cart.Items.Add(cartItem);
+            _context.Update(cart);
+            await _context.SaveChangesAsync();
 
             TempData["CartMessage"] = isBorrow ? "Book added to your cart for borrowing." : "Book added to your cart for buying.";
             return RedirectToAction("Index", "Home");
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -106,13 +91,14 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var cart = GetCart();
+            var userEmail = User.Identity.Name;
+            var cart = await GetOrCreateCartAsync(userEmail);
             return View(cart);
         }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult RemoveFromCart(int itemId)
+        public async Task<IActionResult> RemoveFromCart(int itemId)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -120,9 +106,16 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            var cart = GetCart();
-            cart.RemoveFromCart(itemId);
-            SaveCart(cart);
+            var userEmail = User.Identity.Name;
+            var cart = await GetOrCreateCartAsync(userEmail);
+
+            var itemToRemove = cart.Items.FirstOrDefault(i => i.Id == itemId);
+            if (itemToRemove != null)
+            {
+                cart.Items.Remove(itemToRemove);
+                _context.Update(cart);
+                await _context.SaveChangesAsync();
+            }
 
             TempData["CartMessage"] = "Book removed from your cart.";
             return RedirectToAction(nameof(Index));
@@ -130,38 +123,41 @@ namespace eBookLibraryService.Controllers
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public IActionResult UpdateCart(Dictionary<int, bool> cartItems)
+        public async Task<IActionResult> ClearCart()
         {
             if (!User.Identity.IsAuthenticated)
             {
-                TempData["CartMessage"] = "You must be logged in to update your cart.";
+                TempData["CartMessage"] = "You must be logged in to clear your cart.";
                 return RedirectToAction("Login", "Account");
             }
 
-            var cart = GetCart();
+            var userEmail = User.Identity.Name;
+            var cart = await GetOrCreateCartAsync(userEmail);
 
-            foreach (var item in cart.Items)
-            {
-                if (cartItems.TryGetValue(item.Id, out var isBorrow))
-                {
-                    item.IsBorrow = isBorrow;
-                    item.Price = isBorrow ? (item.Book.BorrowPrice ?? 0) : item.Book.BuyingPrice;
-                }
-            }
+            cart.Items.Clear();
+            _context.Update(cart);
+            await _context.SaveChangesAsync();
 
-            SaveCart(cart);
-            TempData["CartMessage"] = "Cart updated successfully.";
+            TempData["CartMessage"] = "Cart cleared successfully.";
             return RedirectToAction(nameof(Index));
         }
 
-        private Cart GetCart()
+        private async Task<Cart> GetOrCreateCartAsync(string userEmail)
         {
-            return HttpContext.Session.GetObject<Cart>("Cart") ?? new Cart();
+            var cart = await _context.Carts
+                .Include(c => c.Items)
+                .ThenInclude(i => i.Book)
+                .FirstOrDefaultAsync(c => c.UserEmail == userEmail);
+
+            if (cart == null)
+            {
+                cart = new Cart { UserEmail = userEmail };
+                _context.Carts.Add(cart);
+                await _context.SaveChangesAsync();
+            }
+
+            return cart;
         }
 
-        private void SaveCart(Cart cart)
-        {
-            HttpContext.Session.SetObject("Cart", cart);
-        }
     }
 }

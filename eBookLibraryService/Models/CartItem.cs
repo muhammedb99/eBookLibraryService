@@ -1,12 +1,21 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace eBookLibraryService.Models
 {
     public class CartItem
     {
-        public int Id { get; set; } 
+        [Key]
+        public int Id { get; set; }
 
         [Required]
+        [ForeignKey("Cart")]
+        public int CartId { get; set; } 
+        public Cart Cart { get; set; } 
+
+        [Required]
+        [ForeignKey("Book")]
+        public int BookId { get; set; } 
         public Book Book { get; set; } 
 
         [Required]

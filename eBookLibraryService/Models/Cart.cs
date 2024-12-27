@@ -1,18 +1,39 @@
 ﻿using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
+using System.Linq;
 
 namespace eBookLibraryService.Models
 {
     public class Cart
     {
+        [Key] 
+        public int Id { get; set; }
+
+        [Required]
+        [EmailAddress]
+        public string UserEmail { get; set; } 
+
         public List<CartItem> Items { get; set; } = new List<CartItem>();
 
         public void AddToCart(CartItem item)
         {
-            Items.Add(item);
+            if (Items == null)
+            {
+                Items = new List<CartItem>();
+            }
+
+            var existingItem = Items.FirstOrDefault(i => i.Book.Id == item.Book.Id && i.IsBorrow == item.IsBorrow);
+
+            if (existingItem == null)
+            {
+                Items.Add(item);
+            }
         }
 
         public void RemoveFromCart(int itemId)
         {
+            if (Items == null) return;
+
             var item = Items.Find(i => i.Id == itemId);
             if (item != null)
             {
@@ -22,21 +43,12 @@ namespace eBookLibraryService.Models
 
         public float GetTotalPrice()
         {
-            float total = 0;
-            foreach (var item in Items)
+            if (Items == null || !Items.Any())
             {
-                if (item.IsBorrow)
-                {
-                    total += item.Book.BorrowPrice ?? 0;
-                }
-                else
-                {
-                    total += item.Book.BuyingPrice;
-                }
+                return 0;
             }
-            return total;
+
+            return Items.Sum(item => item.Price);
         }
-
-
     }
 }

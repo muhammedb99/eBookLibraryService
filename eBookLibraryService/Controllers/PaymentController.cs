@@ -1,8 +1,10 @@
-﻿using eBookLibraryService.Helpers;
+﻿using eBookLibraryService.Data;
+using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
 using eBookLibraryService.Services;
 using eBookLibraryService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using System.Globalization;
 using System.Threading.Tasks;
 
@@ -11,10 +13,12 @@ namespace eBookLibraryService.Controllers
     public class PaymentController : Controller
     {
         private readonly NotificationService _emailService;
+        private readonly eBookLibraryServiceContext _context;
 
-        public PaymentController(NotificationService emailService)
+        public PaymentController(NotificationService emailService, eBookLibraryServiceContext context)
         {
             _emailService = emailService;
+            _context = context;
         }
 
         [RequireHttps]
@@ -88,16 +92,22 @@ namespace eBookLibraryService.Controllers
 
             if (paymentSuccess)
             {
-                // Send confirmation email
                 string userEmail = User.Identity.Name ?? "user@example.com";
                 string formattedAmount = model.TotalAmount.ToString("F2", CultureInfo.InvariantCulture);
                 string emailContent = $"Your payment of ${formattedAmount} has been successfully processed. Thank you for shopping with us!";
                 await _emailService.SendEmailAsync(userEmail, "Payment Confirmation", emailContent);
 
-                // Clear the cart after successful payment
-                var cart = HttpContext.Session.GetObject<Cart>("Cart");
-                cart?.Items.Clear();
-                HttpContext.Session.SetObject("Cart", cart);
+                // Clear the cart stored in the database
+                var cart = await _context.Carts
+                    .Include(c => c.Items)
+                    .FirstOrDefaultAsync(c => c.UserEmail == userEmail);
+
+                if (cart != null)
+                {
+                    cart.Items.Clear();
+                    _context.Carts.Update(cart);
+                    await _context.SaveChangesAsync();
+                }
 
                 TempData["PaymentMessage"] = "Payment successful! A confirmation email has been sent.";
                 return RedirectToAction("Index", "Home");
@@ -110,13 +120,15 @@ namespace eBookLibraryService.Controllers
         [HttpGet]
         public IActionResult PayPalPayment(float amount)
         {
-            amount = (float)(amount * 3.66);
-            if (amount <= 0)
+            // Assume conversion rate to USD is 3.66
+            float amountInUSD = amount / 3.66f;
+            if (amountInUSD <= 0)
             {
                 TempData["PaymentMessage"] = "Invalid payment amount.";
                 return RedirectToAction("ProcessPayment");
             }
-            string formattedAmount = amount.ToString("F2", CultureInfo.InvariantCulture);
+
+            string formattedAmount = amountInUSD.ToString("F2", CultureInfo.InvariantCulture);
             string paypalLink = $"https://paypal.me/ebookstore22/{formattedAmount}";
 
             return Redirect(paypalLink);
