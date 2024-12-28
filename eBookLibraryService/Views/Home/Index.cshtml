@@ -199,3 +199,67 @@
         </div>
     </div>
 </section>
+ @foreach (var genre in ViewBag.GenreBooks.Keys)
+    {
+        <section id="@genre.ToLower().Replace(" ", "-")-section" class="mt-5">
+            <h4>@genre</h4>
+            <div class="row">
+                @foreach (var book in ViewBag.GenreBooks[genre])
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                            <div class="card-body">
+                                <h5 class="card-title">@book.Title</h5>
+                                <p class="card-text">
+                                    <strong>Author:</strong> @book.Author<br />
+                                    <strong>Genre:</strong> @book.Genre<br />
+                                    <strong>Publisher:</strong> @book.Publisher<br />
+                                    <strong>Year of Publishing:</strong> @book.YearOfPublishing<br />
+
+                                    <!-- Price details -->
+                                    @if (book.DiscountPrice != null && book.DiscountUntil != null && book.DiscountUntil >= DateTime.Now)
+                                    {
+                                        <strong>Price (Buy):</strong>
+                                        <span style="text-decoration: line-through;">@book.BuyingPrice $</span>
+                                        <span class="text-success">@book.DiscountPrice $</span>
+                                        <br />
+                                    }
+                                    else
+                                    {
+                                        <strong>Price (Buy):</strong> @book.BuyingPrice <span>$</span>
+                                        <br />
+                                    }
+
+                                    @if (book.BorrowPrice > 0)
+                                    {
+                                        <strong>Price (Borrow):</strong> @book.BorrowPrice <span>$</span>
+                                        <br />
+                                    }
+                                </p>
+                                <div class="d-flex justify-content-between">
+                                    <!-- Add to Cart (Buy) -->
+                                    <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                        <input type="hidden" name="id" value="@book.Id" />
+                                        <input type="hidden" name="isBorrow" value="false" />
+                                        <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
+                                    </form>
+
+                                    <!-- Add to Cart (Borrow) -->
+                                    @if (book.BorrowPrice > 0) 
+                                    {
+                                        <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                            <input type="hidden" name="id" value="@book.Id" />
+                                            <input type="hidden" name="isBorrow" value="true" />
+                                            <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
+                                        </form>
+                                    }
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                }
+            </div>
+        </section>
+
+    }

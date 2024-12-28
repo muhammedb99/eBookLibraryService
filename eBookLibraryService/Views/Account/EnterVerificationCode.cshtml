@@ -1,0 +1,24 @@
+﻿@{
+    ViewData["Title"] = "Enter Verification Code";
+    Layout = "~/Views/Shared/_AccountLayout.cshtml";
+}
+
+<div class="verification-container">
+    <div class="verification-box">
+        <h2 class="text-center mb-4">Enter Verification Code</h2>
+
+        <!-- Display validation errors -->
+        <div asp-validation-summary="All" class="text-danger mb-3"></div>
+
+        <form method="post">
+            <div class="mb-3">
+                <label for="code" class="form-label">Verification Code</label>
+                <input type="text" id="code" name="code" class="form-control" placeholder="Enter the code" required />
+            </div>
+            <button type="submit" class="btn btn-success w-100">Submit</button>
+        </form>
+        <div class="text-center mt-3">
+            <a href="@Url.Action("VerifyEmail", "Account")" class="text-decoration-none">Resend Code</a>
+        </div>
+    </div>
+</div>

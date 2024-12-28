@@ -1,4 +1,5 @@
-﻿using eBookLibraryService.Helpers;
+﻿using System.Net.Mail;
+using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
 using eBookLibraryService.Services;
 using eBookLibraryService.ViewModels;
@@ -112,24 +113,92 @@ namespace eBookLibraryService.Controllers
                 var user = await _userManager.FindByNameAsync(model.Email);
                 if (user == null)
                 {
-                    ModelState.AddModelError("", "Something went wrong!");
+                    ModelState.AddModelError("", "Email not found!");
                 }
                 else
                 {
-                    return RedirectToAction("ChangePassword", "Account", new { username = user.UserName });
+                    // Generate a random 6-digit verification code
+                    var verificationCode = new Random().Next(100000, 999999).ToString();
+
+                    // Store the code in TempData (or database for persistence)
+                    TempData["VerificationCode"] = verificationCode;
+                    TempData["Email"] = model.Email;
+
+                    // Send the code to the user's email
+                    await SendVerificationCodeEmailAsync(model.Email, verificationCode);
+
+                    TempData["Message"] = "Verification code has been sent to your email. Please check your inbox.";
+                    return RedirectToAction("EnterVerificationCode");
                 }
             }
             return View(model);
         }
 
-        public IActionResult ChangePassword(string username)
+
+        private async Task SendVerificationCodeEmailAsync(string email, string verificationCode)
         {
-            if (string.IsNullOrEmpty(username))
+            var smtpClient = new SmtpClient("smtp.gmail.com")
             {
-                return RedirectToAction("VerifyEmail", "Account");
+                Port = 587,
+                Credentials = new System.Net.NetworkCredential("ebookstorenoty@gmail.com", "fzntvkrsxivqftay"),
+                EnableSsl = true,
+            };
+
+            var mailMessage = new MailMessage
+            {
+                From = new MailAddress("ebookstorenoty@gmail.com", "eBook Library"),
+                Subject = "Your Verification Code",
+                Body = $"<p>Your verification code is:</p><h2>{verificationCode}</h2><p>Please use this code to verify your email and access the password reset page.</p>",
+                IsBodyHtml = true,
+            };
+
+            mailMessage.To.Add(email);
+
+            try
+            {
+                await smtpClient.SendMailAsync(mailMessage);
             }
-            return View(new ChangePasswordViewModel { Email = username });
+            catch (Exception ex)
+            {
+                // Log or handle email sending exceptions
+                Console.WriteLine($"Error sending email: {ex.Message}");
+            }
         }
+
+
+        [HttpGet]
+        public async Task<IActionResult> ConfirmEmail(string userId, string token)
+        {
+            if (string.IsNullOrEmpty(userId) || string.IsNullOrEmpty(token))
+            {
+                return BadRequest("Invalid email confirmation request.");
+            }
+
+            var user = await _userManager.FindByIdAsync(userId);
+            if (user == null)
+            {
+                return NotFound("User not found.");
+            }
+
+            // Verify the token
+            var result = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", token);
+            if (result)
+            {
+                // Redirect to Change Password page
+                return RedirectToAction("ChangePassword", new { username = user.UserName });
+            }
+
+            return BadRequest("Invalid or expired token.");
+        }
+
+
+        [HttpGet]
+        public IActionResult ChangePassword(string email)
+        {
+            var model = new ChangePasswordViewModel { Email = email };
+            return View(model);
+        }
+
 
         [HttpPost]
         public async Task<IActionResult> ChangePassword(ChangePasswordViewModel model)
@@ -379,7 +448,44 @@ namespace eBookLibraryService.Controllers
             }
 
             return RedirectToAction("ManageUsers");
-        }  
+        }
+
+
+        [HttpGet]
+        public IActionResult EnterVerificationCode()
+        {
+            return View();
+        }
+        [HttpPost]
+        public IActionResult EnterVerificationCode(string code)
+        {
+            var storedCode = TempData["VerificationCode"]?.ToString();
+            var email = TempData["Email"]?.ToString();
+
+            if (string.IsNullOrEmpty(storedCode) || string.IsNullOrEmpty(email))
+            {
+                ModelState.AddModelError("", "Verification code expired. Please try again.");
+                return RedirectToAction("VerifyEmail");
+            }
+
+            if (code == storedCode)
+            {
+                // Clear TempData after successful verification
+                TempData.Remove("VerificationCode");
+                TempData.Remove("Email");
+
+                // Redirect to Change Password
+                return RedirectToAction("ChangePassword", new { email = email });
+            }
+
+            // Add error message if the code is incorrect
+            ModelState.AddModelError("", "The verification code you entered is incorrect. Please try again.");
+            TempData.Keep("VerificationCode"); // Keep the verification code for the next attempt
+            TempData.Keep("Email"); // Keep the email for the next attempt
+            return View();
+        }
+
+
 
     }
 }

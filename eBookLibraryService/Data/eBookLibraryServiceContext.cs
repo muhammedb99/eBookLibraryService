@@ -15,6 +15,5 @@ namespace eBookLibraryService.Data
         public DbSet<BorrowedBook> BorrowedBooks { get; set; }
 
         public DbSet<Cart> Carts { get; set; }
-
     }
 }

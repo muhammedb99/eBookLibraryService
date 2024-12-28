@@ -66,7 +66,7 @@ namespace eBookLibraryService.Controllers
             }
 
             var price = isBorrow
-                ? book.BorrowPrice.GetValueOrDefault() 
+                ? book.BorrowPrice.GetValueOrDefault()
                 : (book.DiscountPrice > 0 && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now
                     ? book.DiscountPrice.GetValueOrDefault() : book.BuyingPrice);
 

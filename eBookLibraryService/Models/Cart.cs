@@ -6,12 +6,12 @@ namespace eBookLibraryService.Models
 {
     public class Cart
     {
-        [Key] 
+        [Key]
         public int Id { get; set; }
 
         [Required]
         [EmailAddress]
-        public string UserEmail { get; set; } 
+        public string UserEmail { get; set; }
 
         public List<CartItem> Items { get; set; } = new List<CartItem>();
 
