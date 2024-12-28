@@ -84,7 +84,7 @@ namespace eBookLibraryService.Controllers
             if (!ModelState.IsValid)
             {
                 TempData["PaymentMessage"] = "Invalid credit card details. Please try again.";
-                return RedirectToAction("CreditCardPayment", new { model.TotalAmount });
+                return View("CreditCardPayment", model);
             }
 
             // Mock payment processing logic (replace with real payment gateway integration)
@@ -93,7 +93,7 @@ namespace eBookLibraryService.Controllers
             if (paymentSuccess)
             {
                 string userEmail = User.Identity.Name ?? "user@example.com";
-                string formattedAmount = model.TotalAmount.ToString("F2", CultureInfo.InvariantCulture);
+                string formattedAmount = model.TotalAmount.ToString("F2", CultureInfo.InvariantCulture); // Format the amount with two decimal places
                 string emailContent = $"Your payment of ${formattedAmount} has been successfully processed. Thank you for shopping with us!";
                 await _emailService.SendEmailAsync(userEmail, "Payment Confirmation", emailContent);
 
@@ -114,7 +114,7 @@ namespace eBookLibraryService.Controllers
             }
 
             TempData["PaymentMessage"] = "Payment failed. Please try again.";
-            return RedirectToAction("CreditCardPayment", new { model.TotalAmount });
+            return View("CreditCardPayment", model);
         }
 
         [HttpGet]

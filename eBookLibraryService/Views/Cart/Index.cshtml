@@ -41,7 +41,22 @@ else
                 <tr>
                     <td>@item.Book.Title</td>
                     <td>@item.Book.Author</td>
-                    <td>@(item.IsBorrow ? $"{item.Book.BorrowPrice}$" : $"{item.Book.BuyingPrice}$")</td>
+                    <td>
+                        @if (item.IsBorrow)
+                        {
+                            @item.Book.BorrowPrice
+
+                    }
+                        else if (item.Book.DiscountPrice > 0 && item.Book.DiscountUntil.HasValue && item.Book.DiscountUntil.Value >= DateTime.Now)
+                        {
+                            <span>@item.Book.DiscountPrice$ <small class="text-muted"><s>@item.Book.BuyingPrice$</s></small></span>
+                        }
+                        else
+                        {
+                            @item.Book.BuyingPrice
+
+                    }
+                    </td>
                     <td>@(item.IsBorrow ? "Borrow" : "Buy")</td>
                     <td>
                         <form asp-action="RemoveFromCart" method="post">
@@ -61,7 +76,6 @@ else
                 <input type="hidden" name="amount" value="@Model.GetTotalPrice()" />
                 <button type="submit" class="btn btn-success">Buy Now</button>
             </form>
-
         </div>
     </div>
 

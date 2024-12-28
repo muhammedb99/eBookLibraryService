@@ -1,70 +1,116 @@
 ﻿@model eBookLibraryService.ViewModels.CreditCardPaymentViewModel
 
-@{
-    ViewData["Title"] = "Credit Card Payment";
-    Layout = null;
-}
+<div class="container d-flex justify-content-center align-items-center" style="min-height: calc(100vh - 56px);">
+    <div class="card shadow-lg p-4" style="max-width: 450px; width: 100%; border-radius: 15px; background: linear-gradient(to bottom right, #ffffff, #f3f3f3);">
+        <h4 class="text-center mb-4" style="color: #333; font-weight: 600;">Credit Card Payment</h4>
+        <form method="post" asp-action="SubmitCreditCardPayment" asp-controller="Payment">
+            <input type="hidden" asp-for="TotalAmount" />
 
-<head>
-    <h1 class="cart-header">Credit Card Payment</h1>
+            <div class="mb-3">
+                <label for="CardNumber" class="form-label">Card Number</label>
+                <input asp-for="CardNumber" class="form-control" id="CardNumber" maxlength="16" placeholder="Enter 16-digit card number" required />
+                <span asp-validation-for="CardNumber" class="text-danger"></span>
+            </div>
 
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+            <div class="mb-3">
+                <label for="ExpirationDate" class="form-label">Expiration Date (MM/YY)</label>
+                <input asp-for="ExpirationDate" class="form-control" id="ExpirationDate" maxlength="5" placeholder="MM/YY" required />
+                <span asp-validation-for="ExpirationDate" class="text-danger"></span>
+            </div>
 
-    <!-- Bootstrap and Custom Styles -->
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Payment.css" />
-</head>
-<form method="post" asp-action="SubmitCreditCardPayment" asp-controller="Payment">
-    <input type="hidden" asp-for="TotalAmount" />
-    
-    <div class="mb-3">
-        <label for="CardNumber" class="form-label">Card Number</label>
-        <input asp-for="CardNumber" class="form-control" id="CardNumber" maxlength="16" placeholder="Enter 16-digit card number" required />
-        <span asp-validation-for="CardNumber" class="text-danger"></span>
+            <div class="mb-3">
+                <label for="CVV" class="form-label">CVV</label>
+                <input asp-for="CVV" class="form-control" id="CVV" maxlength="3" placeholder="Enter 3-digit CVV" required />
+                <span asp-validation-for="CVV" class="text-danger"></span>
+            </div>
+
+            <div class="mb-3">
+                <label for="CardHolderName" class="form-label">Cardholder Name</label>
+                <input asp-for="CardHolderName" class="form-control" id="CardHolderName" placeholder="Enter cardholder name" required />
+                <span asp-validation-for="CardHolderName" class="text-danger"></span>
+            </div>
+
+            <button type="submit" class="btn btn-primary">Submit Payment</button>
+        </form>
     </div>
-    
-    <div class="mb-3">
-        <label for="ExpirationDate" class="form-label">Expiration Date (MM/YY)</label>
-        <input asp-for="ExpirationDate" class="form-control" id="ExpirationDate" maxlength="5" placeholder="MM/YY" required />
-        <span asp-validation-for="ExpirationDate" class="text-danger"></span>
-    </div>
-    
-    <div class="mb-3">
-        <label for="CVV" class="form-label">CVV</label>
-        <input asp-for="CVV" class="form-control" id="CVV" maxlength="3" placeholder="Enter 3-digit CVV" required />
-        <span asp-validation-for="CVV" class="text-danger"></span>
-    </div>
-    
-    <div class="mb-3">
-        <label for="CardHolderName" class="form-label">Cardholder Name</label>
-        <input asp-for="CardHolderName" class="form-control" id="CardHolderName" placeholder="Enter cardholder name" required />
-        <span asp-validation-for="CardHolderName" class="text-danger"></span>
-    </div>
-    
-    <button type="submit" class="btn btn-primary">Submit Payment</button>
-    <div>
-        <a href="@Url.Action("ProcessPayment", "Payment")" class="btn btn-primary mt-3">Back</a>
-    </div>
-</form>
+</div>
+
 
 @section Scripts {
     <script>
+        // Automatic MM/YY Formatting
         document.getElementById("ExpirationDate").addEventListener("input", function (e) {
-            let value = e.target.value.replace(/\D/g, ""); 
-            if (value.length >= 2) {
-                value = value.slice(0, 2) + "/" + value.slice(2, 4); 
+            let value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+            if (value.length > 2) {
+                value = value.substring(0, 2) + "/" + value.substring(2, 4); // Add slash after MM
             }
-            e.target.value = value.slice(0, 5); 
+            e.target.value = value.substring(0, 5); // Limit to MM/YY format
         });
 
+        // Expiry date validation
+        document.getElementById("ExpirationDate").addEventListener("blur", function (e) {
+            const today = new Date();
+            const currentMonth = today.getMonth() + 1;
+            const currentYear = today.getFullYear() % 100;
+
+            const errorSpan = document.querySelector("[asp-validation-for='ExpirationDate']");
+            const [month, year] = e.target.value.split("/").map(Number);
+
+            if (!month || !year) {
+                errorSpan.textContent = "Expiration date must be in MM/YY format.";
+            } else if (month < 1 || month > 12) {
+                errorSpan.textContent = "Invalid month. Enter a value between 01 and 12.";
+            } else if (year < currentYear || year > currentYear + 5) {
+                errorSpan.textContent = `Invalid year. Enter a year between ${currentYear} and ${currentYear + 5}.`;
+            } else if (year === currentYear && month < currentMonth) {
+                errorSpan.textContent = "Expiration date must be in the future.";
+            } else {
+                errorSpan.textContent = ""; // Clear error if valid
+            }
+        });
+
+        // Card Number Validation
         document.getElementById("CardNumber").addEventListener("input", function (e) {
-            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 16); 
+            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 16); // Only digits, max length 16
+            e.target.value = value;
+            const errorSpan = document.querySelector("[asp-validation-for='CardNumber']");
+            if (value.length !== 16) {
+                errorSpan.textContent = "Card number must be 16 digits.";
+            } else {
+                errorSpan.textContent = "";
+            }
         });
 
+        // CVV Validation
         document.getElementById("CVV").addEventListener("input", function (e) {
-            e.target.value = e.target.value.replace(/\D/g, "").slice(0, 3); 
+            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 3); // Only digits, max length 3
+            e.target.value = value;
+            const errorSpan = document.querySelector("[asp-validation-for='CVV']");
+            if (value.length !== 3) {
+                errorSpan.textContent = "CVV must be 3 digits.";
+            } else {
+                errorSpan.textContent = "";
+            }
         });
 
+        // Cardholder Name Validation
+        document.getElementById("CardHolderName").addEventListener("input", function (e) {
+            const value = e.target.value;
+            const errorSpan = document.querySelector("[asp-validation-for='CardHolderName']");
+            if (/[^a-zA-Z ]/.test(value)) {
+                errorSpan.textContent = "Cardholder name must contain only letters and spaces.";
+            } else {
+                errorSpan.textContent = ""; // Clear error if valid
+            }
+        });
+
+        // Prevent form submission if there are validation errors
+        document.querySelector("form").addEventListener("submit", function (e) {
+            const errorSpans = document.querySelectorAll(".text-danger");
+            const hasErrors = Array.from(errorSpans).some(span => span.textContent !== "");
+            if (hasErrors) {
+                e.preventDefault(); // Stop form submission
+            }
+        });
     </script>
 }

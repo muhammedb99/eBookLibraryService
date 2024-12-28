@@ -39,7 +39,6 @@ namespace eBookLibraryService.Controllers
             base.OnActionExecuting(context);
         }
 
-
         [HttpPost]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> AddToCart(int id, bool isBorrow)
@@ -66,7 +65,10 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var price = isBorrow ? (book.BorrowPrice ?? 0) : book.BuyingPrice;
+            var price = isBorrow
+                ? book.BorrowPrice.GetValueOrDefault() 
+                : (book.DiscountPrice > 0 && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now
+                    ? book.DiscountPrice.GetValueOrDefault() : book.BuyingPrice);
 
             var cartItem = new CartItem
             {
@@ -82,6 +84,7 @@ namespace eBookLibraryService.Controllers
             TempData["CartMessage"] = isBorrow ? "Book added to your cart for borrowing." : "Book added to your cart for buying.";
             return RedirectToAction("Index", "Home");
         }
+
 
         public async Task<IActionResult> Index()
         {
