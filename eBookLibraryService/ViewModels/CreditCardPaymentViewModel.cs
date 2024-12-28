@@ -24,7 +24,7 @@ namespace eBookLibraryService.ViewModels
         [Required(ErrorMessage = "Cardholder name is required.")]
         [RegularExpression("^[a-zA-Z ]*$", ErrorMessage = "Cardholder name must contain only letters and spaces.")]
         public string CardHolderName { get; set; }
-
+        public int? BookId { get; set; }
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (!IsExpirationDateValid())

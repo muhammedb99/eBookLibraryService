@@ -1,4 +1,4 @@
-﻿﻿@using Microsoft.AspNetCore.Identity
+﻿@using Microsoft.AspNetCore.Identity
 @model IEnumerable<eBookLibraryService.Models.Book>
 @inject UserManager<eBookLibraryService.Models.Users> UserManager
 
@@ -80,14 +80,14 @@
                                                     <br />
                                                 }
                                             </p>
-                                            <div class="d-flex justify-content-between">
+                                            <div class="d-flex flex-column gap-2">
                                                 @if (User.Identity.IsAuthenticated)
                                                 {
                                                     <!-- Add to Cart (Buy) -->
                                                     <form asp-action="AddToCart" asp-controller="Cart" method="post">
                                                         <input type="hidden" name="id" value="@book.Id" />
                                                         <input type="hidden" name="isBorrow" value="false" />
-                                                        <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
+                                                        <button type="submit" class="btn btn-primary w-100">Add to Cart (Buy)</button>
                                                     </form>
 
                                                     <!-- Add to Cart (Borrow) -->
@@ -96,9 +96,16 @@
                                                         <form asp-action="AddToCart" asp-controller="Cart" method="post">
                                                             <input type="hidden" name="id" value="@book.Id" />
                                                             <input type="hidden" name="isBorrow" value="true" />
-                                                            <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
+                                                            <button type="submit" class="btn btn-secondary w-100">Add to Cart (Borrow)</button>
                                                         </form>
                                                     }
+
+                                                    <!-- Buy Now -->
+                                                    <form asp-action="ProcessPayment" asp-controller="Payment" method="get">
+                                                        <input type="hidden" name="amount" value="@(book.DiscountPrice != null && book.DiscountUntil != null && book.DiscountUntil.Value >= DateTime.Now ? book.DiscountPrice : book.BuyingPrice)" />
+                                                        <input type="hidden" name="bookId" value="@book.Id" />
+                                                        <button type="submit" class="btn btn-success w-100">Buy Now</button>
+                                                    </form>
                                                 }
                                                 else
                                                 {

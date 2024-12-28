@@ -5,7 +5,7 @@
         <h4 class="text-center mb-4" style="color: #333; font-weight: 600;">Credit Card Payment</h4>
         <form method="post" asp-action="SubmitCreditCardPayment" asp-controller="Payment">
             <input type="hidden" asp-for="TotalAmount" />
-
+            <input type="hidden" asp-for="BookId" />
             <div class="mb-3">
                 <label for="CardNumber" class="form-label">Card Number</label>
                 <input asp-for="CardNumber" class="form-control" id="CardNumber" maxlength="16" placeholder="Enter 16-digit card number" required />
