@@ -83,7 +83,6 @@ namespace eBookLibraryService.Controllers
                 return View("CreditCardPayment", model);
             }
 
-            // Mock payment processing logic
             bool paymentSuccess = true;
 
             if (paymentSuccess)
@@ -94,76 +93,34 @@ namespace eBookLibraryService.Controllers
 
                     if (model.BookId.HasValue)
                     {
-                        // Fetch the purchased book
-                        var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == model.BookId.Value);
-                        if (book == null)
-                        {
-                            SetPaymentMessage("The selected book does not exist.");
-                            return RedirectToAction("Index", "Home");
-                        }
-
-                        // Add the book to the user's library
-                        var ownedBook = new OwnedBook
-                        {
-                            UserEmail = userEmail,
-                            BookId = book.Id,
-                            Title = book.Title,
-                            Author = book.Author,
-                            IsBorrowed = false, // Since this is a purchase
-                            Price = model.TotalAmount,
-                            PurchaseDate = DateTime.Now,
-                            BorrowEndDate = null // Not applicable for purchased books
-                        };
-
-                        // Avoid duplicates in My Library
-                        var alreadyInLibrary = await _context.OwnedBooks.AnyAsync(ob => ob.UserEmail == userEmail && ob.BookId == book.Id);
-                        if (!alreadyInLibrary)
-                        {
-                            _context.OwnedBooks.Add(ownedBook);
-                        }
+                        await AddBookToLibrary(userEmail, model.BookId.Value, model.TotalAmount, isBorrow: false);
                     }
                     else
                     {
-                        // If no specific book, handle cart purchase
-                        var userCart = await _context.Carts.Include(c => c.Items).ThenInclude(ci => ci.Book).FirstOrDefaultAsync(c => c.UserEmail == userEmail);
+                        var userCart = await _context.Carts
+                            .Include(c => c.Items)
+                            .ThenInclude(ci => ci.Book)
+                            .FirstOrDefaultAsync(c => c.UserEmail == userEmail);
+
                         if (userCart != null && userCart.Items.Any())
                         {
                             foreach (var cartItem in userCart.Items)
                             {
-                                // Add each book in the cart to the user's library
-                                var ownedBook = new OwnedBook
-                                {
-                                    UserEmail = userEmail,
-                                    BookId = cartItem.Book.Id,
-                                    Title = cartItem.Book.Title,
-                                    Author = cartItem.Book.Author,
-                                    IsBorrowed = cartItem.IsBorrow,
-                                    Price = cartItem.Price,
-                                    PurchaseDate = DateTime.Now,
-                                    BorrowEndDate = cartItem.IsBorrow ? DateTime.Now.AddDays(14) : (DateTime?)null // 14 days for borrowed books
-                                };
-
-                                // Avoid duplicates in My Library
-                                var alreadyInLibrary = await _context.OwnedBooks.AnyAsync(ob => ob.UserEmail == userEmail && ob.BookId == cartItem.Book.Id);
-                                if (!alreadyInLibrary)
-                                {
-                                    _context.OwnedBooks.Add(ownedBook);
-                                }
+                                await AddBookToLibrary(userEmail, cartItem.Book.Id, cartItem.Price, cartItem.IsBorrow);
                             }
+
+                            _context.CartItems.RemoveRange(userCart.Items);
+                            await _context.SaveChangesAsync();
                         }
                     }
 
-                    await _context.SaveChangesAsync(); // Save changes for adding to My Library
-
-                    // Existing email confirmation and cart clearing logic
                     await ProcessPaymentSuccess(model);
 
                     SetPaymentMessage("Payment successful! A confirmation email has been sent.");
-                    return RedirectToAction("Index", "Home");
+                    return RedirectToAction("Index", "Home"); 
                 }
                 catch (Exception ex)
                 {
-                    // Log exception (optional)
                     SetPaymentMessage($"An error occurred while processing your payment: {ex.Message}");
                     return RedirectToAction("Index", "Home");
                 }
@@ -172,7 +129,6 @@ namespace eBookLibraryService.Controllers
             SetPaymentMessage("Payment failed. Please try again.");
             return View("CreditCardPayment", model);
         }
-
 
         [HttpGet]
         public IActionResult PayPalPayment(float amount, int? bookId = null)
@@ -194,7 +150,32 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction("ProcessPayment", new { amount, bookId });
         }
 
-        // Helper Methods
+        // Helper Method: Add a book to the library
+        private async Task AddBookToLibrary(string userEmail, int bookId, float price, bool isBorrow)
+        {
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == bookId);
+            if (book == null) throw new Exception("Book not found.");
+
+            var alreadyInLibrary = await _context.OwnedBooks.AnyAsync(ob => ob.UserEmail == userEmail && ob.BookId == bookId);
+            if (!alreadyInLibrary)
+            {
+                var ownedBook = new OwnedBook
+                {
+                    UserEmail = userEmail,
+                    BookId = book.Id,
+                    Title = book.Title,
+                    Author = book.Author,
+                    IsBorrowed = isBorrow,
+                    Price = price,
+                    PurchaseDate = DateTime.Now,
+                    BorrowEndDate = isBorrow ? DateTime.Now.AddDays(14) : (DateTime?)null
+                };
+
+                _context.OwnedBooks.Add(ownedBook);
+                await _context.SaveChangesAsync();
+            }
+        }
+
         private async Task ProcessPaymentSuccess(CreditCardPaymentViewModel model)
         {
             string userEmail = User.Identity.Name ?? "user@example.com";
@@ -207,15 +188,6 @@ namespace eBookLibraryService.Controllers
                 if (book == null) throw new Exception("Book not found.");
 
                 emailContent += $"\nYou purchased the book: {book.Title}.";
-            }
-            else
-            {
-                var userCart = await _context.Carts.Include(c => c.Items).FirstOrDefaultAsync(c => c.UserEmail == userEmail);
-                if (userCart != null)
-                {
-                    _context.CartItems.RemoveRange(userCart.Items);
-                    await _context.SaveChangesAsync();
-                }
             }
 
             await _emailService.SendEmailAsync(userEmail, "Payment Confirmation", emailContent);

@@ -1,53 +1,59 @@
-﻿@model IEnumerable<eBookLibraryService.ViewModels.BookDetailsViewModel>
+﻿<div class="container">
+    <h1>My Library</h1>
 
-<h1>My Library</h1>
+    @* Owned Books Section *@
+    <h2>Owned Books</h2>
+    <div class="row">
+        @if (Model.OwnedBooks.Count > 0)
+        {
+            @foreach (var book in Model.OwnedBooks)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="@book.Cover" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="card-text">
+                                <strong>Author:</strong> @book.Author<br />
+                                <strong>Publisher:</strong> @book.Publisher<br />
+                                <strong>Year of Publishing:</strong> @book.PublishYear
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No owned books found.</p>
+        }
+    </div>
 
-<div class="library-container">
-    @foreach (var book in Model)
-    {
-        <div class="book-card">
-            <img src="@book.Cover" alt="@book.Title Cover" class="book-cover" />
-            <div class="book-details">
-                <h2>@book.Title</h2>
-                <p><strong>Author:</strong> @book.Author</p>
-                <p><strong>Publish Year:</strong> @(book.PublishYear.HasValue ? book.PublishYear.ToString() : "N/A")</p>
-                <p><strong>Publisher:</strong> @book.Publisher</p>
-                <p><strong>Status:</strong> @(book.IsBorrowed ? "Borrowed" : "Owned")</p>
-            </div>
-        </div>
-    }
+    @* Borrowed Books Section *@
+    <h2>Borrowed Books</h2>
+    <div class="row">
+        @if (Model.BorrowedBooks.Count > 0)
+        {
+            @foreach (var book in Model.BorrowedBooks)
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="@book.Cover" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="card-text">
+                                <strong>Author:</strong> @book.Author<br />
+                                <strong>Publisher:</strong> @book.Publisher<br />
+                                <strong>Year of Publishing:</strong> @book.PublishYear
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            }
+        }
+        else
+        {
+            <p>No borrowed books found.</p>
+        }
+    </div>
 </div>
-
-<style>
-    .library-container {
-        display: flex;
-        flex-wrap: wrap;
-        gap: 1rem;
-    }
-
-    .book-card {
-        width: 200px;
-        border: 1px solid #ddd;
-        border-radius: 5px;
-        overflow: hidden;
-        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-    }
-
-    .book-cover {
-        width: 100%;
-        height: auto;
-    }
-
-    .book-details {
-        padding: 1rem;
-    }
-
-        .book-details h2 {
-            font-size: 1.2rem;
-            margin: 0;
-        }
-
-        .book-details p {
-            margin: 0.5rem 0;
-        }
-</style>

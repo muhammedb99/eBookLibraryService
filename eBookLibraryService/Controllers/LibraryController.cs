@@ -4,7 +4,6 @@ using eBookLibraryService.Data;
 using eBookLibraryService.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
-using eBookLibraryService.Models;
 
 namespace eBookLibraryService.Controllers
 {
@@ -19,45 +18,45 @@ namespace eBookLibraryService.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userEmail = User.Identity?.Name;
-            if (string.IsNullOrEmpty(userEmail))
-            {
-                TempData["ErrorMessage"] = "You need to be logged in to access your library.";
-                return RedirectToAction("Login", "Account");
-            }
+            var userEmail = User.Identity?.Name ?? "user@example.com";
 
+            // Fetch owned books
             var ownedBooks = await _context.OwnedBooks
                 .Include(o => o.Book)
-                .Where(o => o.UserEmail == userEmail)
+                .Where(o => o.UserEmail == userEmail && !o.IsBorrowed)
                 .Select(o => new BookDetailsViewModel
                 {
-                    Cover = o.Book.ImageUrl ?? "default_cover.jpg", 
+                    Cover = o.Book.ImageUrl,
                     Title = o.Book.Title,
                     Author = o.Book.Author,
-                    PublishYear = o.Book.YearOfPublishing, 
-                    Publisher = o.Book.Publisher,
-                    IsBorrowed = false 
+                    PublishYear = o.Book.YearOfPublishing,
+                    Publisher = o.Book.Publisher
                 })
                 .ToListAsync();
 
-        
-            var borrowedBooks = await _context.BorrowedBooks
+            // Fetch borrowed books
+            var borrowedBooks = await _context.OwnedBooks
                 .Include(b => b.Book)
-                .Where(b => b.UserEmail == userEmail)
+                .Where(b => b.UserEmail == userEmail && b.IsBorrowed)
                 .Select(b => new BookDetailsViewModel
                 {
-                    Cover = b.Book.ImageUrl ?? "default_cover.jpg", 
+                    Cover = b.Book.ImageUrl,
                     Title = b.Book.Title,
                     Author = b.Book.Author,
                     PublishYear = b.Book.YearOfPublishing,
-                    Publisher = b.Book.Publisher,
-                    IsBorrowed = true 
+                    Publisher = b.Book.Publisher
                 })
                 .ToListAsync();
 
-            var libraryBooks = ownedBooks.Concat(borrowedBooks).ToList();
+            var model = new LibraryViewModel
+            {
+                OwnedBooks = ownedBooks,
+                BorrowedBooks = borrowedBooks
+            };
 
-            return View(libraryBooks);
+            return View(model);
         }
+
+
     }
 }

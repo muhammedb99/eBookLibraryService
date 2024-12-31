@@ -5,7 +5,9 @@ namespace eBookLibraryService.ViewModels
 {
     public class LibraryViewModel
     {
-        public List<BorrowedBook> BorrowedBooks { get; set; }
-        public List<OwnedBook> OwnedBooks { get; set; }
+        public List<LibrarySectionsViewModel> Sections { get; set; }
+        public List<BookDetailsViewModel> OwnedBooks { get; set; } = new List<BookDetailsViewModel>();
+        public List<BookDetailsViewModel> BorrowedBooks { get; set; } = new List<BookDetailsViewModel>();
     }
+
 }

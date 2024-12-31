@@ -38,6 +38,55 @@ namespace eBookLibraryService.Controllers
 
             base.OnActionExecuting(context);
         }
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> BuyNow(int id, float amount)
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["CartMessage"] = "You must be logged in to purchase a book.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var userEmail = User.Identity.Name;
+
+            // Check if the book already exists in the user's library
+            var bookInLibrary = await _context.OwnedBooks.AnyAsync(o => o.UserEmail == userEmail && o.BookId == id);
+            if (bookInLibrary)
+            {
+                TempData["CartMessage"] = "This book is already in your library.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Fetch the book
+            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
+            if (book == null)
+            {
+                TempData["CartMessage"] = "The selected book does not exist.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Add the book directly to the OwnedBooks table
+            var ownedBook = new OwnedBook
+            {
+                UserEmail = userEmail,
+                BookId = book.Id,
+                Title = book.Title,
+                Author = book.Author,
+                IsBorrowed = false, // Purchased books are not borrowed
+                Price = amount,
+                PurchaseDate = DateTime.Now,
+                BorrowEndDate = null // Not applicable for purchased books
+            };
+
+            _context.OwnedBooks.Add(ownedBook);
+
+            // Save changes to the database
+            await _context.SaveChangesAsync();
+
+            TempData["CartMessage"] = "Book purchased successfully and added to your library.";
+            return RedirectToAction("Index", "Library");
+        }
 
         [HttpPost]
         [ValidateAntiForgeryToken]
