@@ -65,5 +65,26 @@
             </td>
         </tr>
     </table>
-    <div><a asp-action="Index" class="btn btn-warning"><i class="fa-solid fa-arrow-left"></i> Back</a></div>
+
+    <hr />
+
+    @* Reviews Section *@
+    <h3>Reviews</h3>
+    @if (Model.Reviews.Any())
+    {
+        foreach (var review in Model.Reviews)
+        {
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Rating: @review.Rating/5</h5>
+                    <p class="card-text">@review.Feedback</p>
+                    <p class="text-muted"><small>By @review.UserEmail on @review.CreatedAt.ToString("g")</small></p>
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <p>No reviews yet for this book.</p>
+    }
 </div>

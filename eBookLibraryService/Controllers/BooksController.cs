@@ -2,6 +2,7 @@
 using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
 using eBookLibraryService.Services;
+using eBookLibraryService.ViewModels;
 using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -158,27 +159,41 @@ namespace eBookLibraryService.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public async Task<IActionResult> Details(int id)
         {
-            var book = await _context.Books.FindAsync(id);
-            if (book != null)
+            var book = await _context.Books
+                .Include(b => b.Reviews) // Include reviews
+                .FirstOrDefaultAsync(b => b.Id == id);
+
+            if (book == null)
             {
-                _context.Books.Remove(book);
-                await _context.SaveChangesAsync();
+                return NotFound();
             }
-            return RedirectToAction(nameof(Index));
+
+            var model = new BookDetailsWithReviewViewModel
+            {
+                Title = book.Title,
+                Author = book.Author,
+                Publisher = book.Publisher,
+                BorrowPrice = book.BorrowPrice,
+                BuyingPrice = book.BuyingPrice,
+                YearOfPublishing = book.YearOfPublishing,
+                Quantity = book.Quantity,
+                Genre = book.Genre,
+                ImageUrl = book.ImageUrl,
+                Reviews = book.Reviews.Select(r => new ReviewViewModel
+                {
+                    UserEmail = r.UserEmail,
+                    Feedback = r.Feedback,
+                    Rating = r.Rating,
+                    CreatedAt = r.CreatedAt
+                }).ToList()
+            };
+
+            return View(model);
         }
 
-        // View details of a book
-        public async Task<IActionResult> Details(int? id)
-        {
-            if (id == null) return NotFound();
 
-            var book = await _context.Books.Include(b => b.WaitingList).FirstOrDefaultAsync(m => m.Id == id);
-            if (book == null) return NotFound();
-
-            return View(book);
-        }
 
         // Borrow book functionality
         [HttpPost]

@@ -2,22 +2,63 @@
     <h1>My Library</h1>
 
     @* Owned Books Section *@
-    <h2>Owned Books</h2>
+    <h2 class="mb-3">
+        <i class="fas fa-book text-primary"></i> Owned Books
+    </h2>
     <div class="row">
-        @if (Model.OwnedBooks.Count > 0)
+        @if (Model.OwnedBooks != null && Model.OwnedBooks.Count > 0)
         {
             @foreach (var book in Model.OwnedBooks)
             {
                 <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm">
-                        <img src="@book.Cover" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <div class="card shadow-sm h-100">
+                        <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
                         <div class="card-body">
-                            <h5 class="card-title">@book.Title</h5>
+                            <h5 class="card-title text-primary">@book.Title</h5>
                             <p class="card-text">
                                 <strong>Author:</strong> @book.Author<br />
                                 <strong>Publisher:</strong> @book.Publisher<br />
-                                <strong>Year of Publishing:</strong> @book.PublishYear
+                                <strong>Year of Publishing:</strong> @book.YearOfPublishing
                             </p>
+                            <hr />
+                            <h6 class="text-muted">Reviews</h6>
+                            @if (book.Reviews.Count > 0)
+                            {
+                                <ul class="list-unstyled">
+                                    @foreach (var review in book.Reviews)
+                                    {
+                                        <li class="mb-2">
+                                            <strong class="text-success">@review.UserEmail:</strong>
+                                            <span>@review.Feedback</span>
+                                            <br />
+                                            <small class="text-warning">Rating: ⭐️ @review.Rating/5</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No reviews yet.</p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white">
+                            <form asp-action="AddReview" method="post" class="mt-2">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <div class="form-group">
+                                    <textarea name="feedback" class="form-control" rows="2" placeholder="Write a review..." required></textarea>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="rating" class="form-label">Rating:</label>
+                                    <select name="rating" class="form-control" required>
+                                        <option value="1">1 ⭐️</option>
+                                        <option value="2">2 ⭐️</option>
+                                        <option value="3">3 ⭐️</option>
+                                        <option value="4">4 ⭐️</option>
+                                        <option value="5">5 ⭐️</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-2 w-100">Submit Review</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -25,27 +66,68 @@
         }
         else
         {
-            <p>No owned books found.</p>
+            <p class="text-muted">No owned books found.</p>
         }
     </div>
 
     @* Borrowed Books Section *@
-    <h2>Borrowed Books</h2>
+    <h2 class="mt-5 mb-3">
+        <i class="fas fa-hand-holding text-success"></i> Borrowed Books
+    </h2>
     <div class="row">
-        @if (Model.BorrowedBooks.Count > 0)
+        @if (Model.BorrowedBooks != null && Model.BorrowedBooks.Count > 0)
         {
             @foreach (var book in Model.BorrowedBooks)
             {
                 <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm">
-                        <img src="@book.Cover" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                    <div class="card shadow-sm h-100">
+                        <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;"> 
                         <div class="card-body">
-                            <h5 class="card-title">@book.Title</h5>
+                            <h5 class="card-title text-primary">@book.Title</h5>
                             <p class="card-text">
                                 <strong>Author:</strong> @book.Author<br />
                                 <strong>Publisher:</strong> @book.Publisher<br />
-                                <strong>Year of Publishing:</strong> @book.PublishYear
+                                <strong>Year of Publishing:</strong> @book.YearOfPublishing
                             </p>
+                            <hr />
+                            <h6 class="text-muted">Reviews</h6>
+                            @if (book.Reviews != null && book.Reviews.Count > 0)
+                            {
+                                <ul class="list-unstyled">
+                                    @foreach (var review in book.Reviews)
+                                    {
+                                        <li class="mb-2">
+                                            <strong class="text-success">@review.UserEmail:</strong>
+                                            <span>@review.Feedback</span>
+                                            <br />
+                                            <small class="text-warning">Rating: ⭐️ @review.Rating/5</small>
+                                        </li>
+                                    }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No reviews yet.</p>
+                            }
+                        </div>
+                        <div class="card-footer bg-white">
+                            <form asp-action="AddReview" method="post" class="mt-2">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <div class="form-group">
+                                    <textarea name="feedback" class="form-control" rows="2" placeholder="Write a review..." required></textarea>
+                                </div>
+                                <div class="form-group mt-2">
+                                    <label for="rating" class="form-label">Rating:</label>
+                                    <select name="rating" class="form-control" required>
+                                        <option value="1">1 ⭐️</option>
+                                        <option value="2">2 ⭐️</option>
+                                        <option value="3">3 ⭐️</option>
+                                        <option value="4">4 ⭐️</option>
+                                        <option value="5">5 ⭐️</option>
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-primary mt-2 w-100">Submit Review</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -53,7 +135,7 @@
         }
         else
         {
-            <p>No borrowed books found.</p>
+            <p class="text-muted">No borrowed books found.</p>
         }
     </div>
 </div>

@@ -57,6 +57,7 @@ namespace eBookLibraryService.Models
         public int TotalCopies { get; set; } = 0;
         public int BorrowedCopies { get; set; } = 0; 
         public List<WaitingListEntry> WaitingList { get; set; } = new List<WaitingListEntry>();
+        public ICollection<Review> Reviews { get; set; } = new List<Review>();
 
         public DateTime? ReturnDate { get; set; }
         public bool IsReturned => ReturnDate.HasValue;

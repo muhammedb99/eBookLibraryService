@@ -231,3 +231,39 @@ footer {
         color: #000;
         transform: scale(1.1);
     }
+
+.card {
+    border-radius: 8px;
+    overflow: hidden;
+    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
+}
+
+    .card:hover {
+        transform: scale(1.02);
+        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+    }
+
+.card-title {
+    font-weight: bold;
+}
+
+.card-footer {
+    border-top: 1px solid #ddd;
+}
+
+.text-primary {
+    color: #0056b3 !important;
+}
+
+textarea {
+    resize: none;
+}
+
+.btn-primary {
+    background-color: #0056b3;
+    border: none;
+}
+
+    .btn-primary:hover {
+        background-color: #004494;
+    }

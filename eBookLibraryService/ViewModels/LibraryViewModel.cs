@@ -8,6 +8,7 @@ namespace eBookLibraryService.ViewModels
         public List<LibrarySectionsViewModel> Sections { get; set; }
         public List<BookDetailsViewModel> OwnedBooks { get; set; } = new List<BookDetailsViewModel>();
         public List<BookDetailsViewModel> BorrowedBooks { get; set; } = new List<BookDetailsViewModel>();
+        public List<Review> Reviews { get; set; }
     }
 
 }
