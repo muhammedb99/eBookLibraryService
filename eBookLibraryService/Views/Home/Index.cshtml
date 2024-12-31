@@ -35,6 +35,12 @@
 
 <section id="Allbooks">
     <div class="container mt-4">
+        @if (TempData["CartMessage"] != null)
+        {
+            <div class="alert alert-info">
+                @TempData["CartMessage"]
+            </div>
+        }
         <div class="row">
             <!-- Books Section -->
             <div class="col-lg-9">

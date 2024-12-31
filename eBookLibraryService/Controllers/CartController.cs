@@ -49,6 +49,19 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
+            var userEmail = User.Identity.Name;
+
+            // Check if the book already exists in the user's library (owned or borrowed)
+            var bookInLibrary = await _context.OwnedBooks.AnyAsync(o => o.UserEmail == userEmail && o.BookId == id) ||
+                                await _context.BorrowedBooks.AnyAsync(b => b.UserEmail == userEmail && b.BookId == id);
+
+            if (bookInLibrary)
+            {
+                TempData["CartMessage"] = "This book is already in your library and cannot be added to the cart.";
+                return RedirectToAction("Index", "Home");
+            }
+
+            // Fetch the book
             var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
             {
@@ -56,20 +69,23 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            var userEmail = User.Identity.Name;
+            // Get or create the user's cart
             var cart = await GetOrCreateCartAsync(userEmail);
 
+            // Check if the book is already in the cart
             if (cart.Items.Any(i => i.Book.Id == id))
             {
                 TempData["CartMessage"] = "This book is already in your cart.";
                 return RedirectToAction("Index", "Home");
             }
 
+            // Determine the price
             var price = isBorrow
                 ? book.BorrowPrice.GetValueOrDefault()
                 : (book.DiscountPrice > 0 && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now
                     ? book.DiscountPrice.GetValueOrDefault() : book.BuyingPrice);
 
+            // Add the book to the cart
             var cartItem = new CartItem
             {
                 Book = book,
@@ -84,7 +100,6 @@ namespace eBookLibraryService.Controllers
             TempData["CartMessage"] = isBorrow ? "Book added to your cart for borrowing." : "Book added to your cart for buying.";
             return RedirectToAction("Index", "Home");
         }
-
 
         public async Task<IActionResult> Index()
         {
@@ -161,6 +176,5 @@ namespace eBookLibraryService.Controllers
 
             return cart;
         }
-
     }
 }
