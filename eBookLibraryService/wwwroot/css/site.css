@@ -267,3 +267,26 @@ textarea {
     .btn-primary:hover {
         background-color: #004494;
     }
+
+.modal {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+    .modal.fade .modal-dialog {
+        transform: translate(0, 0); /* Prevent unexpected animations */
+        transition: none; /* Disable unwanted animations */
+    }
+
+.modal-content {
+    max-width: 500px;
+    max-height: 80vh;
+    overflow-y: auto; /* Add scrollbars for large content */
+    margin: auto; /* Ensure it's centered */
+    transition: none !important; /* Prevent animations */
+}
+
+body.modal-open {
+    overflow: hidden; /* Disable background scrolling */
+}

@@ -112,6 +112,7 @@
                                                         <input type="hidden" name="bookId" value="@book.Id" />
                                                         <button type="submit" class="btn btn-success w-100">Buy Now</button>
                                                     </form>
+                                                    <button class="btn btn-info w-100" data-bs-toggle="modal" data-bs-target="#ratingsModal-@book.Id">View Ratings</button>
 
                                                 }
                                                 else
@@ -120,6 +121,43 @@
                                                 }
                                             </div>
                                         </div>
+
+                                        <!-- Modal for Ratings -->
+                                        <div class="modal fade" id="ratingsModal-@book.Id" tabindex="-1" aria-labelledby="ratingsModalLabel-@book.Id" aria-hidden="true">
+                                            <div class="modal-dialog modal-dialog-centered">
+                                                <div class="modal-content" style="max-width: 500px; max-height: 80vh; overflow-y: auto;">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title" id="ratingsModalLabel-@book.Id">Ratings and Reviews for @book.Title</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        @if (book.Reviews != null && book.Reviews.Any())
+                                                        {
+                                                            <ul class="list-unstyled">
+                                                                @foreach (var review in book.Reviews)
+                                                                {
+                                                                    <li class="mb-3">
+                                                                        <strong>@review.UserEmail:</strong> @review.Feedback
+                                                                        <br />
+                                                                        <span>Rating: ⭐️ @review.Rating/5</span>
+                                                                    </li>
+                                                                }
+                                                            </ul>
+                                                        }
+                                                        else
+                                                        {
+                                                            <p class="text-muted">No reviews available for this book.</p>
+                                                        }
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+
+
+
                                     </div>
                                 </div>
                             }

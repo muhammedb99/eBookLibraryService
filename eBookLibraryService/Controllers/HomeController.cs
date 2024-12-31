@@ -51,20 +51,22 @@ namespace eBookLibraryService.Controllers
 
         // Main Index action
         public async Task<IActionResult> Index(
-            string query = null,
-            string author = null,
-            string genre = null,
-            string method = null,
-            float? minPrice = null,
-            float? maxPrice = null,
-            bool? isOnSale = null,
-            int? year = null,
-            string publisher = null,
-            string sortOrder = null)
+    string query = null,
+    string author = null,
+    string genre = null,
+    string method = null,
+    float? minPrice = null,
+    float? maxPrice = null,
+    bool? isOnSale = null,
+    int? year = null,
+    string publisher = null,
+    string sortOrder = null)
         {
             try
             {
-                var booksQuery = _context.Books.AsQueryable();
+                var booksQuery = _context.Books
+                    .Include(b => b.Reviews) // Include Reviews
+                    .AsQueryable();
 
                 // Apply filters
                 booksQuery = ApplyFilters(booksQuery, query, author, genre, method, minPrice, maxPrice, isOnSale, year, publisher);
@@ -100,6 +102,7 @@ namespace eBookLibraryService.Controllers
                 return View(new List<Book>());
             }
         }
+
 
         // Apply filtering logic
         private IQueryable<Book> ApplyFilters(
