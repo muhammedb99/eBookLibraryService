@@ -6,7 +6,8 @@ namespace eBookLibraryService.Models
     {
         public int Id { get; set; }
         public int BookId { get; set; }
-        public string Email { get; set; } // User reference
+        public Book Book{ get; set; }
+        public string UserEmail { get; set; }
         public DateTime BorrowedDate { get; set; }
         public DateTime? ReturnDate { get; set; } // Nullable ReturnDate
         public bool IsReturned { get; set; }

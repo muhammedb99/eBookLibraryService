@@ -200,7 +200,7 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index");
             }
 
-            if (_context.BorrowedBooks.Count(bb => bb.Email == user.Email && !bb.IsReturned) >= 3)
+            if (_context.BorrowedBooks.Count(bb => bb.UserEmail == user.FullName && !bb.IsReturned) >= 3)
             {
                 TempData["Error"] = "You cannot borrow more than 3 books at the same time.";
                 return RedirectToAction("Index");
@@ -210,7 +210,7 @@ namespace eBookLibraryService.Controllers
             _context.BorrowedBooks.Add(new BorrowedBook
             {
                 BookId = book.Id,
-                Email = user.Email,
+                UserEmail = user.Email,
                 BorrowedDate = DateTime.Now,
                 ReturnDate = DateTime.Now.AddDays(30),
                 IsReturned = false
@@ -273,7 +273,7 @@ namespace eBookLibraryService.Controllers
             _context.BorrowedBooks.Add(new BorrowedBook
             {
                 BookId = book.Id,
-                Email = user.Email,
+                UserEmail = user.Email,
                 BorrowedDate = DateTime.Now
             });
 

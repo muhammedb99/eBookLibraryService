@@ -7,7 +7,6 @@ namespace eBookLibraryService.Models
     {
         public string FullName { get; set; }
 
-        // Borrowed books for this user
         public List<BorrowedBook> BorrowedBooks { get; set; } = new List<BorrowedBook>();
     }
 }

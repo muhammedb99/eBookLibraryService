@@ -1,0 +1,42 @@
+﻿@model eBookLibraryService.ViewModels.LibraryViewModel
+
+<div class="container mt-4">
+    <h2>My Library</h2>
+
+    <h3>Borrowed Books</h3>
+    @if (Model.BorrowedBooks.Any())
+    {
+        <ul>
+            @foreach (var book in Model.BorrowedBooks)
+            {
+                <li>
+                    <strong>@book.Book.Title</strong> <br />
+                    Borrowed on: @book.BorrowedDate.ToShortDateString() <br />
+                    Return by: @(book.ReturnDate.HasValue ? book.ReturnDate.Value.ToShortDateString() : "N/A")
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You haven't borrowed any books yet.</p>
+    }
+
+    <h3>Owned Books</h3>
+    @if (Model.OwnedBooks.Any())
+    {
+        <ul>
+            @foreach (var book in Model.OwnedBooks)
+            {
+                <li>
+                    <strong>@book.Book.Title</strong> <br />
+                    Purchased on: @book.PurchaseDate.ToShortDateString()
+                </li>
+            }
+        </ul>
+    }
+    else
+    {
+        <p>You don't own any books yet.</p>
+    }
+</div>

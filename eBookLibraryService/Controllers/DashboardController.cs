@@ -31,7 +31,6 @@ namespace eBookLibraryService.Controllers
             return View(books); 
         }
 
-        // GET: Dashboard/ManageUsers
         public IActionResult ManageUsers()
         { 
             return RedirectToAction("ManageUsers", "Account");

@@ -33,7 +33,7 @@
                         </li>
                         @if (signInManager.IsSignedIn(User))
                         {
-                            var user = await userManager.GetUserAsync(User); // Define the `user` variable here
+                            var user = await userManager.GetUserAsync(User); 
                             if (user != null && await userManager.IsInRoleAsync(user, "Admin"))
                             {
                                 <li class="nav-item">
@@ -41,8 +41,9 @@
                                 </li>
                             }
                             <li class="nav-item">
-                                <a class="nav-link" asp-controller="Books" asp-action="BorrowedBooks">My Borrowed Books</a>
+                                <a class="nav-link" asp-controller="Library" asp-action="Index">My Library</a>
                             </li>
+
                         }
                     </ul>
 
