@@ -10,7 +10,7 @@
             <div class="book-details">
                 <h2>@book.Title</h2>
                 <p><strong>Author:</strong> @book.Author</p>
-                <p><strong>Publish Year:</strong> @book.PublishYear</p>
+                <p><strong>Publish Year:</strong> @(book.PublishYear.HasValue ? book.PublishYear.ToString() : "N/A")</p>
                 <p><strong>Publisher:</strong> @book.Publisher</p>
                 <p><strong>Status:</strong> @(book.IsBorrowed ? "Borrowed" : "Owned")</p>
             </div>
