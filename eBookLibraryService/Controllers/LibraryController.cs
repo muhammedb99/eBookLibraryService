@@ -1,9 +1,10 @@
 ﻿using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 using eBookLibraryService.Data;
+using eBookLibraryService.ViewModels;
 using System.Linq;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
-using eBookLibraryService.ViewModels;
+using eBookLibraryService.Models;
 
 namespace eBookLibraryService.Controllers
 {
@@ -18,26 +19,44 @@ namespace eBookLibraryService.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userEmail = User.Identity.Name ?? "user@example.com";
+            // Ensure the user is logged in and fetch their email
+            var userEmail = User.Identity?.Name ?? "user@example.com";
 
+            // Fetch owned books including their details
             var ownedBooks = await _context.OwnedBooks
                 .Include(o => o.Book)
                 .Where(o => o.UserEmail == userEmail)
+                .Select(o => new BookDetailsViewModel
+                {
+                    Cover = o.Book.ImageUrl,
+                    Title = o.Book.Title,
+                    Author = o.Book.Author,
+                    PublishYear = o.Book.PublicationYears.FirstOrDefault(),
+                    Publisher = o.Book.Publisher,
+                    IsBorrowed = false 
+                })
                 .ToListAsync();
 
+            // Fetch borrowed books including their details
             var borrowedBooks = await _context.BorrowedBooks
                 .Include(b => b.Book)
                 .Where(b => b.UserEmail == userEmail)
+                .Select(b => new BookDetailsViewModel
+                {
+                    Cover = b.Book.ImageUrl,
+                    Title = b.Book.Title,
+                    Author = b.Book.Author,
+                    PublishYear = b.Book.PublicationYears.FirstOrDefault(),
+                    Publisher = b.Book.Publisher,
+                    IsBorrowed = true 
+                })
                 .ToListAsync();
 
-            var model = new LibraryViewModel
-            {
-                OwnedBooks = ownedBooks,
-                BorrowedBooks = borrowedBooks
-            };
+            // Combine both owned and borrowed books
+            var libraryBooks = ownedBooks.Concat(borrowedBooks).ToList();
 
-            return View(model);
+            // Pass the combined list to the view
+            return View(libraryBooks);
         }
-
     }
 }

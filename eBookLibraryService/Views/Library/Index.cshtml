@@ -1,42 +1,53 @@
-﻿@model eBookLibraryService.ViewModels.LibraryViewModel
+﻿@model IEnumerable<eBookLibraryService.ViewModels.BookDetailsViewModel>
 
-<div class="container mt-4">
-    <h2>My Library</h2>
+<h1>My Library</h1>
 
-    <h3>Borrowed Books</h3>
-    @if (Model.BorrowedBooks.Any())
+<div class="library-container">
+    @foreach (var book in Model)
     {
-        <ul>
-            @foreach (var book in Model.BorrowedBooks)
-            {
-                <li>
-                    <strong>@book.Book.Title</strong> <br />
-                    Borrowed on: @book.BorrowedDate.ToShortDateString() <br />
-                    Return by: @(book.ReturnDate.HasValue ? book.ReturnDate.Value.ToShortDateString() : "N/A")
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>You haven't borrowed any books yet.</p>
-    }
-
-    <h3>Owned Books</h3>
-    @if (Model.OwnedBooks.Any())
-    {
-        <ul>
-            @foreach (var book in Model.OwnedBooks)
-            {
-                <li>
-                    <strong>@book.Book.Title</strong> <br />
-                    Purchased on: @book.PurchaseDate.ToShortDateString()
-                </li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>You don't own any books yet.</p>
+        <div class="book-card">
+            <img src="@book.Cover" alt="@book.Title Cover" class="book-cover" />
+            <div class="book-details">
+                <h2>@book.Title</h2>
+                <p><strong>Author:</strong> @book.Author</p>
+                <p><strong>Publish Year:</strong> @book.PublishYear</p>
+                <p><strong>Publisher:</strong> @book.Publisher</p>
+                <p><strong>Status:</strong> @(book.IsBorrowed ? "Borrowed" : "Owned")</p>
+            </div>
+        </div>
     }
 </div>
+
+<style>
+    .library-container {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 1rem;
+    }
+
+    .book-card {
+        width: 200px;
+        border: 1px solid #ddd;
+        border-radius: 5px;
+        overflow: hidden;
+        box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    }
+
+    .book-cover {
+        width: 100%;
+        height: auto;
+    }
+
+    .book-details {
+        padding: 1rem;
+    }
+
+        .book-details h2 {
+            font-size: 1.2rem;
+            margin: 0;
+        }
+
+        .book-details p {
+            margin: 0.5rem 0;
+        }
+</style>
