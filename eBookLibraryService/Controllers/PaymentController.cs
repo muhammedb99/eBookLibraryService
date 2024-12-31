@@ -98,7 +98,6 @@ namespace eBookLibraryService.Controllers
                 string formattedAmount = model.TotalAmount.ToString("F2", CultureInfo.InvariantCulture);
                 string emailContent = $"Your payment of ${formattedAmount} has been successfully processed.";
 
-                // Handle direct book purchase
                 if (model.BookId.HasValue)
                 {
                     var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == model.BookId.Value);
@@ -109,6 +108,19 @@ namespace eBookLibraryService.Controllers
                     }
 
                     emailContent += $"\nYou purchased the book: {book.Title}.";
+                }
+                else
+                {
+                    // Clear cart for the current user after payment
+                    var userCart = await _context.Carts
+                        .Include(c => c.Items)
+                        .FirstOrDefaultAsync(c => c.UserEmail == userEmail);
+
+                    if (userCart != null)
+                    {
+                        _context.CartItems.RemoveRange(userCart.Items);
+                        await _context.SaveChangesAsync();
+                    }
                 }
 
                 // Send confirmation email
@@ -121,7 +133,6 @@ namespace eBookLibraryService.Controllers
             TempData["PaymentMessage"] = "Payment failed. Please try again.";
             return View("CreditCardPayment", model);
         }
-
 
         [HttpGet]
         public IActionResult PayPalPayment(float amount, int? bookId = null)
