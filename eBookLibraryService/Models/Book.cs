@@ -61,10 +61,18 @@ namespace eBookLibraryService.Models
 
         public DateTime? ReturnDate { get; set; }
         public bool IsReturned => ReturnDate.HasValue;
+
+        [Url(ErrorMessage = "The EPUB link must be a valid URL.")]
         public string PdfLink { get; set; }
-        public string EpubLink { get; set; }
-        public string F2bLink { get; set; }
-        public string MobiLink { get; set; }
+
+        [Url(ErrorMessage = "The EPUB link must be a valid URL.")]
+        public string? EpubLink { get; set; }
+
+        [Url(ErrorMessage = "The EPUB link must be a valid URL.")]
+        public string? F2bLink { get; set; }
+
+        [Url(ErrorMessage = "The EPUB link must be a valid URL.")]
+        public string? MobiLink { get; set; }
 
 
     }

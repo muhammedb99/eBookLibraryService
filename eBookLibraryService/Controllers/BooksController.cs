@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -94,6 +95,11 @@ namespace eBookLibraryService.Controllers
                     return View(book);
                 }
 
+                if (!ValidateFileLinks(book))
+                {
+                    return View(book);
+                }
+
                 _context.Add(book);
                 await _context.SaveChangesAsync();
                 return RedirectToAction(nameof(Index));
@@ -117,10 +123,15 @@ namespace eBookLibraryService.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(
-            int id,
-            [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
+    int id,
+    [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
         {
             if (id != book.Id) return NotFound();
+
+            // Ensure optional fields are not NULL
+            book.EpubLink = book.EpubLink ?? string.Empty;
+            book.F2bLink = book.F2bLink ?? string.Empty;
+            book.MobiLink = book.MobiLink ?? string.Empty;
 
             if (ModelState.IsValid)
             {
@@ -144,6 +155,7 @@ namespace eBookLibraryService.Controllers
             }
             return View(book);
         }
+
 
         // Admin-only: Delete books
         [Authorize(Roles = "Admin")]
@@ -171,16 +183,6 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public IActionResult DownloadFile(string fileType, int bookId)
-        {
-            if (string.IsNullOrEmpty(fileType))
-            {
-                TempData["Error"] = "Please select a valid file type.";
-                return RedirectToAction("MyLibrary");
-            }
-
-            return Redirect(fileType); // Redirect to the file link
-        }
         public async Task<IActionResult> Details(int id)
         {
             var book = await _context.Books
@@ -213,6 +215,37 @@ namespace eBookLibraryService.Controllers
             };
 
             return View(model);
+        }
+
+        private bool ValidateFileLinks(Book book)
+        {
+            bool isValid = true;
+
+            if (!string.IsNullOrEmpty(book.PdfLink) && !Uri.IsWellFormedUriString(book.PdfLink, UriKind.Absolute))
+            {
+                ModelState.AddModelError("PdfLink", "Invalid PDF link.");
+                isValid = false;
+            }
+
+            if (!string.IsNullOrEmpty(book.EpubLink) && !Uri.IsWellFormedUriString(book.EpubLink, UriKind.Absolute))
+            {
+                ModelState.AddModelError("EpubLink", "Invalid EPUB link.");
+                isValid = false;
+            }
+
+            if (!string.IsNullOrEmpty(book.F2bLink) && !Uri.IsWellFormedUriString(book.F2bLink, UriKind.Absolute))
+            {
+                ModelState.AddModelError("F2bLink", "Invalid F2B link.");
+                isValid = false;
+            }
+
+            if (!string.IsNullOrEmpty(book.MobiLink) && !Uri.IsWellFormedUriString(book.MobiLink, UriKind.Absolute))
+            {
+                ModelState.AddModelError("MobiLink", "Invalid MOBI link.");
+                isValid = false;
+            }
+
+            return isValid;
         }
     }
 }

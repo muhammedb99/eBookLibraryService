@@ -18,6 +18,7 @@ namespace eBookLibraryService.Controllers
             _context = context;
         }
 
+        // View library with owned and borrowed books
         public async Task<IActionResult> Index()
         {
             var userEmail = User.Identity?.Name;
@@ -44,7 +45,7 @@ namespace eBookLibraryService.Controllers
                     YearOfPublishing = o.Book.YearOfPublishing,
                     Genre = o.Book.Genre,
                     ImageUrl = o.Book.ImageUrl,
-                    PdfLink = o.Book.PdfLink,  // Ensure these properties exist in Book model
+                    PdfLink = o.Book.PdfLink,
                     EpubLink = o.Book.EpubLink,
                     F2bLink = o.Book.F2bLink,
                     MobiLink = o.Book.MobiLink,
@@ -95,6 +96,7 @@ namespace eBookLibraryService.Controllers
             return View(model);
         }
 
+        // Add review to a book
         [HttpPost]
         public async Task<IActionResult> AddReview(int bookId, string feedback, int rating)
         {
@@ -144,5 +146,41 @@ namespace eBookLibraryService.Controllers
             TempData["SuccessMessage"] = "Your review has been submitted successfully.";
             return RedirectToAction("Index");
         }
+
+        // Download file based on file type
+        public async Task<IActionResult> DownloadFile(string fileType, int bookId)
+        {
+            if (string.IsNullOrEmpty(fileType))
+            {
+                TempData["ErrorMessage"] = "Please select a valid file type.";
+                return RedirectToAction("Index");
+            }
+
+            var book = await _context.Books.FindAsync(bookId);
+            if (book == null)
+            {
+                TempData["ErrorMessage"] = "Book not found.";
+                return RedirectToAction("Index");
+            }
+
+            string fileUrl = fileType switch
+            {
+                "PdfLink" => book.PdfLink,
+                "EpubLink" => book.EpubLink,
+                "F2bLink" => book.F2bLink,
+                "MobiLink" => book.MobiLink,
+                _ => null
+            };
+
+            if (string.IsNullOrEmpty(fileUrl))
+            {
+                TempData["ErrorMessage"] = "The selected file type is unavailable.";
+                return RedirectToAction("Index");
+            }
+
+            return Redirect(fileUrl);
+        }
+
+
     }
 }

@@ -106,22 +106,31 @@
         <span asp-validation-for="Genre" class="text-danger"></span>
     </div>
 
+
     <div class="form-group">
-        <label for="PdfLink">PDF Link</label>
-        <input type="url" id="PdfLink" name="PdfLink" class="form-control" placeholder="Enter PDF download link" />
+        <label asp-for="PdfLink" class="control-label"></label>
+        <input asp-for="PdfLink" class="form-control" />
+        <span asp-validation-for="PdfLink" class="text-danger"></span>
     </div>
+
     <div class="form-group">
-        <label for="EpubLink">EPUB Link</label>
-        <input type="url" id="EpubLink" name="EpubLink" class="form-control" placeholder="Enter EPUB download link" />
+        <label asp-for="EpubLink" class="control-label"></label>
+        <input asp-for="EpubLink" class="form-control" />
+        <span asp-validation-for="EpubLink" class="text-danger"></span>
     </div>
+
     <div class="form-group">
-        <label for="F2bLink">F2B Link</label>
-        <input type="url" id="F2bLink" name="F2bLink" class="form-control" placeholder="Enter F2B download link" />
+        <label asp-for="F2bLink" class="control-label"></label>
+        <input asp-for="F2bLink" class="form-control" />
+        <span asp-validation-for="F2bLink" class="text-danger"></span>
     </div>
+
     <div class="form-group">
-        <label for="MobiLink">MOBI Link</label>
-        <input type="url" id="MobiLink" name="MobiLink" class="form-control" placeholder="Enter MOBI download link" />
+        <label asp-for="MobiLink" class="control-label"></label>
+        <input asp-for="MobiLink" class="form-control" />
+        <span asp-validation-for="MobiLink" class="text-danger"></span>
     </div>
+
 
 
     <!-- Submit Button -->

@@ -22,50 +22,32 @@
                             </p>
                             <hr />
                             <h6 class="text-muted">Download Options</h6>
-                            <form method="get" asp-action="DownloadFile" asp-controller="Books">
+                            <form method="get" asp-action="DownloadFile" asp-controller="Library">
                                 <div class="form-group">
                                     <label for="fileType-@book.Id">Select File Type:</label>
                                     <select id="fileType-@book.Id" name="fileType" class="form-select" required>
                                         @if (!string.IsNullOrEmpty(book.PdfLink))
                                         {
-                                            <option value="@book.PdfLink">PDF</option>
+                                            <option value="PdfLink">PDF</option>
                                         }
-                                        else
-                                        {
-                                            <option value="" disabled>PDF (Unavailable)</option>
-                                        }
-
                                         @if (!string.IsNullOrEmpty(book.EpubLink))
                                         {
-                                            <option value="@book.EpubLink">EPUB</option>
+                                            <option value="EpubLink">EPUB</option>
                                         }
-                                        else
-                                        {
-                                            <option value="" disabled>EPUB (Unavailable)</option>
-                                        }
-
                                         @if (!string.IsNullOrEmpty(book.F2bLink))
                                         {
-                                            <option value="@book.F2bLink">F2B</option>
+                                            <option value="F2bLink">F2B</option>
                                         }
-                                        else
-                                        {
-                                            <option value="" disabled>F2B (Unavailable)</option>
-                                        }
-
                                         @if (!string.IsNullOrEmpty(book.MobiLink))
                                         {
-                                            <option value="@book.MobiLink">MOBI</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="" disabled>MOBI (Unavailable)</option>
+                                            <option value="MobiLink">MOBI</option>
                                         }
                                     </select>
                                 </div>
                                 <input type="hidden" name="bookId" value="@book.Id" />
                                 <button type="submit" class="btn btn-primary mt-2 w-100">Download</button>
                             </form>
+
                             <hr />
                             <h6 class="text-muted">Reviews</h6>
                             @if (book.Reviews.Count > 0)
@@ -137,50 +119,32 @@
                                 <strong>Year of Publishing:</strong> @book.YearOfPublishing
                             </p>
                             <hr />
-                            <form method="get" asp-action="DownloadFile" asp-controller="Books">
+                            <form method="get" asp-action="DownloadFile" asp-controller="Library">
                                 <div class="form-group">
                                     <label for="fileType-@book.Id">Select File Type:</label>
                                     <select id="fileType-@book.Id" name="fileType" class="form-select" required>
                                         @if (!string.IsNullOrEmpty(book.PdfLink))
                                         {
-                                            <option value="@book.PdfLink">PDF</option>
+                                            <option value="PdfLink">PDF</option>
                                         }
-                                        else
-                                        {
-                                            <option value="" disabled>PDF (Unavailable)</option>
-                                        }
-
                                         @if (!string.IsNullOrEmpty(book.EpubLink))
                                         {
-                                            <option value="@book.EpubLink">EPUB</option>
+                                            <option value="EpubLink">EPUB</option>
                                         }
-                                        else
-                                        {
-                                            <option value="" disabled>EPUB (Unavailable)</option>
-                                        }
-
                                         @if (!string.IsNullOrEmpty(book.F2bLink))
                                         {
-                                            <option value="@book.F2bLink">F2B</option>
+                                            <option value="F2bLink">F2B</option>
                                         }
-                                        else
-                                        {
-                                            <option value="" disabled>F2B (Unavailable)</option>
-                                        }
-
                                         @if (!string.IsNullOrEmpty(book.MobiLink))
                                         {
-                                            <option value="@book.MobiLink">MOBI</option>
-                                        }
-                                        else
-                                        {
-                                            <option value="" disabled>MOBI (Unavailable)</option>
+                                            <option value="MobiLink">MOBI</option>
                                         }
                                     </select>
                                 </div>
                                 <input type="hidden" name="bookId" value="@book.Id" />
                                 <button type="submit" class="btn btn-primary mt-2 w-100">Download</button>
                             </form>
+
                             <hr />
                             <h6 class="text-muted">Reviews</h6>
                             @if (book.Reviews.Count > 0)
