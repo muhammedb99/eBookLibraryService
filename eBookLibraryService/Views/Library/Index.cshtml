@@ -86,6 +86,26 @@
                             {
                                 <p class="text-muted">No reviews yet.</p>
                             }
+
+                            <!-- Add Review Form -->
+                            <h6 class="text-muted mt-3">Add Your Review</h6>
+                            <form method="post" asp-action="AddReview" asp-controller="Library">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <div class="mb-2">
+                                    <textarea name="feedback" class="form-control" rows="3" placeholder="Write your feedback here..." required></textarea>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="rating-@book.Id">Rating:</label>
+                                    <select id="rating-@book.Id" name="rating" class="form-select" required>
+                                        <option value="" disabled selected>Choose a rating</option>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Submit Review</button>
+                            </form>
                         </div>
                     </div>
                 </div>
@@ -96,8 +116,6 @@
             <p class="text-muted">No owned books found.</p>
         }
     </div>
-</div>
-
 
     @* Borrowed Books Section *@
     <h2 class="mt-5 mb-3">
@@ -119,71 +137,90 @@
                                 <strong>Year of Publishing:</strong> @book.YearOfPublishing
                             </p>
                             <hr />
-                        <h6 class="text-muted">Download Options</h6>
-                        <form method="get" asp-action="DownloadFile" asp-controller="Books">
-                            <div class="form-group">
-                                <label for="fileType-@book.Id">Select File Type:</label>
-                                <select id="fileType-@book.Id" name="fileType" class="form-select" required>
-                                    @if (!string.IsNullOrEmpty(book.PdfLink))
-                                    {
-                                        <option value="@book.PdfLink">PDF</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="" disabled>PDF (Unavailable)</option>
-                                    }
+                            <form method="get" asp-action="DownloadFile" asp-controller="Books">
+                                <div class="form-group">
+                                    <label for="fileType-@book.Id">Select File Type:</label>
+                                    <select id="fileType-@book.Id" name="fileType" class="form-select" required>
+                                        @if (!string.IsNullOrEmpty(book.PdfLink))
+                                        {
+                                            <option value="@book.PdfLink">PDF</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="" disabled>PDF (Unavailable)</option>
+                                        }
 
-                                    @if (!string.IsNullOrEmpty(book.EpubLink))
-                                    {
-                                        <option value="@book.EpubLink">EPUB</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="" disabled>EPUB (Unavailable)</option>
-                                    }
+                                        @if (!string.IsNullOrEmpty(book.EpubLink))
+                                        {
+                                            <option value="@book.EpubLink">EPUB</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="" disabled>EPUB (Unavailable)</option>
+                                        }
 
-                                    @if (!string.IsNullOrEmpty(book.F2bLink))
-                                    {
-                                        <option value="@book.F2bLink">F2B</option>
-                                    }
-                                    else
-                                    {
-                                        <option value="" disabled>F2B (Unavailable)</option>
-                                    }
+                                        @if (!string.IsNullOrEmpty(book.F2bLink))
+                                        {
+                                            <option value="@book.F2bLink">F2B</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="" disabled>F2B (Unavailable)</option>
+                                        }
 
-                                    @if (!string.IsNullOrEmpty(book.MobiLink))
+                                        @if (!string.IsNullOrEmpty(book.MobiLink))
+                                        {
+                                            <option value="@book.MobiLink">MOBI</option>
+                                        }
+                                        else
+                                        {
+                                            <option value="" disabled>MOBI (Unavailable)</option>
+                                        }
+                                    </select>
+                                </div>
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <button type="submit" class="btn btn-primary mt-2 w-100">Download</button>
+                            </form>
+                            <hr />
+                            <h6 class="text-muted">Reviews</h6>
+                            @if (book.Reviews.Count > 0)
+                            {
+                                <ul class="list-unstyled">
+                                    @foreach (var review in book.Reviews)
                                     {
-                                        <option value="@book.MobiLink">MOBI</option>
+                                        <li class="mb-2">
+                                            <strong class="text-success">@review.UserEmail:</strong>
+                                            <span>@review.Feedback</span>
+                                            <br />
+                                            <small class="text-warning">Rating: ⭐️ @review.Rating/5</small>
+                                        </li>
                                     }
-                                    else
-                                    {
-                                        <option value="" disabled>MOBI (Unavailable)</option>
-                                    }
-                                </select>
-                            </div>
-                            <input type="hidden" name="bookId" value="@book.Id" />
-                            <button type="submit" class="btn btn-primary mt-2 w-100">Download</button>
-                        </form>
-                        <hr />
-                        <h6 class="text-muted">Reviews</h6>
-                        @if (book.Reviews.Count > 0)
-                        {
-                            <ul class="list-unstyled">
-                                @foreach (var review in book.Reviews)
-                                {
-                                    <li class="mb-2">
-                                        <strong class="text-success">@review.UserEmail:</strong>
-                                        <span>@review.Feedback</span>
-                                        <br />
-                                        <small class="text-warning">Rating: ⭐️ @review.Rating/5</small>
-                                    </li>
-                                }
-                            </ul>
-                        }
-                        else
-                        {
-                            <p class="text-muted">No reviews yet.</p>
-                        }
+                                </ul>
+                            }
+                            else
+                            {
+                                <p class="text-muted">No reviews yet.</p>
+                            }
+
+                            <!-- Add Review Form -->
+                            <h6 class="text-muted mt-3">Add Your Review</h6>
+                            <form method="post" asp-action="AddReview" asp-controller="Library">
+                                <input type="hidden" name="bookId" value="@book.Id" />
+                                <div class="mb-2">
+                                    <textarea name="feedback" class="form-control" rows="3" placeholder="Write your feedback here..." required></textarea>
+                                </div>
+                                <div class="mb-2">
+                                    <label for="rating-@book.Id">Rating:</label>
+                                    <select id="rating-@book.Id" name="rating" class="form-select" required>
+                                        <option value="" disabled selected>Choose a rating</option>
+                                        @for (int i = 1; i <= 5; i++)
+                                        {
+                                            <option value="@i">@i</option>
+                                        }
+                                    </select>
+                                </div>
+                                <button type="submit" class="btn btn-success w-100">Submit Review</button>
+                            </form>
                         </div>
                     </div>
                 </div>
