@@ -3,7 +3,6 @@ using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
 using eBookLibraryService.Services;
 using eBookLibraryService.ViewModels;
-using Humanizer.Localisation;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -11,7 +10,6 @@ using Microsoft.EntityFrameworkCore;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
-
 
 namespace eBookLibraryService.Controllers
 {
@@ -85,7 +83,8 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,Genre,Popularity,DiscountPrice,DiscountUntil,PublicationYears,Publishers,ImageUrl")] Book book)
+        public async Task<IActionResult> Create(
+            [Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -117,7 +116,9 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,PublicationYears,Publishers,ImageUrl")] Book book)
+        public async Task<IActionResult> Edit(
+            int id,
+            [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
         {
             if (id != book.Id) return NotFound();
 
@@ -159,10 +160,31 @@ namespace eBookLibraryService.Controllers
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
+        public async Task<IActionResult> DeleteConfirmed(int id)
+        {
+            var book = await _context.Books.FindAsync(id);
+            if (book != null)
+            {
+                _context.Books.Remove(book);
+                await _context.SaveChangesAsync();
+            }
+            return RedirectToAction(nameof(Index));
+        }
+
+        public IActionResult DownloadFile(string fileType, int bookId)
+        {
+            if (string.IsNullOrEmpty(fileType))
+            {
+                TempData["Error"] = "Please select a valid file type.";
+                return RedirectToAction("MyLibrary");
+            }
+
+            return Redirect(fileType); // Redirect to the file link
+        }
         public async Task<IActionResult> Details(int id)
         {
             var book = await _context.Books
-                .Include(b => b.Reviews) // Include reviews
+                .Include(b => b.Reviews)
                 .FirstOrDefaultAsync(b => b.Id == id);
 
             if (book == null)
@@ -191,110 +213,6 @@ namespace eBookLibraryService.Controllers
             };
 
             return View(model);
-        }
-
-
-
-        // Borrow book functionality
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Borrow(int id)
-        {
-            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
-            if (user == null)
-            {
-                TempData["Error"] = "You must be logged in to borrow a book.";
-                return RedirectToAction("Index");
-            }
-
-            var book = await _context.Books.Include(b => b.WaitingList).FirstOrDefaultAsync(b => b.Id == id);
-            if (book == null || book.Quantity <= 0)
-            {
-                TempData["Error"] = "This book is not available for borrowing.";
-                return RedirectToAction("Index");
-            }
-
-            if (_context.BorrowedBooks.Count(bb => bb.UserEmail == user.FullName && !bb.IsReturned) >= 3)
-            {
-                TempData["Error"] = "You cannot borrow more than 3 books at the same time.";
-                return RedirectToAction("Index");
-            }
-
-            book.Quantity--;
-            _context.BorrowedBooks.Add(new BorrowedBook
-            {
-                BookId = book.Id,
-                UserEmail = user.Email,
-                BorrowedDate = DateTime.Now,
-                ReturnDate = DateTime.Now.AddDays(30),
-                IsReturned = false
-            });
-
-            await _context.SaveChangesAsync();
-            TempData["Message"] = "Book borrowed successfully.";
-            return RedirectToAction("Index");
-        }
-
-        public async Task NotifyWaitingUsersAsync()
-        {
-            var booksWithWaitingList = _context.Books.Include(b => b.WaitingList)
-                                                     .Where(b => b.WaitingList.Any())
-                                                     .ToList();
-
-            foreach (var book in booksWithWaitingList)
-            {
-                if (book.BorrowedCopies < book.Quantity && book.WaitingList.Any())
-                {
-                    var firstInLine = book.WaitingList.OrderBy(w => w.DateAdded).First();
-                    var user = _appDbContext.Users.FirstOrDefault(u => u.UserName == firstInLine.UserId);
-                    if (user != null)
-                    {
-                        await _notificationService.SendEmailAsync(
-                            recipientEmail: user.Email,
-                            subject: "Book Available for Borrowing",
-                            message: $"The book '{book.Title}' is now available for borrowing. Please act quickly to secure your copy."
-                        );
-
-                        book.WaitingList.Remove(firstInLine);
-                        await _context.SaveChangesAsync();
-                    }
-                }
-            }
-        }
-
-
-        // Buy book functionality
-        [HttpPost]
-        [ValidateAntiForgeryToken]
-        [Authorize]
-        public async Task<IActionResult> Buy(int id)
-        {
-            var user = await _appDbContext.Users.FirstOrDefaultAsync(u => u.UserName == User.Identity.Name);
-
-            if (user == null)
-            {
-                TempData["Error"] = "You must be logged in to buy a book.";
-                return RedirectToAction("Index");
-            }
-
-            var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
-            if (book == null)
-            {
-                TempData["Error"] = "The selected book does not exist.";
-                return RedirectToAction("Index");
-            }
-
-            _context.BorrowedBooks.Add(new BorrowedBook
-            {
-                BookId = book.Id,
-                UserEmail = user.Email,
-                BorrowedDate = DateTime.Now
-            });
-
-            await _context.SaveChangesAsync();
-            TempData["Message"] = "Book purchased successfully.";
-            return RedirectToAction("Index");
         }
     }
 }

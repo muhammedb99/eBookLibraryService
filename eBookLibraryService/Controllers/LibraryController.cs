@@ -2,9 +2,10 @@
 using Microsoft.EntityFrameworkCore;
 using eBookLibraryService.Data;
 using eBookLibraryService.ViewModels;
+using eBookLibraryService.Models;
 using System.Linq;
 using System.Threading.Tasks;
-using eBookLibraryService.Models;
+using System;
 
 namespace eBookLibraryService.Controllers
 {
@@ -19,38 +20,51 @@ namespace eBookLibraryService.Controllers
 
         public async Task<IActionResult> Index()
         {
-            var userEmail = User.Identity?.Name ?? "user@example.com";
+            var userEmail = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to view your library.";
+                return RedirectToAction("Login", "Account");
+            }
 
             // Fetch owned books
             var ownedBooks = await _context.OwnedBooks
-    .Include(o => o.Book)
-    .Where(o => o.UserEmail == userEmail && !o.IsBorrowed)
-    .Select(o => new BookDetailsViewModel
-    {
-        Id = o.Book.Id,
-        Title = o.Book.Title,
-        Author = o.Book.Author,
-        Publisher = o.Book.Publisher,
-        BorrowPrice = o.Book.BorrowPrice,
-        BuyingPrice = o.Book.BuyingPrice,
-        YearOfPublishing = o.Book.YearOfPublishing,
-        Genre = o.Book.Genre,
-        ImageUrl = o.Book.ImageUrl,
-        Reviews = o.Book.Reviews.Select(r => new ReviewViewModel
-        {
-            UserEmail = r.UserEmail,
-            Feedback = r.Feedback,
-            Rating = r.Rating
-        }).ToList()
-    }).ToListAsync();
+                .Include(o => o.Book)
+                .ThenInclude(b => b.Reviews)
+                .Where(o => o.UserEmail == userEmail && !o.IsBorrowed)
+                .Select(o => new BookDetailsViewModel
+                {
+                    Id = o.Book.Id,
+                    Title = o.Book.Title,
+                    Author = o.Book.Author,
+                    Publisher = o.Book.Publisher,
+                    BorrowPrice = o.Book.BorrowPrice,
+                    BuyingPrice = o.Book.BuyingPrice,
+                    YearOfPublishing = o.Book.YearOfPublishing,
+                    Genre = o.Book.Genre,
+                    ImageUrl = o.Book.ImageUrl,
+                    PdfLink = o.Book.PdfLink,  // Ensure these properties exist in Book model
+                    EpubLink = o.Book.EpubLink,
+                    F2bLink = o.Book.F2bLink,
+                    MobiLink = o.Book.MobiLink,
+                    Reviews = o.Book.Reviews.Select(r => new ReviewViewModel
+                    {
+                        UserEmail = r.UserEmail,
+                        Feedback = r.Feedback,
+                        Rating = r.Rating
+                    }).ToList()
+                })
+                .ToListAsync();
 
             // Fetch borrowed books
             var borrowedBooks = await _context.OwnedBooks
                 .Include(b => b.Book)
                 .ThenInclude(b => b.Reviews)
                 .Where(b => b.UserEmail == userEmail && b.IsBorrowed)
-                .Select(b => new BookDetailsViewModel 
+                .Select(b => new BookDetailsViewModel
                 {
+                    Id = b.Book.Id,
                     Title = b.Book.Title,
                     Author = b.Book.Author,
                     Publisher = b.Book.Publisher,
@@ -58,7 +72,17 @@ namespace eBookLibraryService.Controllers
                     BuyingPrice = b.Book.BuyingPrice,
                     YearOfPublishing = b.Book.YearOfPublishing,
                     Genre = b.Book.Genre,
-                    ImageUrl = b.Book.ImageUrl
+                    ImageUrl = b.Book.ImageUrl,
+                    PdfLink = b.Book.PdfLink,
+                    EpubLink = b.Book.EpubLink,
+                    F2bLink = b.Book.F2bLink,
+                    MobiLink = b.Book.MobiLink,
+                    Reviews = b.Book.Reviews.Select(r => new ReviewViewModel
+                    {
+                        UserEmail = r.UserEmail,
+                        Feedback = r.Feedback,
+                        Rating = r.Rating
+                    }).ToList()
                 })
                 .ToListAsync();
 
@@ -71,16 +95,37 @@ namespace eBookLibraryService.Controllers
             return View(model);
         }
 
-
         [HttpPost]
         public async Task<IActionResult> AddReview(int bookId, string feedback, int rating)
         {
+            if (rating < 1 || rating > 5)
+            {
+                TempData["ErrorMessage"] = "Rating must be between 1 and 5.";
+                return RedirectToAction("Index");
+            }
+
+            var userEmail = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to add a review.";
+                return RedirectToAction("Login", "Account");
+            }
+
             // Check if the book exists
-            var bookExists = await _context.Books.AnyAsync(b => b.Id == bookId);
-            if (!bookExists)
+            var book = await _context.Books.FindAsync(bookId);
+            if (book == null)
             {
                 TempData["ErrorMessage"] = "The book you are reviewing does not exist.";
-                return RedirectToAction("Index"); // Redirect to an appropriate page
+                return RedirectToAction("Index");
+            }
+
+            // Check if the user already reviewed the book
+            var existingReview = await _context.Reviews.FirstOrDefaultAsync(r => r.BookId == bookId && r.UserEmail == userEmail);
+            if (existingReview != null)
+            {
+                TempData["ErrorMessage"] = "You have already reviewed this book.";
+                return RedirectToAction("Index");
             }
 
             // Create the review
@@ -89,7 +134,7 @@ namespace eBookLibraryService.Controllers
                 BookId = bookId,
                 Feedback = feedback,
                 Rating = rating,
-                UserEmail = User.Identity.Name ?? "guest@example.com",
+                UserEmail = userEmail,
                 CreatedAt = DateTime.Now
             };
 
@@ -97,8 +142,7 @@ namespace eBookLibraryService.Controllers
             await _context.SaveChangesAsync();
 
             TempData["SuccessMessage"] = "Your review has been submitted successfully.";
-            return RedirectToAction("Index"); // Redirect back to the library or relevant page
+            return RedirectToAction("Index");
         }
-
     }
 }

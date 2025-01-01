@@ -61,5 +61,11 @@ namespace eBookLibraryService.Models
 
         public DateTime? ReturnDate { get; set; }
         public bool IsReturned => ReturnDate.HasValue;
+        public string PdfLink { get; set; }
+        public string EpubLink { get; set; }
+        public string F2bLink { get; set; }
+        public string MobiLink { get; set; }
+
+
     }
 }

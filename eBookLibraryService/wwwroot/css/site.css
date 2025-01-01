@@ -58,6 +58,8 @@ button.btn {
     font-size: 0.8rem;
     font-weight: 500;
     transition: all 0.3s ease-in-out;
+    pointer-events: auto; /* Ensure buttons are clickable */
+    z-index: 10; /* Ensure buttons are above other elements */
 }
 
 button.btn-primary {
@@ -110,6 +112,7 @@ button.btn-secondary {
     flex-direction: column;
     height: 100%;
     box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
+    z-index: 1; /* Prevent overlapping issues */
 }
 
     .card:hover {
@@ -176,6 +179,8 @@ footer {
         max-width: 100%;
     }
 }
+
+/* Welcome Section */
 .welcome-section {
     background: url('../images/img7.jpg') no-repeat center center/cover; /* Set image as background */
     height: 100vh; /* Full viewport height */
@@ -232,61 +237,18 @@ footer {
         transform: scale(1.1);
     }
 
-.card {
-    border-radius: 8px;
-    overflow: hidden;
-    transition: transform 0.2s ease-in-out, box-shadow 0.2s ease-in-out;
-}
-
-    .card:hover {
-        transform: scale(1.02);
-        box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-    }
-
-.card-title {
-    font-weight: bold;
-}
-
-.card-footer {
-    border-top: 1px solid #ddd;
-}
-
-.text-primary {
-    color: #0056b3 !important;
-}
-
-textarea {
-    resize: none;
-}
-
-.btn-primary {
-    background-color: #0056b3;
-    border: none;
-}
-
-    .btn-primary:hover {
-        background-color: #004494;
-    }
-
+/* Modal Styling */
 .modal {
     display: flex;
     align-items: center;
     justify-content: center;
 }
 
-    .modal.fade .modal-dialog {
-        transform: translate(0, 0); /* Prevent unexpected animations */
-        transition: none; /* Disable unwanted animations */
-    }
-
 .modal-content {
     max-width: 500px;
     max-height: 80vh;
     overflow-y: auto; /* Add scrollbars for large content */
-    margin: auto; /* Ensure it's centered */
-    transition: none !important; /* Prevent animations */
+    margin: auto;
 }
 
-body.modal-open {
-    overflow: hidden; /* Disable background scrolling */
-}
+
