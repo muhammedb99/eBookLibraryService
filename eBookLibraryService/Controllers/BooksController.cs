@@ -85,7 +85,7 @@ namespace eBookLibraryService.Controllers
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Create(
-            [Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Quantity,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
+            [Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -202,7 +202,6 @@ namespace eBookLibraryService.Controllers
                 BorrowPrice = book.BorrowPrice,
                 BuyingPrice = book.BuyingPrice,
                 YearOfPublishing = book.YearOfPublishing,
-                Quantity = book.Quantity,
                 Genre = book.Genre,
                 ImageUrl = book.ImageUrl,
                 Reviews = book.Reviews.Select(r => new ReviewViewModel

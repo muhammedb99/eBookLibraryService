@@ -13,9 +13,6 @@
 				<th>@Html.DisplayNameFor(model => model.Author)</th>
                 <th>@Html.DisplayNameFor(model => model.BorrowCount)</th>
 				<th>@Html.DisplayNameFor(model => model.WaitingList)</th>
-                <th>@Html.DisplayNameFor(model => model.Quantity)</th>
-                
-                <th>Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -30,14 +27,6 @@
                     <td>@book.Author</td>
                     <td>@book.BorrowCount</td>
                     <td>@(book.WaitingList?.Count ?? 0)</td>
-                    <td>
-                        <!-- Editable quantity field -->
-                        <input type="number" name="quantities[@book.Id]" value="@book.Quantity" class="form-control" min="0" />
-                    </td>
-                    <td>
-                        <!-- Update button for each book -->
-                        <button type="submit" class="btn btn-success">Update</button>
-                    </td>
                 </tr>
             }
         </tbody>
