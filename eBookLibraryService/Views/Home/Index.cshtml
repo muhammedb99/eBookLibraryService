@@ -98,10 +98,11 @@
                                                     <!-- Add to Cart (Borrow) -->
                                                     @if (book.BorrowPrice > 0)
                                                     {
-                                                        @if (book.BorrowedCopies >= 3)
+                                                        @if (book.BorrowCount >= 3)
                                                         {
+
                                                             <button type="button" class="btn btn-warning mt-2 w-100"
-                                                                    onclick="location.href='@Url.Action("JoinWaitingList", "Library", new { bookId = book.Id })'">
+                                                                    onclick="location.href='@Url.Action("JoinWaitingList", "Home", new { bookId = book.Id })'">
                                                                 Join Waiting List
                                                             </button>
                                                         }

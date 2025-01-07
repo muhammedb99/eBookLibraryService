@@ -153,12 +153,15 @@ namespace eBookLibraryService.Controllers
         // Helper Method: Add a book to the library
         private async Task AddBookToLibrary(string userEmail, int bookId, float price, bool isBorrow)
         {
+            // Fetch the book from the database
             var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == bookId);
             if (book == null) throw new Exception("Book not found.");
 
+            // Check if the book is already in the user's library
             var alreadyInLibrary = await _context.OwnedBooks.AnyAsync(ob => ob.UserEmail == userEmail && ob.BookId == bookId);
             if (!alreadyInLibrary)
             {
+                // Add the book to the user's library
                 var ownedBook = new OwnedBook
                 {
                     UserEmail = userEmail,
@@ -171,9 +174,25 @@ namespace eBookLibraryService.Controllers
                 };
 
                 _context.OwnedBooks.Add(ownedBook);
+
+                // Increment BorrowCount or PurchaseCount
+                if (isBorrow)
+                {
+                    book.BorrowCount++;
+                }
+                else
+                {
+                    book.PurchaseCount++;
+                }
+
+                // Update the book entity
+                _context.Books.Update(book);
+
+                // Save changes to the database
                 await _context.SaveChangesAsync();
             }
         }
+
 
         private async Task ProcessPaymentSuccess(CreditCardPaymentViewModel model)
         {

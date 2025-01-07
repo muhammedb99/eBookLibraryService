@@ -1,6 +1,132 @@
 ﻿@{
     ViewData["Title"] = "Privacy Policy";
 }
-<h1>@ViewData["Title"]</h1>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@ViewData["Title"]</title>
+    <!-- Fonts and Icons -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="~/css/site.css" />
+</head>
 
-<p>Use this page to detail your site's privacy policy.</p>
+<section class="privacy-policy-section mt-5">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h1 class="display-4">@ViewData["Title"]</h1>
+            <p class="text-muted">Last updated: January 1, 2025</p>
+        </div>
+
+        <div class="policy-content">
+            <h2>1. Introduction</h2>
+            <p>
+                Welcome to our website. Your privacy is important to us. This Privacy Policy outlines how we collect, use, and protect your personal information.
+                By using our website, you agree to the terms outlined in this policy.
+            </p>
+
+            <h2>2. Information We Collect</h2>
+            <ul>
+                <li><strong>Personal Information:</strong> Name, email address, phone number, and other details provided by you.</li>
+                <li><strong>Usage Data:</strong> Information on how you use our website, including pages visited, time spent, and browsing behavior.</li>
+                <li><strong>Cookies:</strong> Information collected via cookies to enhance your browsing experience.</li>
+            </ul>
+
+            <h2>3. How We Use Your Information</h2>
+            <p>We use the collected information for the following purposes:</p>
+            <ol>
+                <li>To provide and maintain our services.</li>
+                <li>To improve user experience on the website.</li>
+                <li>To send important notifications and updates.</li>
+                <li>To comply with legal obligations.</li>
+            </ol>
+
+            <h2>4. Sharing Your Information</h2>
+            <p>
+                We do not sell or share your personal information with third parties except:
+            </p>
+            <ul>
+                <li>When required by law or legal proceedings.</li>
+                <li>With trusted service providers to improve our services.</li>
+                <li>With your explicit consent.</li>
+            </ul>
+
+            <h2>5. Data Security</h2>
+            <p>
+                We take reasonable measures to protect your personal information from unauthorized access, disclosure, or destruction.
+                However, no online system is 100% secure, and we cannot guarantee the absolute security of your data.
+            </p>
+
+            <h2>6. Your Rights</h2>
+            <p>You have the right to:</p>
+            <ul>
+                <li>Access, update, or delete your personal data.</li>
+                <li>Withdraw consent for data processing at any time.</li>
+                <li>Opt-out of marketing communications.</li>
+            </ul>
+
+            <h2>7. Cookies</h2>
+            <p>
+                We use cookies to improve user experience and analyze website usage. By continuing to use our website, you agree to the use of cookies.
+                You can manage your cookie preferences in your browser settings.
+            </p>
+
+            <h2>8. Contact Us</h2>
+            <p>
+                If you have any questions about this Privacy Policy, please contact us:
+                <br />
+                <strong>Email:</strong> ebookstorenoty@gmail.com
+                <br />
+                <strong>Phone:</strong> +972506444858 / +972547267713
+            </p>
+        </div>
+
+        <div class="text-center mt-5">
+            <a href="/" class="btn btn-primary btn-lg">Back to Home</a>
+        </div>
+    </div>
+</section>
+
+<style>
+    body {
+        font-family: 'Poppins', sans-serif;
+        line-height: 1.6;
+        background-color: #f9f9f9;
+    }
+    .privacy-policy-section {
+        background: white;
+        padding: 2rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    }
+    .privacy-policy-section h1,
+    .privacy-policy-section h2 {
+        color: #2c3e50;
+    }
+    .privacy-policy-section p,
+    .privacy-policy-section li {
+        color: #6c757d;
+    }
+    .policy-content ul,
+    .policy-content ol {
+        padding-left: 20px;
+    }
+    .policy-content ul li {
+        list-style: disc;
+    }
+    .policy-content ol li {
+        list-style: decimal;
+    }
+    .btn-primary {
+        background-color: #3498db;
+        border-color: #3498db;
+        padding: 10px 20px;
+        font-size: 16px;
+        text-transform: uppercase;
+    }
+    .btn-primary:hover {
+        background-color: #2980b9;
+        border-color: #2980b9;
+    }
+</style>
