@@ -70,6 +70,5 @@ namespace eBookLibraryService.Models
         [Url(ErrorMessage = "The EPUB link must be a valid URL.")]
         public string? MobiLink { get; set; }
 
-
     }
 }

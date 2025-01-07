@@ -98,12 +98,23 @@
                                                     <!-- Add to Cart (Borrow) -->
                                                     @if (book.BorrowPrice > 0)
                                                     {
-                                                        <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                                            <input type="hidden" name="id" value="@book.Id" />
-                                                            <input type="hidden" name="isBorrow" value="true" />
-                                                            <button type="submit" class="btn btn-secondary w-100">Add to Cart (Borrow)</button>
-                                                        </form>
+                                                        @if (book.BorrowedCopies >= 3)
+                                                        {
+                                                            <button type="button" class="btn btn-warning mt-2 w-100"
+                                                                    onclick="location.href='@Url.Action("JoinWaitingList", "Library", new { bookId = book.Id })'">
+                                                                Join Waiting List
+                                                            </button>
+                                                        }
+                                                        else
+                                                        {
+                                                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                                                <input type="hidden" name="id" value="@book.Id" />
+                                                                <input type="hidden" name="isBorrow" value="true" />
+                                                                <button type="submit" class="btn btn-secondary w-100">Add to Cart (Borrow)</button>
+                                                            </form>
+                                                        }
                                                     }
+
 
                                                     <!-- Buy Now -->
                                                     <form asp-action="ProcessPayment" asp-controller="Payment" method="get">
@@ -157,8 +168,69 @@
                     </div>
                 </section>
             </div>
-            ...
         </div>
+    </div>
+</section>
+
+
+<section id="Feedback" class="feedback-section mt-5">
+    <div class="container">
+        <h4 class="mb-4 text-center">What Users Think About Our Service</h4>
+        <div class="row">
+            <!-- Display Feedback -->
+            @if (ViewData["Feedbacks"] != null && ((List<eBookLibraryService.Models.ServiceFeedback>)ViewData["Feedbacks"]).Any())
+            {
+                foreach (var feedback in (List<eBookLibraryService.Models.ServiceFeedback>)ViewData["Feedbacks"])
+                {
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-body">
+                                <h5 class="card-title text-success">@feedback.UserId</h5>
+                                <p class="card-text">@feedback.Feedback</p>
+                                <p class="text-warning">Rating: ⭐️ @feedback.Rating/5</p>
+                                <small class="text-muted">Posted on: @feedback.CreatedAt.ToString("g")</small>
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <p class="text-center text-muted">No feedback available yet. Be the first to share your experience!</p>
+            }
+
+        </div>
+
+        <!-- Form to Submit Feedback -->
+        @if (User.Identity.IsAuthenticated)
+        {
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5 class="card-title">Submit Your Feedback</h5>
+                    <form method="post" asp-action="SubmitFeedback" asp-controller="Home">
+                        <div class="mb-3">
+                            <label for="rating" class="form-label">Rating:</label>
+                            <select id="rating" name="rating" class="form-select" required>
+                                <option value="" disabled selected>Select a rating</option>
+                                @for (int i = 1; i <= 5; i++)
+                                {
+                                    <option value="@i">@i</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="feedback" class="form-label">Feedback:</label>
+                            <textarea id="feedback" name="feedback" class="form-control" rows="3" placeholder="Share your experience..." required></textarea>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit Feedback</button>
+                    </form>
+                </div>
+            </div>
+        }
+        else
+        {
+            <p class="text-center text-warning">Please <a href="/Account/Login">login</a> to submit feedback.</p>
+        }
     </div>
 </section>
 
@@ -173,145 +245,145 @@
 </script>
 
 
-            <!-- Filters and Sort Section -->
-            <div class="col-lg-3">
-                <!-- Filter Section -->
-                <div class="bg-light p-4 rounded shadow-sm mb-4">
-                    <form method="get" asp-action="Index" asp-controller="Home">
-                        <h4 class="text-dark mb-3">Filter Books</h4>
-                        <div class="mb-3">
-                            <label for="author" class="form-label">Author</label>
-                            <input type="text" name="author" id="author" class="form-control" placeholder="Author name" />
-                        </div>
-                        <div class="mb-3">
-                            <label for="genre" class="form-label">Genre</label>
-                            <select name="genre" id="genre" class="form-select">
-                                <option value="">Select Genre</option>
-                                @if (ViewBag.GenreBooks?.Keys != null)
-                                {
-                                    foreach (var genre in ViewBag.GenreBooks.Keys)
-                                    {
-                                        <option value="@genre">@genre</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="method" class="form-label">Method</label>
-                            <select name="method" id="method" class="form-select">
-                                <option value="">All</option>
-                                <option value="buy">Buy</option>
-                                <option value="borrow">Borrow</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="priceRange" class="form-label">Price Range</label>
-                            <div class="d-flex">
-                                <input type="number" step="0.01" name="minPrice" id="minPrice" class="form-control me-2" placeholder="Min" />
-                                <input type="number" step="0.01" name="maxPrice" id="maxPrice" class="form-control" placeholder="Max" />
-                            </div>
-                        </div>
-                        <div class="mb-3">
-                            <label for="isOnSale" class="form-label">On Sale</label>
-                            <select name="isOnSale" id="isOnSale" class="form-select">
-                                <option value="">All</option>
-                                <option value="true">On Sale</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="year" class="form-label">Publication Year</label>
-                            <input type="number" name="year" id="year" class="form-control" placeholder="Year" />
-                        </div>
-                        <div class="mb-3">
-                            <label for="publisher" class="form-label">Publisher</label>
-                            <input type="text" name="publisher" id="publisher" class="form-control" placeholder="Publisher name" />
-                        </div>
-                        <button class="btn btn-primary w-100" type="submit">Apply Filters</button>
-                    </form>
-                </div>
-
-                <!-- Sort Section -->
-                <div class="bg-light p-4 rounded shadow-sm">
-                    <form method="get" asp-action="Index" asp-controller="Home">
-                        <h4 class="text-dark mb-3">Sort Books</h4>
-                        <div class="mb-3">
-                            <select name="sortOrder" class="form-select">
-                                <option value="">-- Sort By --</option>
-                                <option value="price_asc">Price (Low to High)</option>
-                                <option value="price_desc">Price (High to Low)</option>
-                                <option value="popular">Most Popular</option>
-                                <option value="genre">Genre</option>
-                                <option value="year">Year of Publishing</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary w-100" type="submit">Sort</button>
-                    </form>
+<!-- Filters and Sort Section -->
+<div class="col-lg-3">
+    <!-- Filter Section -->
+    <div class="bg-light p-4 rounded shadow-sm mb-4">
+        <form method="get" asp-action="Index" asp-controller="Home">
+            <h4 class="text-dark mb-3">Filter Books</h4>
+            <div class="mb-3">
+                <label for="author" class="form-label">Author</label>
+                <input type="text" name="author" id="author" class="form-control" placeholder="Author name" />
+            </div>
+            <div class="mb-3">
+                <label for="genre" class="form-label">Genre</label>
+                <select name="genre" id="genre" class="form-select">
+                    <option value="">Select Genre</option>
+                    @if (ViewBag.GenreBooks?.Keys != null)
+                    {
+                        foreach (var genre in ViewBag.GenreBooks.Keys)
+                        {
+                            <option value="@genre">@genre</option>
+                        }
+                    }
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="method" class="form-label">Method</label>
+                <select name="method" id="method" class="form-select">
+                    <option value="">All</option>
+                    <option value="buy">Buy</option>
+                    <option value="borrow">Borrow</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="priceRange" class="form-label">Price Range</label>
+                <div class="d-flex">
+                    <input type="number" step="0.01" name="minPrice" id="minPrice" class="form-control me-2" placeholder="Min" />
+                    <input type="number" step="0.01" name="maxPrice" id="maxPrice" class="form-control" placeholder="Max" />
                 </div>
             </div>
+            <div class="mb-3">
+                <label for="isOnSale" class="form-label">On Sale</label>
+                <select name="isOnSale" id="isOnSale" class="form-select">
+                    <option value="">All</option>
+                    <option value="true">On Sale</option>
+                </select>
+            </div>
+            <div class="mb-3">
+                <label for="year" class="form-label">Publication Year</label>
+                <input type="number" name="year" id="year" class="form-control" placeholder="Year" />
+            </div>
+            <div class="mb-3">
+                <label for="publisher" class="form-label">Publisher</label>
+                <input type="text" name="publisher" id="publisher" class="form-control" placeholder="Publisher name" />
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Apply Filters</button>
+        </form>
+    </div>
+
+    <!-- Sort Section -->
+    <div class="bg-light p-4 rounded shadow-sm">
+        <form method="get" asp-action="Index" asp-controller="Home">
+            <h4 class="text-dark mb-3">Sort Books</h4>
+            <div class="mb-3">
+                <select name="sortOrder" class="form-select">
+                    <option value="">-- Sort By --</option>
+                    <option value="price_asc">Price (Low to High)</option>
+                    <option value="price_desc">Price (High to Low)</option>
+                    <option value="popular">Most Popular</option>
+                    <option value="genre">Genre</option>
+                    <option value="year">Year of Publishing</option>
+                </select>
+            </div>
+            <button class="btn btn-primary w-100" type="submit">Sort</button>
+        </form>
+    </div>
+</div>
         </div>
     </div>
 </section>
- @foreach (var genre in ViewBag.GenreBooks.Keys)
-    {
-        <section id="@genre.ToLower().Replace(" ", "-")-section" class="mt-5">
-            <h4>@genre</h4>
-            <div class="row">
-                @foreach (var book in ViewBag.GenreBooks[genre])
-                {
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
-                            <div class="card-body">
-                                <h5 class="card-title">@book.Title</h5>
-                                <p class="card-text">
-                                    <strong>Author:</strong> @book.Author<br />
-                                    <strong>Genre:</strong> @book.Genre<br />
-                                    <strong>Publisher:</strong> @book.Publisher<br />
-                                    <strong>Year of Publishing:</strong> @book.YearOfPublishing<br />
+@foreach (var genre in ViewBag.GenreBooks.Keys)
+{
+    <section id="@genre.ToLower().Replace(" ", "-")-section" class="mt-5">
+        <h4>@genre</h4>
+        <div class="row">
+            @foreach (var book in ViewBag.GenreBooks[genre])
+            {
+                <div class="col-md-4 mb-4">
+                    <div class="card shadow-sm">
+                        <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
+                        <div class="card-body">
+                            <h5 class="card-title">@book.Title</h5>
+                            <p class="card-text">
+                                <strong>Author:</strong> @book.Author<br />
+                                <strong>Genre:</strong> @book.Genre<br />
+                                <strong>Publisher:</strong> @book.Publisher<br />
+                                <strong>Year of Publishing:</strong> @book.YearOfPublishing<br />
 
-                                    <!-- Price details -->
-                                    @if (book.DiscountPrice != null && book.DiscountUntil != null && book.DiscountUntil >= DateTime.Now)
-                                    {
-                                        <strong>Price (Buy):</strong>
-                                        <span style="text-decoration: line-through;">@book.BuyingPrice $</span>
-                                        <span class="text-success">@book.DiscountPrice $</span>
-                                        <br />
-                                    }
-                                    else
-                                    {
-                                        <strong>Price (Buy):</strong> @book.BuyingPrice <span>$</span>
-                                        <br />
-                                    }
+                                <!-- Price details -->
+                                @if (book.DiscountPrice != null && book.DiscountUntil != null && book.DiscountUntil >= DateTime.Now)
+                                {
+                                    <strong>Price (Buy):</strong>
+                                    <span style="text-decoration: line-through;">@book.BuyingPrice $</span>
+                                    <span class="text-success">@book.DiscountPrice $</span>
+                                    <br />
+                                }
+                                else
+                                {
+                                    <strong>Price (Buy):</strong> @book.BuyingPrice <span>$</span>
+                                    <br />
+                                }
 
-                                    @if (book.BorrowPrice > 0)
-                                    {
-                                        <strong>Price (Borrow):</strong> @book.BorrowPrice <span>$</span>
-                                        <br />
-                                    }
-                                </p>
-                                <div class="d-flex justify-content-between">
-                                    <!-- Add to Cart (Buy) -->
+                                @if (book.BorrowPrice > 0)
+                                {
+                                    <strong>Price (Borrow):</strong> @book.BorrowPrice <span>$</span>
+                                    <br />
+                                }
+                            </p>
+                            <div class="d-flex justify-content-between">
+                                <!-- Add to Cart (Buy) -->
+                                <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                    <input type="hidden" name="id" value="@book.Id" />
+                                    <input type="hidden" name="isBorrow" value="false" />
+                                    <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
+                                </form>
+
+                                <!-- Add to Cart (Borrow) -->
+                                @if (book.BorrowPrice > 0)
+                                {
                                     <form asp-action="AddToCart" asp-controller="Cart" method="post">
                                         <input type="hidden" name="id" value="@book.Id" />
-                                        <input type="hidden" name="isBorrow" value="false" />
-                                        <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
+                                        <input type="hidden" name="isBorrow" value="true" />
+                                        <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
                                     </form>
-
-                                    <!-- Add to Cart (Borrow) -->
-                                    @if (book.BorrowPrice > 0) 
-                                    {
-                                        <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                            <input type="hidden" name="id" value="@book.Id" />
-                                            <input type="hidden" name="isBorrow" value="true" />
-                                            <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
-                                        </form>
-                                    }
-                                </div>
+                                }
                             </div>
                         </div>
                     </div>
-                }
-            </div>
-        </section>
+                </div>
+            }
+        </div>
+    </section>
 
-    }
+}
