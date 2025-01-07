@@ -76,7 +76,6 @@ namespace eBookLibraryService.Controllers
                 IsBorrowed = false, // Purchased books are not borrowed
                 Price = amount,
                 PurchaseDate = DateTime.Now,
-                BorrowEndDate = null // Not applicable for purchased books
             };
 
             _context.OwnedBooks.Add(ownedBook);

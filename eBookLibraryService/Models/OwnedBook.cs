@@ -29,6 +29,5 @@ namespace eBookLibraryService.Models
         public float Price { get; set; }
 
         public DateTime PurchaseDate { get; set; }
-        public DateTime? BorrowEndDate { get; set; } 
     }
 }

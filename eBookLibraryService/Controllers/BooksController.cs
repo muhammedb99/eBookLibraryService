@@ -37,7 +37,7 @@ namespace eBookLibraryService.Controllers
         // View all books
         public async Task<IActionResult> Index()
         {
-            var books = await _context.Books.Include(b => b.WaitingList).ToListAsync();
+            var books = await _context.Books.ToListAsync();
 
             var updatedBooks = new List<Book>();
 

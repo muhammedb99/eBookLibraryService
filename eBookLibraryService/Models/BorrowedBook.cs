@@ -9,8 +9,9 @@ namespace eBookLibraryService.Models
         public Book Book{ get; set; }
         public string UserEmail { get; set; }
         public DateTime BorrowedDate { get; set; }
-        public DateTime? ReturnDate { get; set; } // Nullable ReturnDate
+        public DateTime? ReturnDate { get; set; } 
         public bool IsReturned { get; set; }
+
     }
 
 }

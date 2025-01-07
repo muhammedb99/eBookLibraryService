@@ -18,7 +18,6 @@ namespace eBookLibraryService.Controllers
             _context = context;
         }
 
-        // View library with owned and borrowed books
         public async Task<IActionResult> Index()
         {
             var userEmail = User.Identity?.Name;
@@ -32,7 +31,6 @@ namespace eBookLibraryService.Controllers
             // Fetch owned books
             var ownedBooks = await _context.OwnedBooks
                 .Include(o => o.Book)
-                .ThenInclude(b => b.Reviews)
                 .Where(o => o.UserEmail == userEmail && !o.IsBorrowed)
                 .Select(o => new BookDetailsViewModel
                 {
@@ -61,7 +59,6 @@ namespace eBookLibraryService.Controllers
             // Fetch borrowed books
             var borrowedBooks = await _context.OwnedBooks
                 .Include(b => b.Book)
-                .ThenInclude(b => b.Reviews)
                 .Where(b => b.UserEmail == userEmail && b.IsBorrowed)
                 .Select(b => new BookDetailsViewModel
                 {
@@ -83,7 +80,8 @@ namespace eBookLibraryService.Controllers
                         UserEmail = r.UserEmail,
                         Feedback = r.Feedback,
                         Rating = r.Rating
-                    }).ToList()
+                    }).ToList(),
+                    ReturnDate = b.IsBorrowed ? DateTime.Now.AddDays(30) : (DateTime?)null // Calculate BorrowEndTime dynamically
                 })
                 .ToListAsync();
 
@@ -181,6 +179,33 @@ namespace eBookLibraryService.Controllers
             return Redirect(fileUrl);
         }
 
+        // Delete an owned book
+        [HttpPost]
+        public async Task<IActionResult> DeleteOwnedBook(int bookId)
+        {
+            var userEmail = User.Identity?.Name;
 
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to delete a book.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Find the owned book entry
+            var ownedBook = await _context.OwnedBooks
+                .FirstOrDefaultAsync(o => o.BookId == bookId && o.UserEmail == userEmail && !o.IsBorrowed);
+
+            if (ownedBook == null)
+            {
+                TempData["ErrorMessage"] = "The book you are trying to delete does not exist in your library.";
+                return RedirectToAction("Index");
+            }
+
+            _context.OwnedBooks.Remove(ownedBook);
+            await _context.SaveChangesAsync();
+
+            TempData["SuccessMessage"] = "The book has been successfully removed from your library.";
+            return RedirectToAction("Index");
+        }
     }
 }

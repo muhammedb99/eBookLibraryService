@@ -168,7 +168,6 @@ namespace eBookLibraryService.Controllers
                     IsBorrowed = isBorrow,
                     Price = price,
                     PurchaseDate = DateTime.Now,
-                    BorrowEndDate = isBorrow ? DateTime.Now.AddDays(14) : (DateTime?)null
                 };
 
                 _context.OwnedBooks.Add(ownedBook);
