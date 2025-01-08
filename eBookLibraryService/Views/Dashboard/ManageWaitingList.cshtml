@@ -1,0 +1,32 @@
+﻿@model IEnumerable<eBookLibraryService.ViewModels.WaitingListEntryViewModel>
+@{
+    Layout = "~/Views/Shared/_DashboardLayout.cshtml";
+}
+<h1>Manage Waiting List</h1>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Book Title</th>
+            <th>User Email</th>
+            <th>Date Added</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var entry in Model)
+        {
+            <tr>
+                <td>@entry.BookTitle</td>
+                <td>@entry.UserId</td>
+                <td>@entry.DateAdded.ToString("g")</td>
+                <td>
+                    <form asp-action="RemoveFromWaitingList" asp-controller="Dashboard" method="post">
+                        <input type="hidden" name="id" value="@entry.Id" />
+                        <button type="submit" class="btn btn-danger">Remove</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

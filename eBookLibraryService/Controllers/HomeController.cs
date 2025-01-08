@@ -114,50 +114,70 @@ public async Task<IActionResult> BorrowBook(int bookId)
 
         [HttpGet]
         [HttpPost]
+        [ValidateAntiForgeryToken]
         public async Task<IActionResult> JoinWaitingList(int bookId)
-{
-    if (!User.Identity.IsAuthenticated)
-    {
-        TempData["Error"] = "Please log in to join the waiting list.";
-        return RedirectToAction("Index");
-    }
+        {
+            if (!User.Identity.IsAuthenticated)
+            {
+                TempData["Error"] = "Please log in to join the waiting list.";
+                return RedirectToAction("Index", "Home");
+            }
 
-    var userEmail = User.Identity.Name;
-    var book = await _context.Books.FindAsync(bookId);
+            var userEmail = User.Identity.Name;
+            var book = await _context.Books.FindAsync(bookId);
 
-    if (book == null)
-    {
-        TempData["Error"] = "Book not found.";
-        return RedirectToAction("Index");
-    }
+            if (book == null)
+            {
+                TempData["Error"] = "Book not found.";
+                return RedirectToAction("Index", "Home");
+            }
 
-    // Check if the user is already on the waiting list
-    var alreadyInList = await _context.WaitingListEntries
-        .AnyAsync(w => w.BookId == bookId && w.UserId == userEmail);
+            // Check if the user is already on the waiting list
+            var alreadyInList = await _context.WaitingListEntries
+                .AnyAsync(w => w.BookId == bookId && w.UserId == userEmail);
 
-    if (alreadyInList)
-    {
-        TempData["Info"] = "You are already on the waiting list for this book.";
-        return RedirectToAction("Index");
-    }
+            if (alreadyInList)
+            {
+                TempData["Info"] = "You are already on the waiting list for this book.";
+                return RedirectToAction("Index", "Home");
+            }
 
-    // Add user to the waiting list
-    var waitingListEntry = new WaitingListEntry
-    {
-        BookId = bookId,
-        UserId = userEmail,
-        DateAdded = DateTime.Now
-    };
+            // Add user to the waiting list
+            var waitingListEntry = new WaitingListEntry
+            {
+                BookId = bookId,
+                UserId = userEmail,
+                DateAdded = DateTime.Now
+            };
 
-    _context.WaitingListEntries.Add(waitingListEntry);
-    await _context.SaveChangesAsync();
+            _context.WaitingListEntries.Add(waitingListEntry);
+            await _context.SaveChangesAsync();
 
-    TempData["Success"] = "You have been added to the waiting list.";
-    return RedirectToAction("Index");
-}
+            // Send email notification
+            var subject = "Waiting List Confirmation";
+            var body = $@"
+        <p>Dear {userEmail},</p>
+        <p>You have successfully joined the waiting list for the book: <strong>{book.Title}</strong>.</p>
+        <p>We will notify you when the book becomes available for borrowing.</p>
+        <p>Thank you for using our service!</p>";
+
+            try
+            {
+                await _emailService.SendEmailAsync(userEmail, subject, body);
+                TempData["Success"] = "You have been added to the waiting list, and a confirmation email has been sent.";
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Failed to send waiting list confirmation email.");
+                TempData["Error"] = "You have been added to the waiting list, but we were unable to send a confirmation email.";
+            }
+
+            return RedirectToAction("Index", "Home");
+        }
 
 
-public async Task NotifyUsersWhenBookAvailable(int bookId)
+
+        public async Task NotifyUsersWhenBookAvailable(int bookId)
 {
     var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == bookId);
     if (book == null) throw new Exception("Book not found.");

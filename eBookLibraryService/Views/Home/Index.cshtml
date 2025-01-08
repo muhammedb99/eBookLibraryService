@@ -101,10 +101,11 @@
                                                         @if (book.BorrowCount >= 3)
                                                         {
 
-                                                            <button type="button" class="btn btn-warning mt-2 w-100"
-                                                                    onclick="location.href='@Url.Action("JoinWaitingList", "Home", new { bookId = book.Id })'">
-                                                                Join Waiting List
-                                                            </button>
+                                                            <form asp-action="JoinWaitingList" asp-controller="Home" method="post">
+                                                                <input type="hidden" name="bookId" value="@book.Id" />
+                                                                <button type="submit" class="btn btn-warning mt-2 w-100">Join Waiting List</button>
+                                                            </form>
+
                                                         }
                                                         else
                                                         {
