@@ -1,6 +1,7 @@
 ﻿using eBookLibraryService.Data;
 using eBookLibraryService.Helpers;
 using eBookLibraryService.Models;
+using eBookLibraryService.ViewModels;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.EntityFrameworkCore;
@@ -38,9 +39,10 @@ namespace eBookLibraryService.Controllers
 
             base.OnActionExecuting(context);
         }
+
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> BuyNow(int id, float amount)
+        public async Task<IActionResult> BuyNow(int id)
         {
             if (!User.Identity.IsAuthenticated)
             {
@@ -50,7 +52,6 @@ namespace eBookLibraryService.Controllers
 
             var userEmail = User.Identity.Name;
 
-            // Check if the book already exists in the user's library
             var bookInLibrary = await _context.OwnedBooks.AnyAsync(o => o.UserEmail == userEmail && o.BookId == id);
             if (bookInLibrary)
             {
@@ -58,34 +59,27 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
-            // Fetch the book
             var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
             {
-                TempData["CartMessage"] = "The selected book does not exist.";
+                TempData["CartMessage"] = "Book not found.";
                 return RedirectToAction("Index", "Home");
             }
 
-            // Add the book directly to the OwnedBooks table
-            var ownedBook = new OwnedBook
+            var amount = (book.DiscountPrice > 0 && book.DiscountUntil.HasValue && book.DiscountUntil.Value >= DateTime.Now)
+                ? book.DiscountPrice.GetValueOrDefault()
+                : book.BuyingPrice;
+
+            var paymentModel = new CreditCardPaymentViewModel
             {
-                UserEmail = userEmail,
-                BookId = book.Id,
-                Title = book.Title,
-                Author = book.Author,
-                IsBorrowed = false, // Purchased books are not borrowed
-                Price = amount,
-                PurchaseDate = DateTime.Now,
+                BookId = id,
+                TotalAmount = amount
             };
 
-            _context.OwnedBooks.Add(ownedBook);
-
-            // Save changes to the database
-            await _context.SaveChangesAsync();
-
-            TempData["CartMessage"] = "Book purchased successfully and added to your library.";
-            return RedirectToAction("Index", "Library");
+            return View("CreditCardPayment", paymentModel); // Render a view for payment confirmation
         }
+
+
 
         [HttpPost]
         [ValidateAntiForgeryToken]

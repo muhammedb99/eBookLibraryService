@@ -130,6 +130,86 @@ namespace eBookLibraryService.Controllers
             return View("CreditCardPayment", model);
         }
 
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public async Task<IActionResult> SubmitCreditCardPaymentBuyNow(CreditCardPaymentViewModel model)
+        {
+            if (!ModelState.IsValid)
+            {
+                TempData["PaymentMessage"] = "Invalid payment details. Please try again.";
+                return View("CreditCardPayment", model);
+            }
+
+            // Simulate payment processing
+            bool paymentSuccess = true;
+
+            if (paymentSuccess)
+            {
+                try
+                {
+                    string userEmail = User.Identity.Name;
+
+                    // Verify the book exists
+                    var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == model.BookId);
+                    if (book == null)
+                    {
+                        TempData["PaymentMessage"] = "Book not found.";
+                        return RedirectToAction("Index", "Home");
+                    }
+
+                    // Ensure the book is not already in the user's library
+                    var alreadyOwned = await _context.OwnedBooks.AnyAsync(ob => ob.UserEmail == userEmail && ob.BookId == model.BookId);
+                    if (alreadyOwned)
+                    {
+                        TempData["PaymentMessage"] = "This book is already in your library.";
+                        return RedirectToAction("Index", "Library");
+                    }
+
+                    // Add the book to the user's library
+                    var ownedBook = new OwnedBook
+                    {
+                        UserEmail = userEmail,
+                        BookId = book.Id,
+                        Title = book.Title,
+                        Author = book.Author,
+                        IsBorrowed = false,
+                        Price = model.TotalAmount,
+                        PurchaseDate = DateTime.Now
+                    };
+
+                    _context.OwnedBooks.Add(ownedBook);
+
+                    // Increment the book's purchase count
+                    book.PurchaseCount++;
+                    _context.Books.Update(book);
+
+                    await _context.SaveChangesAsync();
+
+                    // Send confirmation email
+                    await _emailService.SendEmailAsync(
+                        userEmail,
+                        "Payment Confirmation",
+                        $"Thank you for your payment of ${model.TotalAmount}. The book '{book.Title}' has been added to your library."
+                    );
+
+                    TempData["PaymentMessage"] = "Payment successful! The book has been added to your library.";
+                    return RedirectToAction("Index", "Library");
+                }
+                catch (Exception ex)
+                {
+                    TempData["PaymentMessage"] = $"An error occurred: {ex.Message}";
+                    return RedirectToAction("Index", "Home");
+                }
+            }
+
+            TempData["PaymentMessage"] = "Payment failed. Please try again.";
+            return View("CreditCardPayment", model);
+        }
+
+
+
+
+
         [HttpGet]
         public IActionResult PayPalPayment(float amount, int? bookId = null)
         {

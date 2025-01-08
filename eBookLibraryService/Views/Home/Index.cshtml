@@ -119,11 +119,12 @@
 
 
                                                     <!-- Buy Now -->
-                                                    <form asp-action="ProcessPayment" asp-controller="Payment" method="get">
-                                                        <input type="hidden" name="amount" value="@(book.DiscountPrice != null && book.DiscountUntil != null && book.DiscountUntil.Value >= DateTime.Now ? book.DiscountPrice : book.BuyingPrice)" />
-                                                        <input type="hidden" name="bookId" value="@book.Id" />
-                                                        <button type="submit" class="btn btn-success w-100">Buy Now</button>
-                                                    </form>
+                                                   <form method="post" asp-action="BuyNow" asp-controller="Cart">
+                                                        @Html.AntiForgeryToken()
+                                                        <input type="hidden" name="id" value="@book.Id" />
+                                                        <button type="submit" class="btn btn-secondary w-100">Buy Now</button>
+                                                   </form>
+
                                                     <button class="btn btn-info w-100" onclick="openModal('@book.Id')">View Ratings</button>
 
                                                 }
@@ -373,13 +374,25 @@
 
                                 <!-- Add to Cart (Borrow) -->
                                 @if (book.BorrowPrice > 0)
-                                {
-                                    <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                        <input type="hidden" name="id" value="@book.Id" />
-                                        <input type="hidden" name="isBorrow" value="true" />
-                                        <button type="submit" class="btn btn-secondary">Add to Cart (Borrow)</button>
-                                    </form>
-                                }
+                                                    {
+                                                        @if (book.BorrowCount >= 3)
+                                                        {
+
+                                                            <form asp-action="JoinWaitingList" asp-controller="Home" method="post">
+                                                                <input type="hidden" name="bookId" value="@book.Id" />
+                                                                <button type="submit" class="btn btn-warning mt-2 w-100">Join Waiting List</button>
+                                                            </form>
+
+                                                        }
+                                                        else
+                                                        {
+                                                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
+                                                                <input type="hidden" name="id" value="@book.Id" />
+                                                                <input type="hidden" name="isBorrow" value="true" />
+                                                                <button type="submit" class="btn btn-secondary w-100">Add to Cart (Borrow)</button>
+                                                            </form>
+                                                        }
+                                                    }
                             </div>
                         </div>
                     </div>

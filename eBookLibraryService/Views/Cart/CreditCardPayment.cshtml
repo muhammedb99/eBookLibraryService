@@ -1,0 +1,13 @@
+﻿@model eBookLibraryService.ViewModels.CreditCardPaymentViewModel
+
+<h2>Confirm Your Payment</h2>
+
+<p>Book ID: @Model.BookId</p>
+<p>Amount: $@Model.TotalAmount</p>
+
+<form method="post" asp-action="SubmitCreditCardPaymentBuyNow" asp-controller="Payment">
+    @Html.AntiForgeryToken()
+    <input type="hidden" name="BookId" value="@Model.BookId" />
+    <input type="hidden" name="TotalAmount" value="@Model.TotalAmount" />
+    <button type="submit" class="btn btn-primary">Confirm and Pay</button>
+</form>
