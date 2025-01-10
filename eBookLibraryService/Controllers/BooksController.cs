@@ -183,37 +183,14 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction(nameof(Index));
         }
 
-        public async Task<IActionResult> Details(int id)
+        public async Task<IActionResult> Details(int? id)
         {
-            var book = await _context.Books
-                .Include(b => b.Reviews)
-                .FirstOrDefaultAsync(b => b.Id == id);
+            if (id == null) return NotFound();
 
-            if (book == null)
-            {
-                return NotFound();
-            }
+            var book = await _context.Books.Include(b => b.WaitingList).FirstOrDefaultAsync(m => m.Id == id);
+            if (book == null) return NotFound();
 
-            var model = new BookDetailsWithReviewViewModel
-            {
-                Title = book.Title,
-                Author = book.Author,
-                Publisher = book.Publisher,
-                BorrowPrice = book.BorrowPrice,
-                BuyingPrice = book.BuyingPrice,
-                YearOfPublishing = book.YearOfPublishing,
-                Genre = book.Genre,
-                ImageUrl = book.ImageUrl,
-                Reviews = book.Reviews.Select(r => new ReviewViewModel
-                {
-                    UserEmail = r.UserEmail,
-                    Feedback = r.Feedback,
-                    Rating = r.Rating,
-                    CreatedAt = r.CreatedAt
-                }).ToList()
-            };
-
-            return View(model);
+            return View(book);
         }
 
         private bool ValidateFileLinks(Book book)
