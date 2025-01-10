@@ -174,7 +174,8 @@ namespace eBookLibraryService.Controllers
                         Author = book.Author,
                         IsBorrowed = false,
                         Price = model.TotalAmount,
-                        PurchaseDate = DateTime.Now
+                        PurchaseDate = DateTime.Now,
+                        BorrowDueDate = DateTime.Now.AddDays(30)
                     };
 
                     _context.OwnedBooks.Add(ownedBook);
@@ -251,6 +252,7 @@ namespace eBookLibraryService.Controllers
                     IsBorrowed = isBorrow,
                     Price = price,
                     PurchaseDate = DateTime.Now,
+                    BorrowDueDate = DateTime.Now.AddDays(30)
                 };
 
                 _context.OwnedBooks.Add(ownedBook);

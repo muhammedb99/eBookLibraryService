@@ -21,7 +21,8 @@ namespace eBookLibraryService.ViewModels
         public string EpubLink { get; set; }
         public string F2bLink { get; set; }
         public string MobiLink { get; set; }
-        public DateTime? ReturnDate { get; internal set; }
+        public DateTime? ReturnDate { get; set; }
+        public DateTime? BorrowDueDate { get; set; }
     }
 
 }

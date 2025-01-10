@@ -10,6 +10,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Security.Claims;
 using System.Threading.Tasks;
 
 namespace eBookLibraryService.Controllers
@@ -34,14 +35,11 @@ namespace eBookLibraryService.Controllers
             base.OnActionExecuting(context);
         }
 
-        // View all books
         public async Task<IActionResult> Index()
         {
             var books = await _context.Books.ToListAsync();
-
             var updatedBooks = new List<Book>();
 
-            // Handle discount expiration
             foreach (var book in books)
             {
                 if (book.DiscountPrice.HasValue && book.DiscountPrice > 0)
@@ -66,7 +64,6 @@ namespace eBookLibraryService.Controllers
             return View(books);
         }
 
-        // Admin-only: Manage books
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ManageBooks()
         {
@@ -74,7 +71,6 @@ namespace eBookLibraryService.Controllers
             return View(books);
         }
 
-        // Admin-only: Create books
         [Authorize(Roles = "Admin")]
         public IActionResult Create()
         {
@@ -84,8 +80,7 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Create(
-            [Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
+        public async Task<IActionResult> Create([Bind("Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
         {
             if (ModelState.IsValid)
             {
@@ -107,7 +102,6 @@ namespace eBookLibraryService.Controllers
             return View(book);
         }
 
-        // Admin-only: Edit books
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Edit(int? id)
         {
@@ -122,16 +116,9 @@ namespace eBookLibraryService.Controllers
         [HttpPost]
         [ValidateAntiForgeryToken]
         [Authorize(Roles = "Admin")]
-        public async Task<IActionResult> Edit(
-    int id,
-    [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Title,Author,Publisher,BorrowPrice,BuyingPrice,YearOfPublishing,AgeLimitation,Genre,Popularity,DiscountPrice,DiscountUntil,ImageUrl,PdfLink,EpubLink,F2bLink,MobiLink")] Book book)
         {
             if (id != book.Id) return NotFound();
-
-            // Ensure optional fields are not NULL
-            book.EpubLink = book.EpubLink ?? string.Empty;
-            book.F2bLink = book.F2bLink ?? string.Empty;
-            book.MobiLink = book.MobiLink ?? string.Empty;
 
             if (ModelState.IsValid)
             {
@@ -156,8 +143,6 @@ namespace eBookLibraryService.Controllers
             return View(book);
         }
 
-
-        // Admin-only: Delete books
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> Delete(int? id)
         {
@@ -223,5 +208,36 @@ namespace eBookLibraryService.Controllers
 
             return isValid;
         }
+
+        public IActionResult BorrowBook(int bookId)
+        {
+            var userEmail = User.FindFirstValue(ClaimTypes.Email);
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                return RedirectToAction("Error", "Home");
+            }
+
+            var purchaseDate = DateTime.UtcNow;
+
+            var borrow = new OwnedBook
+            {
+                UserEmail = userEmail,
+                BookId = bookId,
+                PurchaseDate = purchaseDate,
+                BorrowDueDate = purchaseDate.AddDays(30) 
+            };
+
+            _context.OwnedBooks.Add(borrow);
+
+            _context.Entry(borrow).Property(b => b.BorrowDueDate).IsModified = true;
+
+            _context.SaveChanges();
+
+            return RedirectToAction("Index");
+        }
+
+
+
     }
 }

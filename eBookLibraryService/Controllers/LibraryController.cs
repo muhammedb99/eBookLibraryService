@@ -28,7 +28,6 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Fetch owned books
             var ownedBooks = await _context.OwnedBooks
                 .Include(o => o.Book)
                 .Where(o => o.UserEmail == userEmail && !o.IsBorrowed)
@@ -56,7 +55,6 @@ namespace eBookLibraryService.Controllers
                 })
                 .ToListAsync();
 
-            // Fetch borrowed books
             var borrowedBooks = await _context.OwnedBooks
                 .Include(b => b.Book)
                 .Where(b => b.UserEmail == userEmail && b.IsBorrowed)
@@ -81,7 +79,7 @@ namespace eBookLibraryService.Controllers
                         Feedback = r.Feedback,
                         Rating = r.Rating
                     }).ToList(),
-                    ReturnDate = b.IsBorrowed ? DateTime.Now.AddDays(30) : (DateTime?)null // Calculate BorrowEndTime dynamically
+                    BorrowDueDate = b.BorrowDueDate // Use the actual field
                 })
                 .ToListAsync();
 
@@ -93,6 +91,7 @@ namespace eBookLibraryService.Controllers
 
             return View(model);
         }
+
 
         // Add review to a book
         [HttpPost]

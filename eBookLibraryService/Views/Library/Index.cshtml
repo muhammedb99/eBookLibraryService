@@ -1,4 +1,5 @@
-﻿<div class="container">
+﻿<link rel="stylesheet" href="~/css/mylibrary.css" />
+<div class="container">
     <h1>My Library</h1>
 
     @* Owned Books Section *@
@@ -127,22 +128,8 @@
                                 <strong>Year of Publishing:</strong> @book.YearOfPublishing<br />
                                 <strong>Remaining Time:</strong>
                                 @{
-                                    if (book.ReturnDate != null)
-                                    {
-                                        var remainingTime = book.ReturnDate - DateTime.Now;
-                                        if (remainingTime.TotalSeconds > 0)
-                                        {
-                                            <span>@($"{remainingTime.Days} days {remainingTime.Hours} hours {remainingTime.Minutes} minutes")</span>
-                                        }
-                                        else
-                                        {
-                                            <span class="text-danger">Expired</span>
-                                        }
-                                    }
-                                    else
-                                    {
-                                        <span class="text-muted">Not set</span>
-                                    }
+                                    var remainingTime = book.BorrowDueDate - DateTime.Now;
+                                            <span>@($"{remainingTime.Days} days")</span>
                                 }
                             </p>
                             <hr />

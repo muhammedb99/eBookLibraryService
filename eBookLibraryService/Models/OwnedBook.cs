@@ -27,7 +27,7 @@ namespace eBookLibraryService.Models
 
         [Required]
         public float Price { get; set; }
-
+        public DateTime BorrowDueDate { get; set; }
         public DateTime PurchaseDate { get; set; }
     }
 }

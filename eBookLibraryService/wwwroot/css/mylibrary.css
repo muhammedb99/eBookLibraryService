@@ -1,0 +1,121 @@
+﻿/* Global page settings with dark theme adjustments */
+body {
+    background-color: #000; /* Set background to black */
+    color: #fff; /* Set text color to white for contrast */
+    font-family: 'Poppins', sans-serif; /* Consistent font style */
+}
+
+/* Adjust colors for headings for better readability */
+h1, h2, .text-primary {
+    color: #fff;
+}
+
+/* Card and image styling */
+.card {
+    background-color: #1a1a1a; /* Dark grey background for cards */
+    color: #fff; /* Text color for card content */
+    border-radius: 8px;
+    overflow: hidden;
+    height: 400px; /* Adjust card height for uniformity */
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.1); /* Subtle shadow */
+    position: relative;
+    margin-bottom: 20px; /* Add spacing between cards */
+}
+
+.card-img-top {
+    width: 100%;
+    height: 100%; /* Ensure it covers the entire card */
+    object-fit: cover; /* Cover the card without stretching */
+    object-position: center; /* Center the image within the card */
+    transition: transform 0.5s ease; /* Smooth transformation on hover */
+}
+
+.card-body {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    max-height: 100%; /* Restrict height for scrollable content */
+    padding: 20px;
+    background: rgba(0, 0, 0, 0.85); /* Dark overlay for text visibility */
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start; /* Align text at the top */
+    align-items: flex-start; /* Align text to the left */
+    opacity: 0;
+    transition: opacity 0.5s ease;
+    overflow-y: auto; /* Scrollable content if necessary */
+}
+
+.card:hover .card-body {
+    opacity: 1; /* Reveal the content on hover */
+}
+
+.card:hover .card-img-top {
+    transform: scale(1.05); /* Subtle zoom effect on hover */
+}
+
+/* Adjust buttons for consistency */
+.btn-primary, .btn-success, .btn-danger {
+    color: #fff;
+    width: 100%; /* Full-width buttons */
+    margin-top: 10px;
+}
+
+.btn-primary {
+    background-color: #007bff;
+    border-color: #007bff;
+}
+
+.btn-success {
+    background-color: #28a745;
+    border-color: #28a745;
+}
+
+.btn-danger {
+    background-color: #dc3545;
+    border-color: #dc3545;
+}
+
+/* Form and control styles */
+.form-select, .form-control {
+    background-color: #333;
+    color: #fff;
+    border: 1px solid #444;
+}
+
+    .form-select:focus, .form-control:focus {
+        background-color: #555;
+        color: #fff;
+        border-color: #666;
+        box-shadow: 0 0 0 0.2rem rgba(255, 255, 255, 0.25);
+    }
+
+/* Miscellaneous styles */
+.shadow-sm {
+    box-shadow: 0 .125rem .25rem rgba(0, 0, 0, 0.075);
+}
+
+.mb-2, .mb-3, .mb-4 {
+    margin-bottom: 1rem;
+}
+
+.text-primary {
+    color: #007bff;
+}
+
+.text-success {
+    color: #28a745;
+}
+
+.text-danger {
+    color: #dc3545;
+}
+
+/* Responsive adjustments */
+@media (min-width: 768px) {
+    .col-md-4 {
+        flex: 0 0 33.333333%;
+        max-width: 33.333333%;
+    }
+}

@@ -17,23 +17,113 @@
 
 <body>
     <!-- Welcome Section -->
-    <section id="Welcome" class="welcome-section">
+    <section id="Welcome">
         <div class="welcome-content">
             @if (User.Identity.IsAuthenticated)
             {
                 var user = await UserManager.GetUserAsync(User);
                 var userName = user?.FullName ?? User.Identity.Name ?? "User";
-                <h1 class="welcome-heading">Welcome Back, @userName!</h1>
+                <h1 class="welcome-heading">Welcome, @userName!</h1>
             }
             else
             {
                 <h1 class="welcome-heading">Welcome to the eBook Library!</h1>
             }
             <p class="welcome-message">Discover thousands of books across various genres. Dive into your next adventure!</p>
-            <a href="#Allbooks" class="btn btn-primary btn-lg">Explore Books</a>
         </div>
     </section>
+    <section class="filter-section text-center my-4">
+        <button class="btn btn-primary btn-lg" onclick="openFilterModal()">Filter and Sort</button>
+    </section>
 
+    <!-- Filter and Sort Modal -->
+    <div id="filterModal" class="custom-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); z-index: 1000;">
+        <div style="background: white; margin: 10% auto; padding: 20px; max-width: 600px; border-radius: 10px; position: relative;">
+            <h4 class="text-dark mb-4">Filter and Sort Books</h4>
+            <button onclick="closeFilterModal()" style="position: absolute; top: 10px; right: 10px; background: none; border: none; font-size: 18px; cursor: pointer;">&times;</button>
+            <form method="get" asp-action="Index" asp-controller="Home">
+                <!-- Search Query -->
+                <div class="mb-3">
+                    <label for="query" class="form-label">Search</label>
+                    <input type="text" name="query" id="query" class="form-control" placeholder="Search by title or author" />
+                </div>
+
+                <!-- Filter Form -->
+                <h5 class="mb-3">Filters</h5>
+                <div class="mb-3">
+                    <label for="author" class="form-label">Author</label>
+                    <input type="text" name="author" id="author" class="form-control" placeholder="Author name" />
+                </div>
+                <div class="mb-3">
+                    <label for="genre" class="form-label">Genre</label>
+                    <select name="genre" id="genre" class="form-select">
+                        <option value="">Select Genre</option>
+                        @if (ViewBag.GenreBooks?.Keys != null)
+                        {
+                            foreach (var genre in ViewBag.GenreBooks.Keys)
+                            {
+                                <option value="@genre">@genre</option>
+                            }
+                        }
+                    </select>
+                </div>
+                <div class="mb-3">
+                    <label for="priceRange" class="form-label">Price Range</label>
+                    <div class="d-flex">
+                        <input type="number" step="0.01" name="minPrice" id="minPrice" class="form-control me-2" placeholder="Min" />
+                        <input type="number" step="0.01" name="maxPrice" id="maxPrice" class="form-control" placeholder="Max" />
+                    </div>
+                </div>
+
+                <!-- Method Filter -->
+                <div class="mb-3">
+                    <label for="method" class="form-label">Method</label>
+                    <select name="method" id="method" class="form-select">
+                        <option value="">All</option>
+                        <option value="buy">Buy</option>
+                        <option value="borrow">Borrow</option>
+                    </select>
+                </div>
+
+                <!-- Year Filter -->
+                <div class="mb-3">
+                    <label for="year" class="form-label">Year</label>
+                    <input type="number" name="year" id="year" class="form-control" placeholder="Year of Publishing" />
+                </div>
+
+                <!-- Publisher Filter -->
+                <div class="mb-3">
+                    <label for="publisher" class="form-label">Publisher</label>
+                    <input type="text" name="publisher" id="publisher" class="form-control" placeholder="Publisher" />
+                </div>
+
+                <!-- On Sale Filter -->
+                <div class="mb-3">
+                    <input type="checkbox" name="isOnSale" id="isOnSale" value="true" />
+                    <label for="isOnSale" class="form-label">Only On Sale</label>
+                </div>
+
+                <!-- Sort Form -->
+                <h5 class="mb-3 mt-4">Sort By</h5>
+                <div class="mb-3">
+                    <select name="sortOrder" class="form-select">
+                        <option value="">-- Sort By --</option>
+                        <option value="price_asc">Price (Low to High)</option>
+                        <option value="price_desc">Price (High to Low)</option>
+                        <option value="popular">Most Popular</option>
+                        <option value="genre">Genre</option>
+                        <option value="year">Year of Publishing</option>
+                    </select>
+                </div>
+
+                <!-- Action Buttons -->
+                <div class="text-center mt-4">
+                    <button class="btn btn-primary me-2" type="submit">Apply</button>
+                    <button type="button" class="btn btn-secondary" onclick="closeFilterModal()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div>
     <!-- All Books Section -->
     <section id="Allbooks" class="container mt-4">
         @if (TempData["CartMessage"] != null)
@@ -46,7 +136,7 @@
             <!-- Books Section -->
             <div class="col-lg-9">
                 <section id="all-books">
-                    <h4 class="mb-4">All Books</h4>
+                    <h3 class="mb-4">Books</h3>
                     <div class="row">
                         @if (!Model.Any())
                         {
@@ -117,6 +207,7 @@
                                                         <button type="submit" class="btn btn-secondary w-100">Buy Now</button>
                                                     </form>
                                                     <button class="btn btn-info w-100" onclick="openModal('@book.Id')">View Ratings</button>
+
                                                 }
                                                 else
                                                 {
@@ -160,63 +251,34 @@
                     </div>
                 </section>
             </div>
+            <script>
+                    function openModal(bookId) {
+                    const modal = document.getElementById(`ratingsModal-${bookId}`);
+                    if (modal) {
+                        modal.style.display = 'block';
+                    }
+                }
 
-            <!-- Filter and Sort Section -->
-            <div class="col-lg-3">
-                <div class="bg-light p-4 rounded shadow-sm mb-4">
-                    <form method="get" asp-action="Index" asp-controller="Home">
-                        <h4 class="text-dark mb-3">Filter Books</h4>
-                        <div class="mb-3">
-                            <label for="author" class="form-label">Author</label>
-                            <input type="text" name="author" id="author" class="form-control" placeholder="Author name" />
-                        </div>
-                        <div class="mb-3">
-                            <label for="genre" class="form-label">Genre</label>
-                            <select name="genre" id="genre" class="form-select">
-                                <option value="">Select Genre</option>
-                                @if (ViewBag.GenreBooks?.Keys != null)
-                                {
-                                    foreach (var genre in ViewBag.GenreBooks.Keys)
-                                    {
-                                        <option value="@genre">@genre</option>
-                                    }
-                                }
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="method" class="form-label">Method</label>
-                            <select name="method" id="method" class="form-select">
-                                <option value="">All</option>
-                                <option value="buy">Buy</option>
-                                <option value="borrow">Borrow</option>
-                            </select>
-                        </div>
-                        <div class="mb-3">
-                            <label for="priceRange" class="form-label">Price Range</label>
-                            <div class="d-flex">
-                                <input type="number" step="0.01" name="minPrice" id="minPrice" class="form-control me-2" placeholder="Min" />
-                                <input type="number" step="0.01" name="maxPrice" id="maxPrice" class="form-control" placeholder="Max" />
-                            </div>
-                        </div>
-                        <button class="btn btn-primary w-100" type="submit">Apply Filters</button>
-                    </form>
-                </div>
+                // Function to close the modal
+                function closeModal(bookId) {
+                    const modal = document.getElementById(`ratingsModal-${bookId}`);
+                    if (modal) {
+                        modal.style.display = 'none';
+                    }
+                }
 
-                <div class="bg-light p-4 rounded shadow-sm">
-                    <form method="get" asp-action="Index" asp-controller="Home">
-                        <h4 class="text-dark mb-3">Sort Books</h4>
-                        <div class="mb-3">
-                            <select name="sortOrder" class="form-select">
-                                <option value="">-- Sort By --</option>
-                                <option value="price_asc">Price (Low to High)</option>
-                                <option value="price_desc">Price (High to Low)</option>
-                                <option value="popular">Most Popular</option>
-                                <option value="genre">Genre</option>
-                                <option value="year">Year of Publishing</option>
-                            </select>
-                        </div>
-                        <button class="btn btn-primary w-100" type="submit">Sort</button>
-                    </form>
+                // Close modal when clicking outside of it
+                window.addEventListener('click', function (event) {
+                    const modals = document.querySelectorAll('.custom-modal');
+                    modals.forEach(modal => {
+                        if (event.target === modal) {
+                            modal.style.display = 'none';
+                        }
+                    });
+                });
+            </script>
+           
+       
                 </div>
             </div>
         </div>
@@ -279,81 +341,16 @@
             }
         </div>
     </section>
+    <script>
+        function openFilterModal() {
+            document.getElementById('filterModal').style.display = 'block';
+        }
+
+        function closeFilterModal() {
+            document.getElementById('filterModal').style.display = 'none';
+        }
+    </script>
 </body>
 
-@foreach (var genre in ViewBag.GenreBooks.Keys)
-{
-    <section id="@genre.ToLower().Replace(" ", "-")-section" class="mt-5">
-        <h4>@genre</h4>
-        <div class="row">
-            @foreach (var book in ViewBag.GenreBooks[genre])
-            {
-                <div class="col-md-4 mb-4">
-                    <div class="card shadow-sm">
-                        <img src="@book.ImageUrl" alt="@book.Title" class="card-img-top" style="height: 200px; object-fit: cover;">
-                        <div class="card-body">
-                            <h5 class="card-title">@book.Title</h5>
-                            <p class="card-text">
-                                <strong>Author:</strong> @book.Author<br />
-                                <strong>Genre:</strong> @book.Genre<br />
-                                <strong>Publisher:</strong> @book.Publisher<br />
-                                <strong>Year of Publishing:</strong> @book.YearOfPublishing<br />
 
-                                <!-- Price details -->
-                                @if (book.DiscountPrice != null && book.DiscountUntil != null && book.DiscountUntil >= DateTime.Now)
-                                {
-                                    <strong>Price (Buy):</strong>
-                                    <span style="text-decoration: line-through;">@book.BuyingPrice $</span>
-                                    <span class="text-success">@book.DiscountPrice $</span>
-                                    <br />
-                                }
-                                else
-                                {
-                                    <strong>Price (Buy):</strong> @book.BuyingPrice <span>$</span>
-                                    <br />
-                                }
 
-                                @if (book.BorrowPrice > 0)
-                                {
-                                    <strong>Price (Borrow):</strong> @book.BorrowPrice <span>$</span>
-                                    <br />
-                                }
-                            </p>
-                            <div class="d-flex justify-content-between">
-                                <!-- Add to Cart (Buy) -->
-                                <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                    <input type="hidden" name="id" value="@book.Id" />
-                                    <input type="hidden" name="isBorrow" value="false" />
-                                    <button type="submit" class="btn btn-primary">Add to Cart (Buy)</button>
-                                </form>
-
-                                <!-- Add to Cart (Borrow) -->
-                                @if (book.BorrowPrice > 0)
-                                                    {
-                                                        @if (book.BorrowCount >= 3)
-                                                        {
-
-                                                            <form asp-action="JoinWaitingList" asp-controller="Home" method="post">
-                                                                <input type="hidden" name="bookId" value="@book.Id" />
-                                                                <button type="submit" class="btn btn-warning mt-2 w-100">Join Waiting List</button>
-                                                            </form>
-
-                                                        }
-                                                        else
-                                                        {
-                                                            <form asp-action="AddToCart" asp-controller="Cart" method="post">
-                                                                <input type="hidden" name="id" value="@book.Id" />
-                                                                <input type="hidden" name="isBorrow" value="true" />
-                                                                <button type="submit" class="btn btn-secondary w-100">Add to Cart (Borrow)</button>
-                                                            </form>
-                                                        }
-                                                    }
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            }
-        </div>
-    </section>
-
-}
