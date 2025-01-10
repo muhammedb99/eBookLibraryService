@@ -8,7 +8,7 @@
     <table class="table">
         <thead>
             <tr>
-                <th>@Html.DisplayNameFor(model => model.ImageUrl)</th> <!-- Image column -->
+                <th>@Html.DisplayNameFor(model => model.ImageUrl)</th> 
                 <th>@Html.DisplayNameFor(model => model.Title)</th>
 				<th>@Html.DisplayNameFor(model => model.Author)</th>
                 <th>@Html.DisplayNameFor(model => model.BorrowCount)</th>
@@ -20,7 +20,6 @@
             {
                 <tr>
                     <td>
-                        <!-- Display the image using the ImageUrl property -->
                         <img src="@book.ImageUrl" alt="@book.Title" style="width: 50px; height: 75px; object-fit: cover;" />
                     </td>
                     <td>@book.Title</td>

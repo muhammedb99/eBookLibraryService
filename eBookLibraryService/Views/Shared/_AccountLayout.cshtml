@@ -5,17 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>@ViewBag.Title - eBookLibraryService</title>
 
-    <!-- Fonts and Icon Libraries -->
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet" />
 
-    <!-- CSS Stylesheets -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
     <link rel="stylesheet" href="~/css/account.css" asp-append-version="true" />
     <style>
-        /* Apply a subtle background for account pages */
         body {
-            background-color: #f8f9fa; /* Light gray for contrast */
+            background-color: #f8f9fa; 
             font-family: 'Poppins', sans-serif;
             margin: 0;
             padding: 0;
@@ -25,7 +22,6 @@
             min-height: 100vh;
         }
 
-        /* Center content within the layout */
         .account-layout {
             width: 100%;
             max-width: 500px;
@@ -35,7 +31,6 @@
             box-shadow: 0 4px 15px rgba(0, 0, 0, 0.1);
         }
 
-        /* Title styling */
         h1.page-title {
             text-align: center;
             font-size: 1.8rem;
@@ -46,12 +41,10 @@
     </style>
 </head>
 <body>
-    <!-- Layout Wrapper -->
     <div class="account-layout">
         @RenderBody()
     </div>
 
-    <!-- JavaScript Libraries -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
@@ -59,7 +52,6 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.5/jquery.validate.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 
-    <!-- Additional Scripts Section -->
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 </html>

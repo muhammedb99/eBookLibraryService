@@ -38,16 +38,14 @@
 
 @section Scripts {
     <script>
-        // Automatic MM/YY Formatting
         document.getElementById("ExpirationDate").addEventListener("input", function (e) {
-            let value = e.target.value.replace(/[^0-9]/g, ""); // Remove non-numeric characters
+            let value = e.target.value.replace(/[^0-9]/g, ""); 
             if (value.length > 2) {
-                value = value.substring(0, 2) + "/" + value.substring(2, 4); // Add slash after MM
+                value = value.substring(0, 2) + "/" + value.substring(2, 4); 
             }
-            e.target.value = value.substring(0, 5); // Limit to MM/YY format
+            e.target.value = value.substring(0, 5); 
         });
 
-        // Expiry date validation
         document.getElementById("ExpirationDate").addEventListener("blur", function (e) {
             const today = new Date();
             const currentMonth = today.getMonth() + 1;
@@ -65,13 +63,12 @@
             } else if (year === currentYear && month < currentMonth) {
                 errorSpan.textContent = "Expiration date must be in the future.";
             } else {
-                errorSpan.textContent = ""; // Clear error if valid
+                errorSpan.textContent = ""; 
             }
         });
 
-        // Card Number Validation
         document.getElementById("CardNumber").addEventListener("input", function (e) {
-            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 16); // Only digits, max length 16
+            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 16); 
             e.target.value = value;
             const errorSpan = document.querySelector("[asp-validation-for='CardNumber']");
             if (value.length !== 16) {
@@ -81,9 +78,8 @@
             }
         });
 
-        // CVV Validation
         document.getElementById("CVV").addEventListener("input", function (e) {
-            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 3); // Only digits, max length 3
+            const value = e.target.value.replace(/[^0-9]/g, "").slice(0, 3); 
             e.target.value = value;
             const errorSpan = document.querySelector("[asp-validation-for='CVV']");
             if (value.length !== 3) {
@@ -93,23 +89,21 @@
             }
         });
 
-        // Cardholder Name Validation
         document.getElementById("CardHolderName").addEventListener("input", function (e) {
             const value = e.target.value;
             const errorSpan = document.querySelector("[asp-validation-for='CardHolderName']");
             if (/[^a-zA-Z ]/.test(value)) {
                 errorSpan.textContent = "Cardholder name must contain only letters and spaces.";
             } else {
-                errorSpan.textContent = ""; // Clear error if valid
+                errorSpan.textContent = ""; 
             }
         });
 
-        // Prevent form submission if there are validation errors
         document.querySelector("form").addEventListener("submit", function (e) {
             const errorSpans = document.querySelectorAll(".text-danger");
             const hasErrors = Array.from(errorSpans).some(span => span.textContent !== "");
             if (hasErrors) {
-                e.preventDefault(); // Stop form submission
+                e.preventDefault(); 
             }
         });
     </script>

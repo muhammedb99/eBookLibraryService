@@ -40,6 +40,7 @@ builder.Services.AddSession(options =>
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true;
 });
+builder.Services.AddHostedService<DeleteExpiredBorrowingsService>();
 
 // Register NotificationService with configuration from appsettings.json
 builder.Services.AddScoped<NotificationService>(provider =>

@@ -185,7 +185,11 @@
                                                     </form>
                                                     @if (book.BorrowPrice > 0)
                                                     {
-                                                        @if (book.BorrowCount >= 3)
+                                                        @if ((ViewBag.BorrowedBooksCount ?? 0) + (ViewBag.CartBooksCount ?? 0) >= 3)
+                                                        {
+                                                            <button class="btn btn-secondary w-100" disabled>You reached the borrowing limit</button>
+                                                        }
+                                                        else if (book.BorrowCount >= 3)
                                                         {
                                                             <form asp-action="JoinWaitingList" asp-controller="Home" method="post">
                                                                 <input type="hidden" name="bookId" value="@book.Id" />
@@ -201,6 +205,7 @@
                                                             </form>
                                                         }
                                                     }
+
                                                     <form method="post" asp-action="BuyNow" asp-controller="Cart">
                                                         @Html.AntiForgeryToken()
                                                         <input type="hidden" name="id" value="@book.Id" />

@@ -12,9 +12,7 @@
 </head>
 
 
-<!-- Payment Options -->
 <div>
-    <!-- Credit Card Payment -->
     <div class="form-check">
         <input class="form-check-input"
                type="radio"
@@ -25,7 +23,6 @@
         <label class="form-check-label" for="creditCard">Credit Card</label>
     </div>
 
-    <!-- PayPal Payment -->
     <div class="mt-4">
         <p>Or, pay directly with PayPal:</p>
         <a href="https://paypal.me/ebookstore22/@Model.TotalAmount.ToString("F2")" target="_blank" style="
@@ -46,7 +43,6 @@
 </div>
 
 <script>
-    // JavaScript function to handle redirection
     function redirectTo(action, totalAmount) {
         const url = `/Payment/${action}?amount=${totalAmount}`;
         window.location.href = url;

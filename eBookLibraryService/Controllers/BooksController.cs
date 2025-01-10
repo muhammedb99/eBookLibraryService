@@ -37,9 +37,36 @@ namespace eBookLibraryService.Controllers
 
         public async Task<IActionResult> Index()
         {
+            // Retrieve the current user's email
+            var userEmail = User.Identity?.Name;
+
+            // Redirect to login if user is not authenticated
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to view books.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            // Count borrowed books for the current user
+            var borrowedBooksCount = await _context.OwnedBooks
+                .Where(o => o.UserEmail == userEmail && o.IsBorrowed)
+                .CountAsync();
+
+            // Count books in the cart marked for borrowing
+            var cartBooksCount = await _context.CartItems
+                .Include(ci => ci.Cart)
+                .Where(ci => ci.Cart.UserEmail == userEmail && ci.IsBorrow)
+                .CountAsync();
+
+            // Ensure values are never null
+            ViewBag.BorrowedBooksCount = borrowedBooksCount > 0 ? borrowedBooksCount : 0;
+            ViewBag.CartBooksCount = cartBooksCount > 0 ? cartBooksCount : 0;
+
+            // Fetch all books from the database
             var books = await _context.Books.ToListAsync();
             var updatedBooks = new List<Book>();
 
+            // Check and update books with expired discounts
             foreach (var book in books)
             {
                 if (book.DiscountPrice.HasValue && book.DiscountPrice > 0)
@@ -47,6 +74,7 @@ namespace eBookLibraryService.Controllers
                     var discountStartDate = book.CreatedDate;
                     var discountEndDate = discountStartDate.AddDays(7);
 
+                    // If the discount has expired, clear the discount price
                     if (DateTime.Now > discountEndDate)
                     {
                         book.DiscountPrice = null;
@@ -55,14 +83,18 @@ namespace eBookLibraryService.Controllers
                 }
             }
 
+            // Save changes for books with updated discount prices
             if (updatedBooks.Any())
             {
                 _context.UpdateRange(updatedBooks);
                 await _context.SaveChangesAsync();
             }
 
+            // Return the list of books to the view
             return View(books);
         }
+
+
 
         [Authorize(Roles = "Admin")]
         public async Task<IActionResult> ManageBooks()
@@ -225,19 +257,13 @@ namespace eBookLibraryService.Controllers
                 UserEmail = userEmail,
                 BookId = bookId,
                 PurchaseDate = purchaseDate,
-                BorrowDueDate = purchaseDate.AddDays(30) 
+                BorrowDueDate = purchaseDate.AddDays(30)
             };
 
             _context.OwnedBooks.Add(borrow);
-
-            _context.Entry(borrow).Property(b => b.BorrowDueDate).IsModified = true;
-
             _context.SaveChanges();
 
             return RedirectToAction("Index");
         }
-
-
-
     }
 }

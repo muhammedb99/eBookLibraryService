@@ -103,6 +103,23 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index", "Home");
             }
 
+            // Count borrowed books
+            var borrowedBooksCount = await _context.OwnedBooks
+                .Where(o => o.UserEmail == userEmail && o.IsBorrowed)
+                .CountAsync();
+
+            // Count books in the cart marked for borrowing
+            var cartBooksCount = await _context.CartItems
+                .Where(ci => ci.Cart.UserEmail == userEmail && ci.IsBorrow)
+                .CountAsync();
+
+            // Enforce borrowing limit
+            if (isBorrow && (borrowedBooksCount + cartBooksCount) >= 3)
+            {
+                TempData["CartMessage"] = "You have reached the borrowing limit of 3 books.";
+                return RedirectToAction("Index", "Home");
+            }
+
             // Fetch the book
             var book = await _context.Books.FirstOrDefaultAsync(b => b.Id == id);
             if (book == null)
@@ -142,6 +159,7 @@ namespace eBookLibraryService.Controllers
             TempData["CartMessage"] = isBorrow ? "Book added to your cart for borrowing." : "Book added to your cart for buying.";
             return RedirectToAction("Index", "Home");
         }
+
 
         public async Task<IActionResult> Index()
         {

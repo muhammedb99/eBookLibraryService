@@ -79,7 +79,7 @@ namespace eBookLibraryService.Controllers
                         Feedback = r.Feedback,
                         Rating = r.Rating
                     }).ToList(),
-                    BorrowDueDate = b.BorrowDueDate // Use the actual field
+                    BorrowDueDate = b.BorrowDueDate 
                 })
                 .ToListAsync();
 
@@ -93,7 +93,6 @@ namespace eBookLibraryService.Controllers
         }
 
 
-        // Add review to a book
         [HttpPost]
         public async Task<IActionResult> AddReview(int bookId, string feedback, int rating)
         {
@@ -111,7 +110,6 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Check if the book exists
             var book = await _context.Books.FindAsync(bookId);
             if (book == null)
             {
@@ -119,7 +117,6 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Check if the user already reviewed the book
             var existingReview = await _context.Reviews.FirstOrDefaultAsync(r => r.BookId == bookId && r.UserEmail == userEmail);
             if (existingReview != null)
             {
@@ -127,7 +124,6 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Index");
             }
 
-            // Create the review
             var review = new Review
             {
                 BookId = bookId,
@@ -144,7 +140,6 @@ namespace eBookLibraryService.Controllers
             return RedirectToAction("Index");
         }
 
-        // Download file based on file type
         public async Task<IActionResult> DownloadFile(string fileType, int bookId)
         {
             if (string.IsNullOrEmpty(fileType))
@@ -178,7 +173,6 @@ namespace eBookLibraryService.Controllers
             return Redirect(fileUrl);
         }
 
-        // Delete an owned book
         [HttpPost]
         public async Task<IActionResult> DeleteOwnedBook(int bookId)
         {
@@ -190,7 +184,6 @@ namespace eBookLibraryService.Controllers
                 return RedirectToAction("Login", "Account");
             }
 
-            // Find the owned book entry
             var ownedBook = await _context.OwnedBooks
                 .FirstOrDefaultAsync(o => o.BookId == bookId && o.UserEmail == userEmail && !o.IsBorrowed);
 
@@ -206,5 +199,26 @@ namespace eBookLibraryService.Controllers
             TempData["SuccessMessage"] = "The book has been successfully removed from your library.";
             return RedirectToAction("Index");
         }
+
+        public async Task<IActionResult> BorrowedBooks()
+        {
+            var userEmail = User.Identity?.Name;
+
+            if (string.IsNullOrEmpty(userEmail))
+            {
+                TempData["ErrorMessage"] = "You must be logged in to view borrowed books.";
+                return RedirectToAction("Login", "Account");
+            }
+
+            var borrowedBooks = await _context.OwnedBooks
+                .Include(b => b.Book)
+                .Where(b => b.UserEmail == userEmail && b.IsBorrowed)
+                .ToListAsync();
+
+            ViewBag.BorrowedBooksCount = borrowedBooks.Count;
+
+            return View(borrowedBooks); 
+        }
+
     }
 }
