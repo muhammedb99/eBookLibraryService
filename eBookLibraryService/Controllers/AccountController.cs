@@ -75,7 +75,6 @@ namespace eBookLibraryService.Controllers
 
                 if (result.Succeeded)
                 {
-                    // Send Welcome Email
                     var emailMessage = $@"<h1>Welcome to eBookLibraryService!</h1>
                                         <p>Dear {model.Name},</p>
                                         <p>Thank you for signing up for eBookLibraryService. We’re excited to have you on board!</p>
@@ -117,14 +116,11 @@ namespace eBookLibraryService.Controllers
                 }
                 else
                 {
-                    // Generate a random 6-digit verification code
                     var verificationCode = new Random().Next(100000, 999999).ToString();
 
-                    // Store the code in TempData (or database for persistence)
                     TempData["VerificationCode"] = verificationCode;
                     TempData["Email"] = model.Email;
 
-                    // Send the code to the user's email
                     await SendVerificationCodeEmailAsync(model.Email, verificationCode);
 
                     TempData["Message"] = "Verification code has been sent to your email. Please check your inbox.";
@@ -160,7 +156,6 @@ namespace eBookLibraryService.Controllers
             }
             catch (Exception ex)
             {
-                // Log or handle email sending exceptions
                 Console.WriteLine($"Error sending email: {ex.Message}");
             }
         }
@@ -180,11 +175,9 @@ namespace eBookLibraryService.Controllers
                 return NotFound("User not found.");
             }
 
-            // Verify the token
             var result = await _userManager.VerifyUserTokenAsync(user, TokenOptions.DefaultProvider, "ResetPassword", token);
             if (result)
             {
-                // Redirect to Change Password page
                 return RedirectToAction("ChangePassword", new { username = user.UserName });
             }
 
@@ -470,18 +463,15 @@ namespace eBookLibraryService.Controllers
 
             if (code == storedCode)
             {
-                // Clear TempData after successful verification
                 TempData.Remove("VerificationCode");
                 TempData.Remove("Email");
 
-                // Redirect to Change Password
                 return RedirectToAction("ChangePassword", new { email = email });
             }
 
-            // Add error message if the code is incorrect
             ModelState.AddModelError("", "The verification code you entered is incorrect. Please try again.");
-            TempData.Keep("VerificationCode"); // Keep the verification code for the next attempt
-            TempData.Keep("Email"); // Keep the email for the next attempt
+            TempData.Keep("VerificationCode"); 
+            TempData.Keep("Email"); 
             return View();
         }
 
