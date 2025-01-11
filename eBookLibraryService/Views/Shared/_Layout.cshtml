@@ -1,4 +1,4 @@
-﻿﻿@using Microsoft.AspNetCore.Identity;
+﻿@using Microsoft.AspNetCore.Identity;
 @inject SignInManager<Users> signInManager;
 @inject UserManager<Users> userManager;
 <!DOCTYPE html>
@@ -10,12 +10,11 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
 
-    <!-- Bootstrap and Custom Styles -->
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
-    <link rel="stylesheet" href="~/css/Style1.css" /> <!-- Link to your custom CSS file -->
-
+    <link rel="stylesheet" href="~/css/Style1.css" /> 
+    @RenderSection("Styles", required: false)
 </head>
-<body>
+<body class="d-flex flex-column min-vh-100">
     <header>
         <nav class="navbar navbar-expand-sm navbar-dark" style="background-color: #2c2f38;">
             <div class="container-fluid">
@@ -34,7 +33,7 @@
                         </li>
                         @if (signInManager.IsSignedIn(User))
                         {
-                            var user = await userManager.GetUserAsync(User); 
+                            var user = await userManager.GetUserAsync(User);
                             if (user != null && await userManager.IsInRoleAsync(user, "Admin"))
                             {
                                 <li class="nav-item">
@@ -44,11 +43,12 @@
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Library" asp-action="Index">My Library</a>
                             </li>
-
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Contact" asp-action="Index">Contact Us</a>
+                            </li>
                         }
                     </ul>
 
-                    <!-- Search Section -->
                     <form class="d-flex me-3" action="@Url.Action("Index", "Home")#Allbooks" method="get">
                         <input type="text" name="query" class="form-control me-2" placeholder="Search for eBooks..." />
                         <button class="btn btn-outline-light" type="submit">
@@ -56,8 +56,6 @@
                         </button>
                     </form>
 
-
-                    <!-- Cart Section -->
                     <form class="d-flex" action="@Url.Action("Index", "Cart")" method="get">
                         <button class="btn btn-outline-light position-relative" type="submit">
                             <i class="fas fa-shopping-cart"></i>
@@ -110,18 +108,15 @@
             </div>
         </nav>
     </header>
-    <div class="container">
-        <main role="main" class="pb-3">
-            @RenderBody()
-        </main>
-    </div>
-
-    <footer class="mt-auto py-3 text-center bg-dark text-white">
-        &copy; 2025 - eBookLibraryService - <a asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
+    <main class="flex-grow-1 container py-4">
+        @RenderBody()
+    </main>
+    <footer class="bg-dark text-white text-center py-3">
+        &copy; 2025 - eBookLibraryService - <a asp-area="" asp-controller="Home" asp-action="Privacy" class="text-warning">Privacy</a>
     </footer>
+
     @RenderSection("Scripts", required: false)
 
-    <!-- JavaScript files -->
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>

@@ -4,7 +4,6 @@
     <h1 class="text-center">My Profile</h1>
     <hr />
 
-    <!-- Success Message -->
     @if (TempData["Message"] != null)
     {
         <div class="alert alert-success text-center">
@@ -12,7 +11,6 @@
         </div>
     }
 
-    <!-- Profile Fields -->
     <dl class="row">
         <dt class="col-sm-4">Full Name</dt>
         <dd class="col-sm-6">@Model.FullName</dd>
@@ -85,20 +83,6 @@
             </form>
         </div>
     </dl>
-    @if (Model.BorrowedBooks.Any())
-    {
-        <h4>Your Borrowed Books</h4>
-        <ul>
-            @foreach (var book in Model.BorrowedBooks)
-            {
-                <li>@book.Title - Return by @book.ReturnDate.ToShortDateString()</li>
-            }
-        </ul>
-    }
-    else
-    {
-        <p>You haven't borrowed any books yet.</p>
-    }
 </div>
 
 @section Scripts {

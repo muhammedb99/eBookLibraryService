@@ -1,0 +1,62 @@
+﻿@model eBookLibraryService.Models.ContactForm
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<div class="contact-form-container">
+    <div class="row justify-content-center">
+        <div class="col-lg-8 col-md-10">
+            <div class="contact-card shadow-lg">
+                <div class="card-header text-center bg-dark text-white">
+                    <h2>Contact Us</h2>
+                </div>
+                <div class="card-body bg-secondary text-white">
+                    @if (TempData["SuccessMessage"] != null)
+                    {
+                        <div class="alert alert-success text-center">
+                            <i class="fas fa-check-circle"></i> @TempData["SuccessMessage"]
+                        </div>
+                    }
+                    @if (TempData["ErrorMessage"] != null)
+                    {
+                        <div class="alert alert-danger text-center">
+                            <i class="fas fa-exclamation-circle"></i> @TempData["ErrorMessage"]
+                        </div>
+                    }
+
+                    <form asp-action="Index" method="post" class="needs-validation" novalidate>
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="FullName" class="form-label text-white">Full Name</label>
+                            <input asp-for="FullName" class="form-control" placeholder="Enter your full name" />
+                            <span asp-validation-for="FullName" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Email" class="form-label text-white">Email</label>
+                            <input asp-for="Email" class="form-control" placeholder="Enter your email address" />
+                            <span asp-validation-for="Email" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Subject" class="form-label text-white">Subject</label>
+                            <input asp-for="Subject" class="form-control" placeholder="Enter the subject" />
+                            <span asp-validation-for="Subject" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Message" class="form-label text-white">Message</label>
+                            <textarea asp-for="Message" class="form-control" rows="5" placeholder="Write your message here..."></textarea>
+                            <span asp-validation-for="Message" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-dark w-100">
+                            <i class="fas fa-paper-plane"></i> Send Message
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
