@@ -23,7 +23,7 @@
                 <td>
                     <form asp-action="RemoveFromWaitingList" asp-controller="Dashboard" method="post">
                         <input type="hidden" name="id" value="@entry.Id" />
-                        <button type="submit" class="btn btn-danger">Remove</button>
+                        <button type="submit" class="btn btn-danger" onclick="return confirm('Are you sure you want to delete this user from the waitinglist?');">Remove</button>
                     </form>
                 </td>
             </tr>

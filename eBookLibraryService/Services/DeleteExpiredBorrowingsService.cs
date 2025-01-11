@@ -1,12 +1,6 @@
-﻿using System;
-using System.Linq;
-using System.Threading;
-using System.Threading.Tasks;
-using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
+﻿using eBookLibraryService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Logging;
-using eBookLibraryService.Data;
 
 public class DeleteExpiredBorrowingsService : BackgroundService
 {
@@ -29,7 +23,19 @@ public class DeleteExpiredBorrowingsService : BackgroundService
 
                 var today = DateTime.UtcNow.Date;
 
-                // Find all expired borrowed books
+                var booksToRemind = await context.OwnedBooks
+                    .Where(b => b.IsBorrowed && b.BorrowDueDate.Date == today.AddDays(5))
+                    .Include(b => b.Book)
+                    .ToListAsync();
+
+                foreach (var book in booksToRemind)
+                {
+                    await SendReminderAsync(book.UserEmail, book.Book.Title, book.BorrowDueDate);
+
+                    _logger.LogInformation("Reminder sent to {Email} for book '{BookTitle}' due on {DueDate}.",
+                        book.UserEmail, book.Book.Title, book.BorrowDueDate);
+                }
+
                 var expiredBooks = await context.OwnedBooks
                     .Where(b => b.BorrowDueDate.Date <= today && b.IsBorrowed)
                     .Include(b => b.Book)
@@ -37,47 +43,50 @@ public class DeleteExpiredBorrowingsService : BackgroundService
 
                 foreach (var expiredBook in expiredBooks)
                 {
-                    // Remove the expired borrowing
                     context.OwnedBooks.Remove(expiredBook);
 
-                    // Check waiting list for the book
                     var waitingListEntry = await context.WaitingListEntries
                         .Where(w => w.BookId == expiredBook.BookId)
-                        .OrderBy(w => w.DateAdded) // Get the earliest request
+                        .OrderBy(w => w.DateAdded) 
                         .FirstOrDefaultAsync();
 
                     if (waitingListEntry != null)
                     {
-                        // Notify the user that they can borrow the book
                         await NotifyUserAsync(waitingListEntry.UserId, expiredBook.Book.Title);
 
-                        // Remove the user from the waiting list
                         context.WaitingListEntries.Remove(waitingListEntry);
                     }
                 }
 
-                // Save changes to the database
-                if (expiredBooks.Any())
+                if (expiredBooks.Any() || booksToRemind.Any())
                 {
                     await context.SaveChangesAsync();
-                    _logger.LogInformation("{Count} expired borrowings removed at {Time}.", expiredBooks.Count, DateTime.UtcNow);
+                    _logger.LogInformation("{ExpiredCount} expired borrowings removed and {ReminderCount} reminders sent at {Time}.",
+                        expiredBooks.Count, booksToRemind.Count, DateTime.UtcNow);
                 }
             }
 
-            // Run the task once every 24 hours
             await Task.Delay(TimeSpan.FromDays(1), stoppingToken);
         }
     }
 
-    private async Task NotifyUserAsync(string email, string bookTitle)
+    private async Task SendReminderAsync(string email, string bookTitle, DateTime dueDate)
     {
-        // Replace with your email sending logic
-        _logger.LogInformation("Sending email to {Email} about availability of {BookTitle}.", email, bookTitle);
+        _logger.LogInformation("Sending reminder to {Email} about book '{BookTitle}' due on {DueDate}.",
+            email, bookTitle, dueDate);
 
-        // Example logic for sending email
         await Task.Run(() =>
         {
-            // Email sending logic here
+            Console.WriteLine($"Reminder sent to {email}: '{bookTitle}' is due on {dueDate:dd MMM yyyy}'.");
+        });
+    }
+
+    private async Task NotifyUserAsync(string email, string bookTitle)
+    {
+        _logger.LogInformation("Sending email to {Email} about availability of {BookTitle}.", email, bookTitle);
+
+        await Task.Run(() =>
+        {
             Console.WriteLine($"Email sent to {email}: '{bookTitle} is now available for borrowing.'");
         });
     }

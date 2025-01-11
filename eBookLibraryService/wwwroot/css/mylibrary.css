@@ -1,8 +1,8 @@
-﻿/* Global page settings with dark theme adjustments */
-body {
-    background-color: #000; /* Set background to black */
-    color: #fff; /* Set text color to white for contrast */
-    font-family: 'Poppins', sans-serif; /* Consistent font style */
+﻿body {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    margin: 0;
 }
 
 /* Adjust colors for headings for better readability */
@@ -118,4 +118,14 @@ h1, h2, .text-primary {
         flex: 0 0 33.333333%;
         max-width: 33.333333%;
     }
+}
+
+
+footer {
+    background-color: #1a1a1a;
+    color: #fff;
+    padding: 1rem 0;
+    position: relative;
+    bottom: 0;
+    width: 100%;
 }

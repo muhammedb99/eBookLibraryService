@@ -345,7 +345,7 @@ public async Task<IActionResult> BorrowBook(int bookId)
             {
                 "price_asc" => books.OrderBy(b => b.DiscountPrice ?? b.BuyingPrice),
                 "price_desc" => books.OrderByDescending(b => b.DiscountPrice ?? b.BuyingPrice),
-                "popular" => books.OrderByDescending(b => b.Popularity),
+                "popular" => books.OrderByDescending(b => b.BorrowCount + b.PurchaseCount),
                 "genre" => books.OrderBy(b => b.Genre),
                 "year" => books.OrderByDescending(b => b.YearOfPublishing),
                 _ => books
