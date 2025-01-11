@@ -28,6 +28,12 @@
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Index">Home</a>
                         </li>
+                        @if (signInManager.IsSignedIn(User))
+                        {
+                            <li class="nav-item">
+                                <a class="nav-link" asp-controller="Library" asp-action="Index">My Library</a>
+                            </li>
+                        }
                         <li class="nav-item">
                             <a class="nav-link" asp-area="" asp-controller="Home" asp-action="Privacy">Privacy</a>
                         </li>
@@ -40,9 +46,6 @@
                                     <a class="nav-link" asp-controller="Dashboard" asp-action="Index">Admin Dashboard</a>
                                 </li>
                             }
-                            <li class="nav-item">
-                                <a class="nav-link" asp-controller="Library" asp-action="Index">My Library</a>
-                            </li>
                             <li class="nav-item">
                                 <a class="nav-link" asp-controller="Contact" asp-action="Index">Contact Us</a>
                             </li>
