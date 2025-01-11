@@ -131,6 +131,9 @@
                                 @{
                                     var remainingTime = book.BorrowDueDate - DateTime.Now;
                                             <span>@($"{remainingTime.Days} days")</span>
+                                            <br />
+                                    <span>
+                                        @($"This book will be expired on:{book.BorrowDueDate} ")</span>
                                 }
                             </p>
                             <hr />
